@@ -1,0 +1,30 @@
+{
+    "stereo":{
+        "comments":["Zed camera"],
+        "baseline":0.120,
+        "feature":{
+            "comments":["Nf: N of features"],
+            "Nf":3000
+        },
+        "odometry":{
+            "comments":[
+                "mode: 1-triangulation, 2-depth",
+                "z_TH: z threshhold"
+            ],
+            "mode":1,
+            "z_TH" :50.0
+        },
+        "point_cloud":{
+            "z_TH": 21.0
+        },
+        "run":{
+            "show":false,
+            "enDepth":false,
+            "enWr":true
+        }
+
+    }
+}
+
+
+

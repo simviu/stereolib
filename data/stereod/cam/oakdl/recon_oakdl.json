@@ -1,0 +1,9 @@
+{
+    
+    "cams_cfg" : "../cam/oakdl/oakdl_stereo.json",
+    "frms":{
+        "labels":["L","R","C","D","N"],
+        "color_img":2,
+        "depth_img":3
+    }
+}

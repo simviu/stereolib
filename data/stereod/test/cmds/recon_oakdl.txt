@@ -1,0 +1,3 @@
+recon init cfg=rovd/cfg/recon_oakdl.json
+#recon frms dir=cur_frms
+recon frm dir=cur_frms i=10
