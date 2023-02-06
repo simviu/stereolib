@@ -10,6 +10,7 @@ namespace{
 }
 
 
+
 //-------
 void StereoCmd::init_cmds()
 {
@@ -20,6 +21,9 @@ void StereoCmd::init_cmds()
     [&](CStrs& args)->bool{ 
        return init(args);
     }));
+
+    assert(p_recon_!=nullptr);
+    Cmd::add("recon", p_recon_);    
     //----
     /*
     add("moveto", mkSp<Cmd>("xyz=x,y,z rvec=rx,ry,rz grip=[0:1]",
