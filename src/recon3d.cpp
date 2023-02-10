@@ -18,6 +18,35 @@ namespace{
     }; LCfg lc_;
     
 }
+//---- util
+namespace{
+    float fp16_to_float(uint16_t x)
+    {
+        unsigned sign = ((x >> 15) & 1);
+        unsigned exponent = ((x >> 10) & 0x1f);
+        unsigned mantissa = ((x & 0x3ff) << 13);
+        if (exponent == 0x1f) {  /* NaN or Inf */
+            mantissa = (mantissa ? (sign = 0, 0x7fffff) : 0);
+            exponent = 0xff;
+        } else if (!exponent) {  /* Denorm or Zero */
+            if (mantissa) {
+                unsigned int msb;
+                exponent = 0x71;
+                do {
+                    msb = (mantissa & 0x400000);
+                    mantissa <<= 1;  /* normalize */
+                    --exponent;
+                } while (!msb);
+                mantissa &= 0x7fffff;  /* 1.mantissa is implicit */
+            }
+        } else {
+            exponent += 0x70;
+        }
+        uint32_t temp = ((sign << 31) | (exponent << 23) | mantissa);
+
+        return *((float*)((void*)&temp));
+    }
+}
 //----
 bool Recon3d::Cfg::load(const string& sf)
 {
@@ -173,19 +202,24 @@ bool Recon3d::Frm::genPnts(const Cfg& cfg)
 
     auto& cc_c = cfg.cams.cams[i_c].camc;
     Sz sz = cc_c.sz;
-    pd->scale(sz);
+    //pd->scale(sz);
     ImgCv imcc(*pc);
     ImgCv imcd(*pd);
     cv::Mat imc = imcc.im_;
     cv::Mat imd = imcd.im_;
+    cv::resize(imd, imd, cv::Size(sz.w, sz.h), cv::INTER_NEAREST);
     int tpd = imd.type();
     cv::Mat K; cv::eigen2cv(cc_c.K, K);
     for(int i=0;i<imc.rows;i++)
         for(int j=0;j<imc.cols;j++)
         {
-            auto& d = imd.ptr<uint16_t>(i)[j];
+            auto& dx = imd.ptr<uint16_t>(i)[j];
+        //    double d = fp16_to_float(dx);
+            double d = dx;
             double z = d*0.001; // was mm
             auto c = imc.ptr<const BGR>(i)[j];
+            if(dx!=0)
+            { int dbg=0;}
             Points::Pnt p;
             p.c = {c.r,c.g,c.b,255};
             vec2 px; px << j,i;
