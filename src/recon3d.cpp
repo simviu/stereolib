@@ -189,6 +189,11 @@ bool Recon3d::onImg(Frm& f)
 //----
 bool Recon3d::Frm::genPnts(const Cfg& cfg)
 {
+    return genPnts_byDepth(cfg);
+}
+//----
+bool Recon3d::Frm::genPnts_byDepth(const Cfg& cfg)
+{
     int i_d = cfg.frms.depth_img;
     assert(i_d<imgs.size());
     auto pd = imgs[i_d];
@@ -226,6 +231,12 @@ bool Recon3d::Frm::genPnts(const Cfg& cfg)
             p.p = cc_c.proj(px, z);
             pnts.add(p);
         }
+    return true;
+}
+
+//----
+bool Recon3d::Frm::genPnts_byDisp(const Cfg& cfg)
+{
 
 
     //--- if depth image is disparity

@@ -62,6 +62,22 @@ namespace stereo
         SGBM sgbm;
         float vis_mul = 8.0;
     };
+    //---- Depth
+    class Depth{
+    public:
+        
+        //---- depth disparity map
+        Sp<Img> p_imd_ = nullptr;
+        //---- point cloud
+        struct PntCloud{
+            Sp<Points> p_dense  = nullptr;
+            Sp<Points> p_sparse = nullptr;
+        }; PntCloud pntc;
+        bool calc(const DisparityCfg& cfg,
+                  const Img& im1,
+                  const Img& im2);
+    };
+
     //Stereo video odometry
     class VO{
     public:
@@ -113,17 +129,7 @@ namespace stereo
             string str()const;
         };
         Cfg cfg_;
-        //---- Depth
-        class Depth{
-        public:
-            //---- depth disparity map
-            Sp<Img> p_imd_ = nullptr;
-            //---- point cloud
-            struct PntCloud{
-                Sp<Points> p_dense  = nullptr;
-                Sp<Points> p_sparse = nullptr;
-            }; PntCloud pntc;
-        };
+        
         //---- Frm data
         struct Frm{
             // Triangulated feature points
@@ -214,6 +220,8 @@ namespace stereo
             bool load_imgs(const Cfg& cfg, const string& sPath, int i);
             bool genPnts(const Cfg& cfg);
         protected:
+            bool genPnts_byDepth(const Cfg& cfg);
+            bool genPnts_byDisp(const Cfg& cfg);
         };
 
         Recon3d(){ init_cmds(); }
