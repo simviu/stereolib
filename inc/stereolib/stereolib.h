@@ -216,6 +216,7 @@ namespace stereo
             vector<Sp<Img>> imgs;
             Pose T;
             Points pnts;
+            Depth depth;
 
             bool recon(const Cfg& cfg);
             bool load(const Cfg& cfg, const string& sPath, int i);
