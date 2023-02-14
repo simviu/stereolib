@@ -67,12 +67,8 @@ namespace stereo
     public:
         
         //---- depth disparity map
-        Sp<Img> p_imd_ = nullptr;
-        //---- point cloud
-        struct PntCloud{
-            Sp<Points> p_dense  = nullptr;
-            Sp<Points> p_sparse = nullptr;
-        }; PntCloud pntc;
+        Sp<Img> p_im_disp_ = nullptr;
+        Sp<Img> p_im_depth_ = nullptr; // depth img
         bool calc(const DisparityCfg& cfg,
                   const Img& im1,
                   const Img& im2);
@@ -137,6 +133,12 @@ namespace stereo
             vec3s Pws; 
             //---- Depth
             Depth depth;
+            
+            //---- point cloud
+            struct PntCloud{
+                Sp<Points> p_dense  = nullptr;
+                Sp<Points> p_sparse = nullptr;
+            }; PntCloud pntc;
         };
         //----
         struct Data{

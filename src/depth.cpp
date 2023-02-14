@@ -110,6 +110,6 @@ bool Depth::calc(const DisparityCfg& cfg,
     p_fltr->filter(im_disp, imL, imdf, im_dispR);
 
     cv::Mat im_conf = p_fltr->getConfidenceMap();    
-    p_imd_ = mkSp<ocv::ImgCv>(imdf);
+    p_im_disp_ = mkSp<ocv::ImgCv>(imdf);
     return true;
 }
