@@ -71,7 +71,19 @@ bool Recon3d::Cfg::load(const string& sf)
         string sfc = fp.path + jd["cams_cfg"].asString();
         if(!cams.load(sfc)) 
             return false;
-        
+        //---
+        {
+            auto jf = jd["frms"];
+            for(auto& j : jf["labels"])
+                frms.sDirs.push_back(j.asString());
+            frms.color_img = std::stoi(jf["color_img"].asString());
+            frms.dispar_img = std::stoi(jf["dispar_img"].asString());
+            frms.depth_img = std::stoi(jf["depth_img"].asString());
+        }    
+        //---
+        string sfd = jd.get("disparity", "").asString();
+        if(sfd!="")
+            ok &= disp.load(fp.path + sfd);
     }
     catch(exception& e)
     {
@@ -189,7 +201,12 @@ bool Recon3d::onImg(Frm& f)
 //----
 bool Recon3d::Frm::genPnts(const Cfg& cfg)
 {
-    return genPnts_byDepth(cfg);
+    if(cfg.frms.depth_img>=0)
+        return genPnts_byDepth(cfg);
+    else if(cfg.frms.dispar_img)
+        return genPnts_byDisp(cfg);
+    else // from L/R stereo scratch
+        return genPnts_byLR(cfg);
 }
 //----
 bool Recon3d::Frm::genPnts_byDepth(const Cfg& cfg)
@@ -233,11 +250,17 @@ bool Recon3d::Frm::genPnts_byDepth(const Cfg& cfg)
         }
     return true;
 }
-
+//----
+bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
+{
+    // img 0/1 are always L/R
+    assert(imgs.size()>1);
+    depth.calc(cfg.disp, *imgs[0], *imgs[1]);
+    return true;
+}
 //----
 bool Recon3d::Frm::genPnts_byDisp(const Cfg& cfg)
 {
-
 
     //--- if depth image is disparity
     /*

@@ -78,6 +78,36 @@ namespace{
     } 
     
 }
+//-----------
+bool DisparityCfg::load(const string& sf)
+{
+
+    log_i("  Load Disparity cfg :'"+sf+"'...");
+    ifstream ifs(sf);
+    bool ok = true;
+    if(!ifs)
+    {
+        log_ef(sf);
+        return false;
+    }
+    //----
+    try{
+        Json::Reader rdr;
+        Json::Value jd;
+        rdr.parse(ifs, jd);
+        auto& jp = jd["disparity"];
+        ok = decode(jp, *this);
+        
+    }
+    catch(exception& e)
+    {
+        log_e("exception caught:"+string(e.what()));
+        return false;
+    }
+    if(!ok) log_e(" DisparityCfg::load() json failed");
+
+    return ok;
+}
 
 //-----------
 string VO::Cfg::str()const

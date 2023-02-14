@@ -61,6 +61,7 @@ namespace stereo
         
         SGBM sgbm;
         float vis_mul = 8.0;
+        bool load(const string& sf);
     };
     //---- Depth
     class Depth{
@@ -202,11 +203,12 @@ namespace stereo
     public:
         struct Cfg{
             CamsCfg cams;
-
+            DisparityCfg disp;
             struct FrmsCfg{
                 vector<string> sDirs{"L","R","C","D","N"};                
                 int color_img = 2;
-                int depth_img = 3; // TODO: json
+                int dispar_img = -1;
+                int depth_img = -1; // TODO: json
             }; FrmsCfg frms;
 
             bool load(const string& sf);
@@ -225,6 +227,7 @@ namespace stereo
         protected:
             bool genPnts_byDepth(const Cfg& cfg);
             bool genPnts_byDisp(const Cfg& cfg);
+            bool genPnts_byLR(const Cfg& cfg);
         };
 
         Recon3d(){ init_cmds(); }
@@ -242,9 +245,6 @@ namespace stereo
         }; Data data_;
         void show(const Frm& f);
     };
-
-
-
 
     //-----
     class StereoCmd : public Cmd
