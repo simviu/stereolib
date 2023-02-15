@@ -6,7 +6,7 @@
    Website: https://www.simviu.com
  */
 
-#include "stereolib/stereolib.h"
+#include "stereolib/stereolibCv.h"
 #include "json/json.h"
 #include "vsn/vsnLibCv.h"
 
@@ -47,7 +47,23 @@ namespace{
         return *((float*)((void*)&temp));
     }
 }
-//----
+
+//----------
+// ReconFrm
+//----------
+// Factory
+Sp<Recon3d::Frm> Recon3d::Frm::create()
+{
+    return mkSp<ReconFrm>();
+}
+//-------
+bool ReconFrm::calc(const Recon3d::Cfg& cfg)
+{
+    return true;
+}
+
+
+//------------------------------
 bool Recon3d::Cfg::load(const string& sf)
 {
 
@@ -284,22 +300,26 @@ bool Recon3d::run_frm(const string& sPath, int i)
 {
 
     log_i("frm:"+str(i));
-    Frm f;
-    if(!f.load(cfg_, sPath, i))
+    auto p = Frm::create();
+    if(!p->load(cfg_, sPath, i))
         return false;
     
     //---- call
-    onImg(f);
+    bool ok = p->calc(cfg_);
+    if(!ok)
+    {
+        log_e("Recon3d::run_frm() failed");
+        return false;
+    }
+    
 
-    //--- show
-    show(f);
-
-    while(1)
+    while(ok)
     {
         assert(data_.p_pvis_frm!=nullptr);
         data_.p_pvis_frm->spin();
         sys::sleep(1.0/lc_.fps);    
     }
+    return ok;
 }
 
 //----
@@ -311,15 +331,15 @@ bool Recon3d::run_frms(const string& sPath)
     {
         i++;
         log_i("frm:"+str(i));
-        Frm f;
-        if(!f.load(cfg_, sPath, i))
+        auto p = Frm::create();
+        if(!p->load(cfg_, sPath, i))
             break;
         
         //---- call
-        onImg(f);
+        p->calc(cfg_);
 
         //--- show
-        show(f);
+        show(*p);
         sys::sleep(1.0/lc_.fps);
     }
     return true;

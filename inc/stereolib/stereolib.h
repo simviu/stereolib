@@ -220,10 +220,14 @@ namespace stereo
             Points pnts;
             Depth depth;
 
+            virtual bool calc(const Cfg& cfg)=0;
+            static Sp<Frm> create();
+
             bool recon(const Cfg& cfg);
             bool load(const Cfg& cfg, const string& sPath, int i);
             bool load_imgs(const Cfg& cfg, const string& sPath, int i);
             bool genPnts(const Cfg& cfg);
+            void show();
         protected:
             bool genPnts_byDepth(const Cfg& cfg);
             bool genPnts_byDisp(const Cfg& cfg);

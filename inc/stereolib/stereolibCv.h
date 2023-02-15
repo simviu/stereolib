@@ -75,5 +75,12 @@ namespace stereo
                     Depth& depth);
 
     };
+    //---- impl Recon3d::Frm
+    class ReconFrm : public Recon3d::Frm
+    {
+    public:
+        virtual bool calc(const Recon3d::Cfg& cfg)override;
+
+    };
 
 } // stereo
