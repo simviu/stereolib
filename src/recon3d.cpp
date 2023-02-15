@@ -276,8 +276,8 @@ bool Recon3d::Frm::genPnts_byDisp(const Cfg& cfg)
     int tp3 = im3d.type();
     */
     //----
-
-    return true;
+    log_e("not yet");
+    return false;
 }
 //----
 bool Recon3d::run_frm(const string& sPath, int i)
