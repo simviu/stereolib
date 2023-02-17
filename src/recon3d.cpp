@@ -271,7 +271,10 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
 {
     // img 0/1 are always L/R
     assert(imgs.size()>1);
-    depth.calc(cfg.disp, *imgs[0], *imgs[1]);
+    bool ok = true;
+    ok &= depth.calc(cfg.disp, *imgs[0], *imgs[1]);
+
+    cv::Mat imd = img2cv(depth.p_im_disp_);
     return true;
 }
 //----
