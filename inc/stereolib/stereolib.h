@@ -228,7 +228,17 @@ namespace stereo
             bool load_imgs(const Cfg& cfg, const string& sPath, int i);
             bool genPnts(const Cfg& cfg);
             void show();
+
+            //----
+            struct Data{
+                Sp<Img> p_imd = nullptr; 
+                //--- undistorted
+                Sp<Img> undis_imgs;
+            };
+            auto& data()const{ return data_; }
         protected:
+            Data data_;
+
             bool genPnts_byDepth(const Cfg& cfg);
             bool genPnts_byDisp(const Cfg& cfg);
             bool genPnts_byLR(const Cfg& cfg);

@@ -358,11 +358,12 @@ bool Recon3d::Frm::recon(const Cfg& cfg)
 //----
 void Recon3d::show(const Frm& f)
 {
+    //--- local points
     assert(data_.p_pvis_frm!=nullptr);
     auto& vis = *data_.p_pvis_frm;
-    //--- local points
     vis.clear();
     vis.add(f.pnts, "frm");
     vis.spin();
 
+    
 }
