@@ -156,35 +156,6 @@ bool Recon3d::Frm::load(const Cfg& cfg, const string& sPath, int i)
     ok &= load_imgs(cfg, sPath, i);
     return ok;
 }
-//----
-void Recon3d::init_cmds()
-{
-    sHelp_ = "(Recon 3d point cloud from frms)";
-
-
-    Cmd::add("init", mkSp<Cmd>("cfg=<CFG_FILE>",
-    [&](CStrs& args)->bool{ 
-        StrTbl kv; parseKV(args, kv);
-        return cfg_.load(lookup(kv, "cfg")); 
-    }));
-
-    Cmd::add("frms", mkSp<Cmd>("dir=<DIR> (Run frms)",
-    [&](CStrs& args)->bool{ 
-        StrTbl kv; parseKV(args, kv);
-        string sdir = lookup(kv, "dir"); 
-        return run_frms(sdir); 
-    }));
-
-    Cmd::add("frm", mkSp<Cmd>("dir=<DIR> i=<IDX> (Run one frm)",
-    [&](CStrs& args)->bool{ 
-        StrTbl kv; parseKV(args, kv);
-        string sdir = lookup(kv, "dir"); 
-        int i=-1; s2d(lookup(kv, "i"), i); 
-        if(i<0) return false;
-        return run_frm(sdir, i); 
-    }));
-}
-
 
 //----
 bool Recon3d::Frm::genPnts(const Cfg& cfg)
@@ -271,10 +242,49 @@ bool Recon3d::Frm::genPnts_byDisp(const Cfg& cfg)
     return false;
 }
 
+//-----
+bool Recon3d::Frm::recon(const Cfg& cfg)
+{
+    bool ok = true;
+    ok &= genPnts(cfg);
+    return true;
 
+}
 //----------
 // Recon3d
 //----------
+//----
+void Recon3d::init_cmds()
+{
+    sHelp_ = "(Recon 3d point cloud from frms)";
+
+
+    Cmd::add("init", mkSp<Cmd>("cfg=<CFG_FILE>",
+    [&](CStrs& args)->bool{ 
+        StrTbl kv; parseKV(args, kv);
+        return cfg_.load(lookup(kv, "cfg")); 
+    }));
+
+    Cmd::add("frms", mkSp<Cmd>("dir=<DIR> (Run frms)",
+    [&](CStrs& args)->bool{ 
+        StrTbl kv; parseKV(args, kv);
+        string sdir = lookup(kv, "dir"); 
+        return run_frms(sdir); 
+    }));
+
+    Cmd::add("frm", mkSp<Cmd>("dir=<DIR> i=<IDX> (Run one frm)",
+    [&](CStrs& args)->bool{ 
+        StrTbl kv; parseKV(args, kv);
+        string sdir = lookup(kv, "dir"); 
+        int i=-1; s2d(lookup(kv, "i"), i); 
+        if(i<0) return false;
+        return run_frm(sdir, i); 
+    }));
+}
+
+
+
+//---
 bool Recon3d::onImg(Frm& f)
 {
     //---- recon
@@ -334,14 +344,7 @@ bool Recon3d::run_frms(const string& sPath)
     }
     return true;
 }
-//-----
-bool Recon3d::Frm::recon(const Cfg& cfg)
-{
-    bool ok = true;
-    ok &= genPnts(cfg);
-    return true;
 
-}
 //----
 void Recon3d::show(const Frm& f)
 {
