@@ -59,6 +59,8 @@ Sp<Recon3d::Frm> Recon3d::Frm::create()
 //-------
 bool ReconFrm::calc(const Recon3d::Cfg& cfg)
 {
+    bool ok = true;
+    ok &= recon(cfg);
     return true;
 }
 
@@ -277,7 +279,10 @@ bool Recon3d::onImg(Frm& f)
 {
     //---- recon
     bool ok = true;
-    ok &= f.recon(cfg_);
+    ok &= f.calc(cfg_);
+
+    //--- show
+    return true;
 
 }
 //----
@@ -290,7 +295,7 @@ bool Recon3d::run_frm(const string& sPath, int i)
         return false;
     
     //---- call
-    bool ok = p->calc(cfg_);
+    bool ok = onImg(*p);
     if(!ok)
     {
         log_e("Recon3d::run_frm() failed");
@@ -321,7 +326,7 @@ bool Recon3d::run_frms(const string& sPath)
             break;
         
         //---- call
-        p->calc(cfg_);
+        onImg(*p);
 
         //--- show
         show(*p);
