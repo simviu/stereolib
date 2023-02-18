@@ -274,7 +274,7 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     bool ok = true;
     ok &= depth.calc(cfg.disp, *imgs[0], *imgs[1]);
 
-    cv::Mat imd = img2cv(depth.p_im_disp_);
+    cv::Mat imd = img2cv(*depth.p_im_disp_);
     return true;
 }
 //----
