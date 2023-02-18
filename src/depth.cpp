@@ -23,14 +23,13 @@ namespace{
 
 
 //----------------
-bool Depth::calc(const DisparityCfg& cfg,
-                 const Img& im1, 
-                 const Img& im2)
+bool Depth::calc_dispar(const DisparityCfg& cfg,
+                        const Img& im1, 
+                        const Img& im2)
 {
     ocv::ImgCv imc1(im1);
     ocv::ImgCv imc2(im2);
 
-    bool ok = true;
    
     //---------------
     // Setting Ref : 
@@ -110,6 +109,6 @@ bool Depth::calc(const DisparityCfg& cfg,
     p_fltr->filter(im_disp, imL, imdf, im_dispR);
 
     cv::Mat im_conf = p_fltr->getConfidenceMap();    
-    p_im_disp_ = mkSp<ocv::ImgCv>(imdf);
+    p_im_disp = mkSp<ocv::ImgCv>(imdf);
     return true;
 }

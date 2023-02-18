@@ -352,7 +352,7 @@ bool CamsCfg::init_rectify()
                 pu->map1, pu->map2);
 
         auto& cc = cams[i].camc;
-        cc.p_undist_ = pu;
+        cc.p_udmap = pu;
         
     }
     //--- fill Q mat for reproj 3d

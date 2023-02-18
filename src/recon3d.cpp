@@ -60,6 +60,11 @@ Sp<Recon3d::Frm> Recon3d::Frm::create()
 bool ReconFrm::calc(const Recon3d::Cfg& cfg)
 {
     bool ok = true;
+
+    //--- undistortion map(rectify)
+    ok &= rectify(cfg.cams);
+
+    //--- recon
     ok &= recon(cfg);
     return true;
 }
@@ -156,6 +161,21 @@ bool Recon3d::Frm::load(const Cfg& cfg, const string& sPath, int i)
     ok &= load_imgs(cfg, sPath, i);
     return ok;
 }
+//----
+bool Recon3d::Frm::rectify(const CamsCfg& camcs)
+{
+    assert(camcs.cams.size()>imgs.size());
+    int i=0;
+    for(auto p : imgs)
+    {
+        auto& cc = camcs.cams[i++];
+        auto p_um = cc.p_udmap;
+        assert(p_um!=nullptr);
+        auto pu = p_um->remap(*p);  
+        ud_imgs.push_back(pu);      
+    }
+    return true;
+}
 
 //----
 bool Recon3d::Frm::genPnts(const Cfg& cfg)
@@ -164,7 +184,7 @@ bool Recon3d::Frm::genPnts(const Cfg& cfg)
         return genPnts_byDepth(cfg);
     else if(cfg.frms.dispar_img)
         return genPnts_byDisp(cfg);
-    else // from L/R stereo scratch
+    else // Full pipeline L/R stereo from scratch
         return genPnts_byLR(cfg);
 }
 //----
@@ -215,9 +235,14 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     // img 0/1 are always L/R
     assert(imgs.size()>1);
     bool ok = true;
-    ok &= depth.calc(cfg.disp, *imgs[0], *imgs[1]);
 
-    cv::Mat imd = img2cv(*depth.p_im_disp_);
+    //---- calc disparity
+    ok &= depth.calc(cfg.disp, *imgs[0], *imgs[1]);
+    auto p_imd = depth.p_im_disp_;
+    assert(p_imd);
+    cv::Mat imd = img2cv(*p_imd);
+
+    //---- calc depth
     return true;
 }
 //----
@@ -287,6 +312,7 @@ void Recon3d::init_cmds()
 //---
 bool Recon3d::onImg(Frm& f)
 {
+    
     //---- recon
     bool ok = true;
     ok &= f.calc(cfg_);
@@ -348,28 +374,23 @@ bool Recon3d::run_frms(const string& sPath)
 //----
 void Recon3d::show(const Frm& f)
 {
-     // show color
-    if(0)
+    auto& fd = f.data();
+
+    //---- show undistorted imgs
+    auto& ud_imgs = fd.ud_imgs;
+    auto pL = ud_imgs[0];
+    auto pR = ud_imgs[1];
+    pL->show("Left undistorted");
+    pR->show("Right undistorted");
+
+    // show color img
+    int i_c = cfg_.frms.color_img;
+    if(i_c>1)
     {
-        int i = cfg_.frms.color_img;
-        assert(i<f.imgs.size());
-        auto p = f.imgs[i];
-        if(p!=nullptr)
-            p->show("Color");
+        assert(i_c>=ud_imgs.size());
+        auto pC = ud_imgs[i_c];
+        pC->show("Color undistorted");
     }
-    //---- show undistorted img L
-    {
-        auto p = f.imgs[0];
-        assert(p!=nullptr);
-        p->show("Left");
-        auto& cc = cfg_.cams.cams[0].camc;
-        auto pu = cc.p_undist_;
-        assert(pu!=nullptr);
-        auto p1 = pu->remap(*p);
-        //----
-        p1->show("Left undist");
-    }
-    
     //--- local points
     assert(data_.p_pvis_frm!=nullptr);
     auto& vis = *data_.p_pvis_frm;

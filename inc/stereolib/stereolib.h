@@ -68,11 +68,13 @@ namespace stereo
     public:
         
         //---- depth disparity map
-        Sp<Img> p_im_disp_ = nullptr;
-        Sp<Img> p_im_depth_ = nullptr; // depth img
-        bool calc(const DisparityCfg& cfg,
-                  const Img& im1,
-                  const Img& im2);
+        Sp<Img> p_im_disp = nullptr;
+         // depth img
+        Sp<Img> p_im_depth = nullptr;
+
+        bool calc_dispar(const DisparityCfg& cfg,
+                         const Img& im1,
+                         const Img& im2);
     };
 
     //Stereo video odometry
@@ -227,14 +229,17 @@ namespace stereo
             bool load(const Cfg& cfg, const string& sPath, int i);
             bool load_imgs(const Cfg& cfg, const string& sPath, int i);
             bool genPnts(const Cfg& cfg);
-
+            bool rectify(const CamsCfg& camcs);
             //----
             struct Data{
-                Sp<Img> p_imd = nullptr; 
-                //--- undistorted
-                Sp<Img> undis_imgs;
+                Sp<Img> p_im_disp = nullptr; 
+                Sp<Img> p_im_depth = nullptr;
+                
+                //--- undistorted, 0,1,2 -> L,R,C
+                Sp<Img> ud_imgs;
             };
             auto& data()const{ return data_; }
+            
         protected:
             Data data_;
 
