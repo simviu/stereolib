@@ -182,38 +182,8 @@ void Recon3d::init_cmds()
         return run_frm(sdir, i); 
     }));
 }
-//----
-bool Recon3d::onImg(Frm& f)
-{
-    // show color
-    if(0)
-    {
-        int i = cfg_.frms.color_img;
-        assert(i<f.imgs.size());
-        auto p = f.imgs[i];
-        if(p!=nullptr)
-            p->show("Color");
-    }
-    //---- show undistorted img L
-    {
-        auto p = f.imgs[0];
-        assert(p!=nullptr);
-        p->show("Left");
-        auto& cc = cfg_.cams.cams[0].camc;
-        auto pu = cc.p_undist_;
-        assert(pu!=nullptr);
-        auto p1 = pu->remap(*p);
-        //----
-        p1->show("Left undist");
-    }
-    //---- recon
-    bool ok = true;
-    ok &= f.recon(cfg_);
 
 
-    return true;
-
-}
 //----
 bool Recon3d::Frm::genPnts(const Cfg& cfg)
 {
@@ -298,6 +268,18 @@ bool Recon3d::Frm::genPnts_byDisp(const Cfg& cfg)
     log_e("not yet");
     return false;
 }
+
+
+//----------
+// Recon3d
+//----------
+bool Recon3d::onImg(Frm& f)
+{
+    //---- recon
+    bool ok = true;
+    ok &= f.recon(cfg_);
+
+}
 //----
 bool Recon3d::run_frm(const string& sPath, int i)
 {
@@ -358,6 +340,28 @@ bool Recon3d::Frm::recon(const Cfg& cfg)
 //----
 void Recon3d::show(const Frm& f)
 {
+     // show color
+    if(0)
+    {
+        int i = cfg_.frms.color_img;
+        assert(i<f.imgs.size());
+        auto p = f.imgs[i];
+        if(p!=nullptr)
+            p->show("Color");
+    }
+    //---- show undistorted img L
+    {
+        auto p = f.imgs[0];
+        assert(p!=nullptr);
+        p->show("Left");
+        auto& cc = cfg_.cams.cams[0].camc;
+        auto pu = cc.p_undist_;
+        assert(pu!=nullptr);
+        auto p1 = pu->remap(*p);
+        //----
+        p1->show("Left undist");
+    }
+    
     //--- local points
     assert(data_.p_pvis_frm!=nullptr);
     auto& vis = *data_.p_pvis_frm;
