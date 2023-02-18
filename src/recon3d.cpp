@@ -292,6 +292,7 @@ bool Recon3d::onImg(Frm& f)
     ok &= f.calc(cfg_);
 
     //--- show
+    show(f);
     return true;
 
 }
@@ -338,8 +339,7 @@ bool Recon3d::run_frms(const string& sPath)
         //---- call
         onImg(*p);
 
-        //--- show
-        show(*p);
+        
         sys::sleep(1.0/lc_.fps);
     }
     return true;

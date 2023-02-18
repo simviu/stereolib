@@ -4,7 +4,7 @@
     "frms":{
         "labels":["L","R","C","D","N"],
         "color_img":2,
-        "depth_img":-1,
+        "depth_img":3,
         "dispar_img":-1
     },
     "disparity": "disparity.json"
