@@ -90,12 +90,14 @@ bool CamsCfg::init_rectify()
     }
     //----
     struct Cd{ cv::Mat K,D,Ro,P,map1, map2; };
-    Cd cd[2];
-    for(int i=0;i<2;i++)
+    vector<Cd> cds;
+    for(int i=0;i<cams.size();i++)
     {
         auto& cc = cams[i].camc;
-        cv::eigen2cv(cc.K, cd[i].K);
-        cv::eigen2cv(cc.D, cd[i].D);
+        Cd cd;
+        cv::eigen2cv(cc.K, cd.K);
+        cv::eigen2cv(cc.D, cd.D);
+        cds.push_back(cd);
     }
     
     //----
@@ -111,18 +113,18 @@ bool CamsCfg::init_rectify()
     cv::eigen2cv(mat3(cams[1].T.q), R);
     cv::eigen2cv(cams[1].T.t, t);
     //---
-    cv::stereoRectify(cd[0].K, cd[0].D, 
-                      cd[1].K, cd[1].D,
+    cv::stereoRectify(cds[0].K, cds[0].D, 
+                      cds[1].K, cds[1].D,
                       imsz, R, t, 
-                      cd[0].Ro, cd[1].Ro, 
-                      cd[0].P,  cd[1].P, Q);
+                      cds[0].Ro, cds[1].Ro, 
+                      cds[0].P,  cds[1].P, Q);
     //--- fill remap map1/map2 for undistortion
     auto p = mkSp<CamsCfgCvd>();
     p_cv_data = p;
     auto& cvd = *p;
-    for(int i=0;i<2;i++)
+    for(int i=0;i<cams.size();i++)
     {
-        auto& d = cd[i];
+        auto& d = cds[i];
         CamsCfgCvd::RemapD rmd;
         cv::initUndistortRectifyMap(
                 d.K, d.D, d.Ro, d.P, imsz, CV_32FC1,
