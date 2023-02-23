@@ -8,6 +8,7 @@
 
 
 #include "stereolib/stereolibCv.h"
+#include "json/json.h"
 
 #include "vsn/vsnLibCv.h"
 //#include <opencv2/sfm/triangulation.hpp>
@@ -18,8 +19,76 @@
 using namespace stereo;
 //----
 namespace{
+    //---- load SGBM json cfg
+    bool decode(const Json::Value& j,
+                SGBM& c)
+    {
+        c.minDisparity = j["minDisparity"].asInt();
+        c.numDisparities = j["numDisparities"].asInt();
+        c.blockSize = j["blockSize"].asInt();
+        c.P1 = j["P1"].asInt();
+        c.P2 = j["P2"].asInt();
+        c.disp12MaxDiff = j["disp12MaxDiff"].asInt();
+        c.preFilterCap = j["preFilterCap"].asInt();
+        c.uniquenessRatio = j["uniquenessRatio"].asInt();
+        c.speckleWindowSize = j["speckleWindowSize"].asInt();
+        c.speckleRange = j["speckleRange"].asInt();
+
+        //---- filter
+        //----
+        auto& jw = j["wls_filter"];
+        auto& wls = c.wls_filter;
+        wls.en = jw["en"].asBool();
+        wls.lambda = jw["lambda"].asFloat();
+        wls.sigma  = jw["sigma"].asFloat();
+
+        return true;
+    
+    }
+    //----
+    bool decode(const Json::Value& j, 
+                DisparityCfg& c)
+    {
+        bool ok = true;
+        ok &= decode(j["sgbm"], c.sgbm);
+        
+        //----
+        c.vis_mul = j["vis_mul"].asFloat();
+
+        return ok;
+    } 
 }
 
+//-----------
+bool DisparityCfg::load(const string& sf)
+{
+
+    log_i("  Load Disparity cfg :'"+sf+"'...");
+    ifstream ifs(sf);
+    bool ok = true;
+    if(!ifs)
+    {
+        log_ef(sf);
+        return false;
+    }
+    //----
+    try{
+        Json::Reader rdr;
+        Json::Value jd;
+        rdr.parse(ifs, jd);
+        auto& jp = jd["disparity"];
+        ok = decode(jp, *this);
+        
+    }
+    catch(exception& e)
+    {
+        log_e("exception caught:"+string(e.what()));
+        return false;
+    }
+    if(!ok) log_e(" DisparityCfg::load() json failed");
+
+    return ok;
+}
 
 
 //----------------

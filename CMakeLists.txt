@@ -25,6 +25,7 @@ message(STATUS "vsnLb_DIR=$ENV{vsnLib_DIR}")
 
 include_directories(
     inc 
+    ${OpenCV_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIR}
     $ENV{vsnLib_DIR}/inc
     ${JsonCpp_INCLUDE_DIR}

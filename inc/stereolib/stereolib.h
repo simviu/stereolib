@@ -25,14 +25,16 @@ namespace stereo
             Pose T; 
         };
         vector<OneCam> cams;
-        //-- stereo rectify
-        struct Rectify{
-            matxd Q; // for reproj 3d
-        }; Rectify rectify;
+        //--- cv data, virtual
+        struct CvData{
+            virtual Sp<Img> remap(const Img& im, int cam_id)const = 0;
+        };
         
         //--
         bool load(const string& sf);
+        auto get_cvd()const { return p_cv_data; }
     protected:
+        Sp<CvData> p_cv_data= nullptr;
         bool init_rectify();
         string str()const;
     };

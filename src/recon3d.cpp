@@ -164,15 +164,16 @@ bool Recon3d::Frm::load(const Cfg& cfg, const string& sPath, int i)
 //----
 bool Recon3d::Frm::rectify(const CamsCfg& camcs)
 {
+  //  auto& ccvd = cast_imp(*camcs.get_cvd());
     assert(camcs.cams.size()>imgs.size());
+  //  assert(camcs.cams.size()==ccvd.remapds.size());
+    auto& cvd = *camcs.get_cvd();
+
     int i=0;
     for(auto p : imgs)
     {
-        auto& cc = camcs.cams[i++];
-        auto p_um = cc.p_udmap;
-        assert(p_um!=nullptr);
-        auto pu = p_um->remap(*p);  
-        ud_imgs.push_back(pu);      
+        auto pu = cvd.remap(*p, i++);  
+        data.ud_imgs.push_back(pu);  
     }
     return true;
 }
@@ -237,8 +238,9 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     bool ok = true;
 
     //---- calc disparity
-    ok &= depth.calc(cfg.disp, *imgs[0], *imgs[1]);
-    auto p_imd = depth.p_im_disp_;
+    ok &= depth.calc_dispar(cfg.disp, *imgs[0], *imgs[1]);
+    if(!ok) return false;
+    auto p_imd = depth.p_im_disp;
     assert(p_imd);
     cv::Mat imd = img2cv(*p_imd);
 

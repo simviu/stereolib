@@ -82,5 +82,19 @@ namespace stereo
         virtual bool calc(const Recon3d::Cfg& cfg)override;
 
     };
+    //---- cv data
+    class CamsCfgCvd : public CamsCfg::CvData
+    {
+    public:
+        struct RemapD{
+            cv::Mat map1, map2;
+        };     
+        vector<RemapD> remapds; // for each camera
+        //Q matrix from stereo rectify
+        cv::Mat Q;
+        virtual Sp<Img> remap(const Img& im, int cam_id)const override;
+    };
+    inline auto& cast_imp(const CamsCfg::CvData& d)
+    { return reinterpret_cast<const CamsCfgCvd&>(d); }
 
 } // stereo
