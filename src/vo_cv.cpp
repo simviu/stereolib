@@ -387,7 +387,7 @@ bool VOcv::genDepth(const Img& im1,
     bool ok = true;
     //---- quasi slow and result not good
  // ok &= run_quasi(im1, im2, depth);
-    ok &= depth.calc(cfg_.dispar, im1, im2);
+    ok &= depth.calc_dispar(cfg_.dispar, im1, im2);
     return ok;
 
 }
@@ -412,7 +412,7 @@ bool VOcv::run_quasi(const Img& im1,
 
     vector<cv::stereo::MatchQuasiDense> matches;
     stereo->getDenseMatches(matches);
-    depth.p_im_disp_ = mkSp<ocv::ImgCv>(im_disp);
+    depth.p_im_disp = mkSp<ocv::ImgCv>(im_disp);
     return ok;
 }
 
@@ -434,7 +434,7 @@ bool VOcv::genDense(const Img& imL)
     double b = cfg_.baseline;
 
     //----
-    auto p_imd = depth.p_im_disp_;
+    auto p_imd = depth.p_im_disp;
     if(p_imd==nullptr) return false;
     cv::Mat imd = ImgCv(*p_imd).im_;
 
@@ -480,7 +480,7 @@ void VOcv::show()
     auto& depth = frmo.depth;
     auto& pntc = frmo.pntc;
     //---- show disparity img
-    auto p_imd = frmo.depth.p_im_disp_;
+    auto p_imd = frmo.depth.p_im_disp;
     if(p_imd != nullptr)
     {
         auto& dc = cfg_.dispar;

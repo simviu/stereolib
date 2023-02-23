@@ -173,7 +173,7 @@ bool Recon3d::Frm::rectify(const CamsCfg& camcs)
     for(auto p : imgs)
     {
         auto pu = cvd.remap(*p, i++);  
-        data.ud_imgs.push_back(pu);  
+        data_.ud_imgs.push_back(pu);  
     }
     return true;
 }

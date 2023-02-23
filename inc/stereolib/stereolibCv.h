@@ -92,7 +92,7 @@ namespace stereo
         vector<RemapD> remapds; // for each camera
         //Q matrix from stereo rectify
         cv::Mat Q;
-        virtual Sp<Img> remap(const Img& im, int cam_id)const override;
+        virtual Sp<Img> remap(Img& im, int cam_id)const override;
     };
     inline auto& cast_imp(const CamsCfg::CvData& d)
     { return reinterpret_cast<const CamsCfgCvd&>(d); }

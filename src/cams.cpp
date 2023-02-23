@@ -138,7 +138,7 @@ bool CamsCfg::init_rectify()
 }
 
 //---
-Sp<Img> CamsCfgCvd::remap(const Img& im, int cam_id)const 
+Sp<Img> CamsCfgCvd::remap(Img& im, int cam_id)const 
 {
     assert(cam_id < remapds.size());
     auto& rmd = remapds[cam_id];

@@ -13,7 +13,13 @@
 using namespace stereo;
 namespace test
 {
-    
+    //----
+    class TestVO : public ut::Test{
+    public:
+        virtual bool run() override;
+    protected:
+    };    
+    //-----
     class TestStereo : public Test
     {
     public:
@@ -21,6 +27,8 @@ namespace test
     protected:
         bool testKittyGray()const;
         bool test_imgLR()const;
+        bool test_misc();
 
     };
+
 }

@@ -27,7 +27,7 @@ namespace stereo
         vector<OneCam> cams;
         //--- cv data, virtual
         struct CvData{
-            virtual Sp<Img> remap(const Img& im, int cam_id)const = 0;
+            virtual Sp<Img> remap(Img& im, int cam_id)const = 0;
         };
         
         //--
@@ -238,7 +238,7 @@ namespace stereo
                 Sp<Img> p_im_depth = nullptr;
                 
                 //--- undistorted, 0,1,2 -> L,R,C
-                Sp<Img> ud_imgs;
+                vector<Sp<Img>> ud_imgs;
             };
             auto& data()const{ return data_; }
             

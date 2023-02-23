@@ -78,7 +78,13 @@ bool VO::Cfg::load(const string& sf)
         auto& jf = js["feature"];
         feature.Nf = jf["Nf"].asInt();
         //--- disparity cfg
-        decode(js["disparity"], dispar);
+        string sfd = js["disparity"].asString();
+        if(sfd=="" || (!dispar.load(sfd)))
+        {
+            log_ef("Fail to load  disparity cfg file:"+sfd+"'");
+            return false;
+        }
+
         //---- point cloud
         {
             auto& jpc = js["point_cloud"];
