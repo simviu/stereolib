@@ -22,6 +22,7 @@ string CamsCfg::str()const
     {
         s << "  cam "+to_string(i++)+
                 " '" << c.sName << "': ";
+        s << "("+c.camc.sz.str()+") ";
         s << "  T=" << c.T.str() << "\n";
     }
 
@@ -122,6 +123,7 @@ bool CamsCfg::init_rectify()
     auto p = mkSp<CamsCfgCvd>();
     p_cv_data = p;
     auto& cvd = *p;
+    /*
     for(int i=0;i<cams.size();i++)
     {
         auto& d = cds[i];
@@ -132,6 +134,7 @@ bool CamsCfg::init_rectify()
         cvd.remapds.push_back(rmd);
         
     }
+    */
     //--- fill Q mat for reproj 3d
     int tpQ = Q.type();
     cvd.Q = Q;
@@ -139,6 +142,7 @@ bool CamsCfg::init_rectify()
     return true;
 }
 
+/*
 //---
 Sp<Img> CamsCfgCvd::remap(Img& im, int cam_id)const 
 {
@@ -148,7 +152,15 @@ Sp<Img> CamsCfgCvd::remap(Img& im, int cam_id)const
     auto p = mkSp<ImgCv>();
     cv::Mat imc = img2cv(im);
     cv::Mat imr;
+    //--- dbg
+    stringstream s;
+    s << "--- remap cam:" << cam_id;
+    s << "  imc: " << imc.rows;
+    s << "x" << imc.cols;
+    s << endl;
+    //---
     cv::remap(imc, p->im_, rmd.map1, rmd.map2, 
                     cv::INTER_LANCZOS4);
     return p;
 }
+*/

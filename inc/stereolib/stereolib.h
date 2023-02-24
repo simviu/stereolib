@@ -27,7 +27,7 @@ namespace stereo
         vector<OneCam> cams;
         //--- cv data, virtual
         struct CvData{
-            virtual Sp<Img> remap(Img& im, int cam_id)const = 0;
+          //  virtual Sp<Img> remap(Img& im, int cam_id)const = 0;
         };
         
         //--
