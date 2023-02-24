@@ -61,6 +61,10 @@ bool ReconFrm::calc(const Recon3d::Cfg& cfg)
 {
     bool ok = true;
 
+    //---- calc disparity
+    ok &= depth.calc_dispar(cfg.disp, *imgs[0], *imgs[1]);
+    if(!ok) return false;
+
     //--- undistortion map(rectify)
     ok &= rectify(cfg.cams);
 
@@ -240,10 +244,6 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     // img 0/1 are always L/R
     assert(imgs.size()>1);
     bool ok = true;
-
-    //---- calc disparity
-    ok &= depth.calc_dispar(cfg.disp, *imgs[0], *imgs[1]);
-    if(!ok) return false;
     auto p_imd = depth.p_im_disp;
     assert(p_imd);
     cv::Mat imd = img2cv(*p_imd);
@@ -396,7 +396,16 @@ void Recon3d::show(const Frm& f)
     {
         assert(i_c<ud_imgs.size());
         auto pC = ud_imgs[i_c];
+        pC->scale(0.5);
         pC->show("Color undistorted");
+    }
+    //--- disparity
+    auto p_imd = f.depth.p_im_disp;
+    if(p_imd!=nullptr)
+    {
+        cv::Mat imd = img2cv(*p_imd);
+        imd = imd * 0.001;
+        cv::imshow("disparity", imd);
     }
     //--- local points
     assert(data_.p_pvis_frm!=nullptr);
