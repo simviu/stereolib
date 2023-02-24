@@ -248,6 +248,7 @@ namespace stereo
             bool genPnts_byDepth(const Cfg& cfg);
             bool genPnts_byDisp(const Cfg& cfg);
             bool genPnts_byLR(const Cfg& cfg);
+
         };
 
         Recon3d(){ init_cmds(); }

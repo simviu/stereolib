@@ -20,6 +20,7 @@ namespace{
 }
 //---- util
 namespace{
+    //--------
     float fp16_to_float(uint16_t x)
     {
         unsigned sign = ((x >> 15) & 1);
@@ -45,6 +46,28 @@ namespace{
         uint32_t temp = ((sign << 31) | (exponent << 23) | mantissa);
 
         return *((float*)((void*)&temp));
+    }
+    //---------
+    void im3d_to_pnts(cv::Mat im3d, Points& pnts)
+    {
+        pnts.clear();
+        for(unsigned int i = 0; i < im3d.rows; i++)
+        {
+            cv::Vec3f *point = im3d.ptr<cv::Vec3f>(i);
+
+            for(unsigned int j = 0; j < im3d.cols; j++)
+            {
+                Points::Pnt p;
+
+                double x,y,z;
+                x = point[j][0];
+                y = point[j][1];
+                z = point[j][2];
+                p.p << x,y,z;
+                p.c = {255,255,255,255};
+                pnts.add(p);
+            }
+        }
     }
 }
 
@@ -244,11 +267,18 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     // img 0/1 are always L/R
     assert(imgs.size()>1);
     bool ok = true;
+
+    //-----
     auto p_imd = depth.p_im_disp;
     assert(p_imd);
     cv::Mat imd = img2cv(*p_imd);
 
     //---- calc depth
+    auto& cvd = cast_imp(*cfg.cams.get_cvd());
+    cv::Mat im3d;
+    cv::reprojectImageTo3D(imd, im3d, cvd.Q);
+    
+    im3d_to_pnts(im3d, pnts);
     return true;
 }
 //----
