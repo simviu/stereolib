@@ -51,6 +51,7 @@ namespace{
     void im3d_to_pnts(cv::Mat im3d, Points& pnts)
     {
         pnts.clear();
+        int k=0;
         for(unsigned int i = 0; i < im3d.rows; i++)
         {
             cv::Vec3f *point = im3d.ptr<cv::Vec3f>(i);
@@ -63,11 +64,18 @@ namespace{
                 x = point[j][0];
                 y = point[j][1];
                 z = point[j][2];
+                if(!(isValid(x) && isValid(y) && isValid(z)))
+                {
+                    k++;
+                    continue;
+                }
                 p.p << x,y,z;
                 p.c = {255,255,255,255};
                 pnts.add(p);
             }
         }
+        //----
+        log_d("  im3d_to_pnts() invalid n="+to_string(k));
     }
 }
 
@@ -272,14 +280,20 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     auto p_imd = depth.p_im_disp;
     assert(p_imd);
     cv::Mat imd = img2cv(*p_imd);
+    int tp = imd.type();
 
     //---- calc depth
     auto& cvd = cast_imp(*cfg.cams.get_cvd());
     cv::Mat im3d;
     cv::reprojectImageTo3D(imd, im3d, cvd.Q);
-    
+    //---- dbg
+    double min, max;
+    cv::minMaxLoc(imd, &min, &max);
+
+    //------
     im3d_to_pnts(im3d, pnts);
     log_d("gen_pnts: "+pnts.info());
+    
     return true;
 }
 //----
