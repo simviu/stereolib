@@ -214,7 +214,7 @@ bool Recon3d::Frm::genPnts(const Cfg& cfg)
 {
     if(cfg.frms.depth_img>=0)
         return genPnts_byDepth(cfg);
-    else if(cfg.frms.dispar_img)
+    else if(cfg.frms.dispar_img>=0)
         return genPnts_byDisp(cfg);
     else // Full pipeline L/R stereo from scratch
         return genPnts_byLR(cfg);
@@ -279,6 +279,7 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     cv::reprojectImageTo3D(imd, im3d, cvd.Q);
     
     im3d_to_pnts(im3d, pnts);
+    log_d("gen_pnts: "+pnts.info());
     return true;
 }
 //----
