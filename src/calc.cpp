@@ -33,18 +33,18 @@ void stereo::calc_disp_to_pnts(
     pnts.clear();
     int k=0;
     int tp = imd.type();
-    for(unsigned int i = 0; i < imd.rows; i++)
+    for(unsigned int y = 0; y < imd.rows; y++)
     {
-        float* prow = (float*)imd.ptr<CV_32F>(i);
-        for(unsigned int j = 0; j < imd.cols; j++)
+        float* prow = (float*)imd.ptr<CV_32F>(y);
+        for(unsigned int x = 0; x < imd.cols; x++)
         {
-            double d = prow[j]; // disparity
+            double d = prow[x]; // disparity
             if(d <=0)continue;
             if(std::isnan(d)||std::isinf(d))
                 continue;
 
             double z = b * fx / d;
-            vec2 q; q << i, j;
+            vec2 q; q << x, y;
             //---
             Points::Pnt p;
             p.p = cc0.proj(q, z);
