@@ -163,7 +163,7 @@ bool Depth::calc_dispar(const DisparityCfg& cfg,
     sgbm.compute(imL, imR, im_sgbm);
 //    left_matcher->compute(left_for_matcher, right_for_matcher, left_disp);
     p_matcherR->compute(imR, imL, im_dispR);
-    float scl = 1.0; //1.0/16.0;
+    float scl = 1.0/16.0;
     im_sgbm.convertTo(im_disp, CV_32F, scl);
 
     //--- filter

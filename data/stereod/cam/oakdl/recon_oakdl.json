@@ -7,5 +7,9 @@
         "depth_img":-1,
         "dispar_img":-1
     },
-    "disparity": "disparity.json"
+    "disparity": "disparity.json",
+    "depth":{
+	 "range": "0.01, 10" 
+    }
+
 }
