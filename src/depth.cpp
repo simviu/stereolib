@@ -152,15 +152,17 @@ bool Depth::calc_dispar(const DisparityCfg& cfg,
     //---------------
     cv::Mat imL = imc1.im_;
     cv::Mat imR = imc2.im_;
-    cv::Mat im_sgbm, im_dispR;
-    sgbm.compute(imL, imR, im_sgbm);
+    cv::Mat ims, im_dispR;
+    sgbm.compute(imL, imR, ims);
 //    left_matcher->compute(left_for_matcher, right_for_matcher, left_disp);
     p_matcherR->compute(imR, imL, im_dispR);
 
     //---
     cv::Mat imd;
     float scl = 1.0/16.0;
-    im_sgbm.convertTo(imd, CV_32F, scl);
+    int tp = ims.type();
+    ims.convertTo(imd, CV_32F, scl);
+    int tp1 = imd.type();
 
     //--- filter
     auto& wlsc = cs.wls_filter;
