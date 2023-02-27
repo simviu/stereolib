@@ -289,6 +289,15 @@ bool Recon3d::Frm::genPnts_byDisp(const Cfg& cfg)
     log_e("not yet");
     return false;
 }
+//----
+bool Recon3d::Frm::renderPnts(const Cfg& cfg)
+{
+    int ic = cfg.frms.color_img; 
+    if(ic<0) return false; // no color
+    assert(ic < imgs.size());
+    auto p = imgs[ic];
+    return true;
+}
 
 //-----
 bool Recon3d::Frm::recon(const Cfg& cfg)

@@ -234,6 +234,7 @@ namespace stereo
             bool load(const Cfg& cfg, const string& sPath, int i);
             bool load_imgs(const Cfg& cfg, const string& sPath, int i);
             bool genPnts(const Cfg& cfg);
+            bool renderPnts(const Cfg& cfg);
             bool rectify(const CamsCfg& camcs);
             //----
             struct Data{
