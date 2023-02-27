@@ -10,12 +10,6 @@
 #include "stereolib/stereolibCv.h"
 #include "json/json.h"
 
-#include "vsn/vsnLibCv.h"
-//#include <opencv2/sfm/triangulation.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
-#include <opencv2/stereo/quasi_dense_stereo.hpp>
-#include <opencv2/ximgproc/disparity_filter.hpp>
-
 using namespace stereo;
 //----
 namespace{

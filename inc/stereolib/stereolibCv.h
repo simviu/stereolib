@@ -10,6 +10,10 @@
 
 #include "stereolib/stereolib.h"
 #include "vsn/vsnLibCv.h"
+//#include <opencv2/sfm/triangulation.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/stereo/quasi_dense_stereo.hpp>
+#include <opencv2/ximgproc/disparity_filter.hpp>
 
 namespace stereo
 {
@@ -99,4 +103,13 @@ namespace stereo
     inline auto& cast_imp(const CamsCfg::CvData& d)
     { return reinterpret_cast<const CamsCfgCvd&>(d); }
 
+    //--------
+    // stereo algorithm
+    //--------
+    extern void calc_disp_to_pnts(
+            const Recon3d::Cfg& cfg,
+            cv::Mat imd, Points& pnts);
+    extern void calc_im3d_to_pnts(
+            const Recon3d::Cfg& cfg,
+            cv::Mat im3d, Points& pnts);
 } // stereo
