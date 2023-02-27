@@ -166,6 +166,23 @@ bool Recon3d::Frm::load_imgs(const Cfg& cfg, const string& sPath, int i)
         log_e("not all img loaded OK in path:'"+sPath+"'");
         return false;
     }
+    //--- convert color img to CV_8UC3
+    /*
+    int ic = cfg.frms.color_img;
+    if(ic>=0)
+    {
+        assert(ic<imgs.size());
+        auto p = imgs[ic];
+        cv::Mat imc0 = img2cv(*p);
+        // TODO: convertTo can't handle channel differs
+        cv::Mat imc1; imc0.convertTo(imc1, CV_8UC3);
+        int tp0 = imc0.type(); // dbg
+        int tp1 = imc1.type(); // dbg
+        p = mkSp<ImgCv>(imc1);
+        imgs[ic] = p;
+
+    }
+    */
     return true;
 
 }
@@ -262,7 +279,7 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     int tp = imd.type();
 
   //calc_disp_to_pnts_cv(cfg, imd, pnts);
-    calc_disp_to_pnts(cfg, imd, pnts);
+    disp_to_pnts(cfg);
     
     log_d("gen_pnts: "+pnts.info());
     
@@ -290,15 +307,20 @@ bool Recon3d::Frm::genPnts_byDisp(const Cfg& cfg)
     return false;
 }
 //----
+/*
 bool Recon3d::Frm::renderPnts(const Cfg& cfg)
 {
     int ic = cfg.frms.color_img; 
     if(ic<0) return false; // no color
     assert(ic < imgs.size());
-    auto p = imgs[ic];
+    auto p_imc = imgs[ic];
+    for(auto& p : pnts.getData())
+    {
+
+    }
     return true;
 }
-
+*/
 //-----
 bool Recon3d::Frm::recon(const Cfg& cfg)
 {
@@ -306,6 +328,77 @@ bool Recon3d::Frm::recon(const Cfg& cfg)
     ok &= genPnts(cfg);
     return true;
 
+}
+
+
+//---------------
+// calc_disp_to_pnts
+//---------------
+void Recon3d::Frm::disp_to_pnts(const Cfg& cfg)
+{
+    //----
+    auto& ccs = cfg.cams.cams;
+    assert(ccs.size()>1);
+    auto& cc0 = ccs[0].camc; // Left cam
+    double b = ccs[1].T.t.norm(); // baseline
+    CamCfg::Lense l; cc0.toLense(l);
+    double fx = l.fx; // focal length
+    //---- get disparity and color
+    int ic = cfg.frms.color_img;
+    assert(ic < imgs.size()); 
+    auto p_imd = depth.p_im_disp;
+    assert(p_imd!=nullptr);
+    auto imd = img2cv(*p_imd);
+    Sp<Img> p_imc = nullptr; // color img may not have
+    if(ic>=0) p_imc = imgs[ic];
+    auto imc = img2cv(*p_imc);
+    //cv::Mat imc1; imc0.convertTo(imc1, CV_8UC3);
+    //ImgCv imc(imc1);
+    int tp1 = imc.type();// dbg
+    assert(tp1 == CV_8UC4);
+    //----
+    pnts.clear();
+    int k=0;
+    int tp = imd.type(); // dbg
+    for(unsigned int y = 0; y < imd.rows; y++)
+    {
+        float* prow = (float*)imd.ptr<CV_32F>(y);
+        for(unsigned int x = 0; x < imd.cols; x++)
+        {
+            double d = prow[x]; // disparity
+            if(d <=0)continue;
+            if(std::isnan(d)||std::isinf(d))
+                continue;
+
+            Points::Pnt p;
+            //--- calc location
+            double z = b * fx / d;
+            vec2 q; q << x, y;
+            vec3 v = cc0.proj(q, z);
+            p.p = v;
+            //--- get color
+            p.c = {255,255,255,255};
+            if(p_imc!=nullptr)
+            {
+                assert(ic < ccs.size());
+                auto& c1 = ccs[ic];
+                auto& camc = c1.camc;
+                auto& T = c1.T;
+                auto sz = p_imc->size();
+                // transform to color camera frame.
+                vec3 v1 = T * v;  
+                vec2 q1 = camc.proj(v1);
+                Px px = toPx(q1);
+
+                if(!sz.isIn(px))continue;
+                BGRA c = imc.ptr<BGRA>(px.y)[px.x];
+                p.c = c.toUt();
+            }
+            //---
+            pnts.add(p);
+        }
+
+    }
 }
 //----------
 // Recon3d
@@ -422,7 +515,8 @@ void Recon3d::show(const Frm& f)
     {
         assert(i_c<ud_imgs.size());
         auto pC = ud_imgs[i_c];
-        pC->scale(0.5);
+       
+        pC->scale(0.2);
         pC->show("Color undistorted");
     }
     //--- disparity

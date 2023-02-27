@@ -109,9 +109,7 @@ namespace stereo
     extern void calc_disp_to_pnts_cv(
             const Recon3d::Cfg& cfg,
             cv::Mat imd, Points& pnts);
-    extern void calc_disp_to_pnts(
-            const Recon3d::Cfg& cfg,
-            cv::Mat imd, Points& pnts);
+   
     extern void calc_im3d_to_pnts(
             const Recon3d::Cfg& cfg,
             cv::Mat im3d, Points& pnts);
