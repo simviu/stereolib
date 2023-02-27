@@ -145,7 +145,6 @@ bool Depth::calc_dispar(const DisparityCfg& cfg,
     sgbm.setUniquenessRatio(cs.uniquenessRatio);
     sgbm.setSpeckleWindowSize(cs.speckleWindowSize);
     sgbm.setSpeckleRange(cs.speckleRange);
-
     sgbm.setMode(cv::StereoSGBM::MODE_SGBM_3WAY);
 
     auto p_matcherR = cv::ximgproc::createRightMatcher(p_sgbm);
@@ -153,25 +152,30 @@ bool Depth::calc_dispar(const DisparityCfg& cfg,
     //---------------
     cv::Mat imL = imc1.im_;
     cv::Mat imR = imc2.im_;
-    cv::Mat im_sgbm, im_disp, im_dispR;
+    cv::Mat im_sgbm, im_dispR;
     sgbm.compute(imL, imR, im_sgbm);
 //    left_matcher->compute(left_for_matcher, right_for_matcher, left_disp);
     p_matcherR->compute(imR, imL, im_dispR);
+
+    //---
+    cv::Mat imd;
     float scl = 1.0/16.0;
-    im_sgbm.convertTo(im_disp, CV_32F, scl);
+    im_sgbm.convertTo(imd, CV_32F, scl);
 
     //--- filter
-    cv::Mat imdf;
     auto& wlsc = cs.wls_filter;
-
-//    wls_filter = ximgproc::createDisparityWLSFilter(left_matcher);
-    auto p_fltr = cv::ximgproc::createDisparityWLSFilter(p_sgbm);
-    p_fltr->setLambda(wlsc.lambda);
-    p_fltr->setSigmaColor(wlsc.sigma);
-// ref    wls_filter->filter(left_disp, left, filtered_disp, right_disp);
-    p_fltr->filter(im_disp, imL, imdf, im_dispR);
-
-    cv::Mat im_conf = p_fltr->getConfidenceMap();    
-    p_im_disp = mkSp<ocv::ImgCv>(imdf);
+    if(wlsc.en)
+    {
+    //    wls_filter = ximgproc::createDisparityWLSFilter(left_matcher);
+        auto p_fltr = cv::ximgproc::createDisparityWLSFilter(p_sgbm);
+        p_fltr->setLambda(wlsc.lambda);
+        p_fltr->setSigmaColor(wlsc.sigma);
+    // ref    wls_filter->filter(left_disp, left, filtered_disp, right_disp);
+        cv::Mat imdf;
+        p_fltr->filter(imd, imL, imdf, im_dispR);
+        cv::Mat im_conf = p_fltr->getConfidenceMap();    
+        imd = imdf;
+    }
+    p_im_disp = mkSp<ocv::ImgCv>(imd);
     return true;
 }

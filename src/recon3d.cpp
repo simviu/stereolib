@@ -261,16 +261,9 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     cv::Mat imd = img2cv(*p_imd);
     int tp = imd.type();
 
-    //---- calc depth
-    auto& cvd = cast_imp(*cfg.cams.get_cvd());
-    cv::Mat im3d;
-    cv::reprojectImageTo3D(imd, im3d, cvd.Q);
-    //---- dbg
-    double min, max;
-    cv::minMaxLoc(imd, &min, &max);
-
-    //------
-    calc_im3d_to_pnts(cfg, im3d, pnts);
+  //calc_disp_to_pnts_cv(cfg, imd, pnts);
+    calc_disp_to_pnts(cfg, imd, pnts);
+    
     log_d("gen_pnts: "+pnts.info());
     
     return true;

@@ -15,14 +15,22 @@ namespace{
 
 
 //---------------
-// im3d_to_pnts
+// calc_disp_to_pnts
 //---------------
-// im3d disparity to points
 void stereo::calc_disp_to_pnts(
         const Recon3d::Cfg& cfg,
         cv::Mat imd, Points& pnts)
 {
-     pnts.clear();
+    //----
+    auto& ccs = cfg.cams.cams;
+    assert(ccs.size()>1);
+    auto& cc0 = ccs[0].camc; // Left cam
+    double b = ccs[1].T.t.norm(); // baseline
+    CamCfg::Lense l; cc0.toLense(l);
+    double fx = l.fx; // focal length
+    //----
+    
+    pnts.clear();
     int k=0;
     int tp = imd.type();
     for(unsigned int i = 0; i < imd.rows; i++)
@@ -30,10 +38,39 @@ void stereo::calc_disp_to_pnts(
         float* prow = (float*)imd.ptr<CV_32F>(i);
         for(unsigned int j = 0; j < imd.cols; j++)
         {
+            double d = prow[j]; // disparity
+            if(d <=0)continue;
+            if(std::isnan(d)||std::isinf(d))
+                continue;
+
+            double z = b * fx / d;
+            vec2 q; q << i, j;
+            //---
             Points::Pnt p;
-            double z = prow[j];
+            p.p = cc0.proj(q, z);
+            p.c = {255,255,255,255};
+            pnts.add(p);
         }
+
     }
+}
+
+//---------------
+// calc_disp_to_pnts
+//---------------
+void stereo::calc_disp_to_pnts_cv(
+        const Recon3d::Cfg& cfg,
+        cv::Mat imd, Points& pnts)
+{
+    //---- calc depth
+    auto& cvd = cast_imp(*cfg.cams.get_cvd());
+    cv::Mat im3d;
+    cv::reprojectImageTo3D(imd, im3d, cvd.Q);
+    //---- dbg
+    double min, max;
+    cv::minMaxLoc(imd, &min, &max);
+    calc_im3d_to_pnts(cfg, im3d, pnts);
+
 }
 //---------------
 // im3d_to_pnts
