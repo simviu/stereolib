@@ -20,9 +20,20 @@ namespace{
 // im3d disparity to points
 void stereo::calc_disp_to_pnts(
         const Recon3d::Cfg& cfg,
-        cv::Mat disp, Points& pnts)
+        cv::Mat imd, Points& pnts)
 {
-    
+     pnts.clear();
+    int k=0;
+    int tp = imd.type();
+    for(unsigned int i = 0; i < imd.rows; i++)
+    {
+        float* prow = (float*)imd.ptr<CV_32F>(i);
+        for(unsigned int j = 0; j < imd.cols; j++)
+        {
+            Points::Pnt p;
+            double z = prow[j];
+        }
+    }
 }
 //---------------
 // im3d_to_pnts
