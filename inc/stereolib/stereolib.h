@@ -215,7 +215,7 @@ namespace stereo
                 int depth_img = -1; // TODO: json
             }; FrmsCfg frms;
             struct DepthC{ 
-                Rng<float> range; // box range
+                Rng<double> range; // box range
             }; DepthC depth;
 
             bool load(const string& sf);
