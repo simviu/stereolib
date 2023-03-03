@@ -80,10 +80,11 @@ namespace stereo
     };
 
     //Stereo video odometry
-    class VO{
+    class VO : public Cmd{
     public:
-
+        VO(){ init_cmds(); }
         static Sp<VO> create();
+        static Sp<VO> create_OrbSLAM3();
         
         //----
         struct Cfg{
@@ -194,7 +195,7 @@ namespace stereo
         void setFrmIdx(int i){ data_.frmIdx=i; }
     //   void showLoop();
     protected:
-
+        void init_cmds();
         Data data_;
     }; // VO
 
