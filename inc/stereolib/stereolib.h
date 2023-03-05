@@ -84,10 +84,14 @@ namespace stereo
     public:
         VO(){ init_cmds(); }
         static Sp<VO> create();
-        static Sp<VO> create_OrbSLAM3();
+        static Sp<VO> create_os3(
+            const string& sf_voc,    // VOC txt files
+            const string& sf_cfg     // Yaml cfg of ORB-SLAM
+            );
         
         //----
         struct Cfg{
+            double fps = 30.0;
             CamCfg camc;
         //  bool bShow = false;
             double baseline = 0.50;
@@ -129,6 +133,7 @@ namespace stereo
             //----
             bool load(const string& sf);
             string str()const;
+
         };
         Cfg cfg_;
         
@@ -149,6 +154,7 @@ namespace stereo
         //----
         struct Data{
             int frmIdx = 0;
+            double t = 0;
             //----
             struct Wr{
                 ofstream ofs_pnts_spar;

@@ -9,6 +9,7 @@
 #pragma once
 
 #include "stereolib/stereolib.h"
+#include "System.h"
 
 using namespace stereo;
 //Stereo video odometry
@@ -21,5 +22,13 @@ public:
                           const Img& im2,
                           Depth& depth)override
                         { return false; }
+    bool init(
+            const string& sf_voc,    // VOC txt files
+            const string& sf_cfg     // Yaml cfg of ORB-SLAM
+            );
+    
+    
 protected:
+
+    Sp<ORB_SLAM3::System> p_sys_ = nullptr;
 };

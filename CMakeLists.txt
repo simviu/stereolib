@@ -2,6 +2,7 @@ project(stereolib)
 cmake_minimum_required(VERSION 3.4)
 
 SET(CMAKE_CXX_STANDARD 14)
+SET(WITH_ORB_SLAM3 TRUE)
 
 set(ENV{stereoLib_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -33,7 +34,28 @@ include_directories(
     /usr/include/jsoncpp
     )
 
-    
+
+#------ ORB-SLAM3 (option) -----------
+if(WITH_ORB_SLAM3)
+    set(ORB_SLAM3_DIR dep/ORB_SLAM3t)
+    find_package(Pangolin REQUIRED)
+
+    include_directories(
+        ${ORB_SLAM3_DIR}
+        ${ORB_SLAM3_DIR}/include
+        ${ORB_SLAM3_DIR}/include/CameraModels
+        ${ORB_SLAM3_DIR}/Thirdparty/Sophus
+        ${EIGEN3_INCLUDE_DIR}
+        ${Pangolin_INCLUDE_DIRS}
+        )
+
+    add_definitions(-DWITH_ORB_SLAM3)
+    link_directories(dep/ORB_SLAM3t/lib)
+    add_link_options(-lORB_SLAM3)
+endif()
+
+
+#----- stereoLib    
 FILE(GLOB  SRC_CORE src/*.cpp)
 add_library(stereoLib ${SRC_CORE} )
 target_link_libraries(stereoLib   
