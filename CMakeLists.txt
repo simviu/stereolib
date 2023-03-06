@@ -50,8 +50,10 @@ if(WITH_ORB_SLAM3)
         )
 
     add_definitions(-DWITH_ORB_SLAM3)
-    link_directories(dep/ORB_SLAM3t/lib)
-    add_link_options(-lORB_SLAM3)
+    link_directories(${ORB_SLAM3_DIR}/lib)
+    set(EXT_LINK "${EXT_LINK} ORB_SLAM3")
+    add_subdirectory(${ORB_SLAM3_DIR})
+    message(STATUS "ORB_SLAM3_DIR = ${ORB_SLAM3_DIR}")
 endif()
 
 
@@ -59,9 +61,11 @@ endif()
 FILE(GLOB  SRC_CORE src/*.cpp)
 add_library(stereoLib ${SRC_CORE} )
 target_link_libraries(stereoLib   
+    ${EXT_LINK}
     vsnLib 
     -fPIC
     pthread
+    -lGL
 #    ${OpenCV_LIBRARIES}
 #    ${Eigen3_LIBRARY}    
     )
@@ -69,5 +73,9 @@ target_link_libraries(stereoLib
     
 FILE(GLOB  SRC_CMD app/stereocmd/*.cpp)
 add_executable(stereocmd ${SRC_CMD})
-target_link_libraries(stereocmd stereoLib)
+target_link_libraries(
+    stereocmd 
+    stereoLib
+    
+    )
 

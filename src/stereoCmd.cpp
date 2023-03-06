@@ -21,20 +21,13 @@ void StereoCmd::init_cmds()
     [&](CStrs& args)->bool{ 
        return init(args);
     }));
+    
 
     assert(p_recon_!=nullptr);
     Cmd::add("recon", p_recon_);    
-    //----
-    /*
-    add("moveto", mkSp<Cmd>("xyz=x,y,z rvec=rx,ry,rz grip=[0:1]",
-    [&](CStrs& args)->bool{ return moveto(args); }));
-    //----
-    add("st", mkSp<Cmd>("(get status)",
-    [&](CStrs& args)->bool{ 
-        return getSt();
-    }));
-    */
-  
+    
+    assert(p_vo_mng_!=nullptr);
+    Cmd::add("vo", p_vo_mng_);
   
 }
 //----
@@ -44,4 +37,3 @@ bool StereoCmd::init(CStrs& args)
     log_i("StereoCmd init...");
     return true;
 }
-

@@ -161,11 +161,7 @@ bool VO::Data::wrData()
     }
     return true;
 }
-//--------
-void VO::init_cmds()
-{
-    
-}
+
 //------------
 /*
 void VO::showLoop()
@@ -179,3 +175,4 @@ void VO::showLoop()
     }
 }
 */
+

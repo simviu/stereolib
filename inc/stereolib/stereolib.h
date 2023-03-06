@@ -80,9 +80,9 @@ namespace stereo
     };
 
     //Stereo video odometry
-    class VO : public Cmd{
+    class VO {
     public:
-        VO(){ init_cmds(); }
+        //VO(){ init_cmds(); }
         static Sp<VO> create();
         static Sp<VO> create_os3(
             const string& sf_voc,    // VOC txt files
@@ -201,10 +201,22 @@ namespace stereo
         void setFrmIdx(int i){ data_.frmIdx=i; }
     //   void showLoop();
     protected:
-        void init_cmds();
         Data data_;
     }; // VO
 
+    //----
+    class VO_mng : public Cmd{
+    public:
+        VO_mng(){ init_cmds(); }
+    protected:
+        void init_cmds();
+
+        Sp<VO> p_vo_ = nullptr;
+        bool init(CStrs& args);
+        bool init_os3(CStrs& args);
+        bool run_frms(CStrs& args);
+    };
+    
     //------------
     // Recon3d
     //------------
@@ -287,7 +299,7 @@ namespace stereo
     protected:
         void init_cmds();
         bool init(CStrs& args);
-        Sp<stereo::Recon3d> p_recon_ = 
-            mkSp<stereo::Recon3d>();
+        Sp<Recon3d> p_recon_ = mkSp<Recon3d>();
+        Sp<VO_mng> p_vo_mng_ = mkSp<VO_mng>();
     };
 }
