@@ -32,6 +32,11 @@ void VO_mng::init_cmds()
     [&](CStrs& args)->bool{ 
        return run_frms(args);
     }));
+     //----
+    add("video", mkSp<Cmd>("file=<FILE>",
+    [&](CStrs& args)->bool{ 
+       return run_video(args);
+    }));
 }
 //----
 bool VO_mng::init(CStrs& args)
@@ -55,7 +60,50 @@ bool VO_mng::init_os3(CStrs& args)
     
 }
 //-----
+bool VO_mng::chk_init()const
+{
+    if(p_vo_!=nullptr) return true;
+    log_e("VO not init, call 'init' or 'init_os3'");
+    return false;
+}
+
+//-----
 bool VO_mng::run_frms(CStrs& args)
 {
+    log_e("not yet");
+    return false;
+}
+
+//-----
+bool VO_mng::run_video(CStrs& args)
+{
+    if(!chk_init()) return false;
+    //-----
+    KeyVals kvs(args);
+    string sf; 
+    if(!kvs.get("file", sf)) return false;
+
+    auto p_vid = Video::open(sf);
+    if(p_vid==nullptr)return false;
+
+    while(1)
+    {
+        Sp<Img> p = p_vid->read();
+        if(p==nullptr)break;
+        Sz sz = p->size();
+        sz.w *= 0.5;
+        Rect r1({sz.w*0.5,sz.h*0.5}, sz);
+        Rect r2({sz.w*1.5,sz.h*0.5}, sz);
+        auto pL = p->crop(r1);
+        auto pR = p->crop(r2);
+
+        if(pL==nullptr || pR==nullptr)
+        {
+            log_e("croping L/R failed");
+            return false;
+        }
+        //----
+        p_vo_->onImg(*pL, *pR);
+    }
     return true;
 }

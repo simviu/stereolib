@@ -51,7 +51,7 @@ if(WITH_ORB_SLAM3)
 
     add_definitions(-DWITH_ORB_SLAM3)
     link_directories(${ORB_SLAM3_DIR}/lib)
-    set(EXT_LINK "${EXT_LINK} ORB_SLAM3")
+    set(EXT_LINK "ORB_SLAM3")
     add_subdirectory(${ORB_SLAM3_DIR})
     message(STATUS "ORB_SLAM3_DIR = ${ORB_SLAM3_DIR}")
 endif()

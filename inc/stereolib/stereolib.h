@@ -215,6 +215,9 @@ namespace stereo
         bool init(CStrs& args);
         bool init_os3(CStrs& args);
         bool run_frms(CStrs& args);
+        bool run_video(CStrs& args);
+
+        bool chk_init()const;
     };
     
     //------------
