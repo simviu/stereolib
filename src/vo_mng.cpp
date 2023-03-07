@@ -32,10 +32,15 @@ void VO_mng::init_cmds()
     [&](CStrs& args)->bool{ 
        return run_frms(args);
     }));
-     //----
+    //----
     add("video", mkSp<Cmd>("file=<FILE>",
     [&](CStrs& args)->bool{ 
        return run_video(args);
+    }));
+    //----
+    add("dualCams", mkSp<Cmd>("[resize=640,362]",
+    [&](CStrs& args)->bool{ 
+       return run_dualCams(args);
     }));
 }
 //----
@@ -102,6 +107,51 @@ bool VO_mng::run_video(CStrs& args)
             log_e("croping L/R failed");
             return false;
         }
+        //---- dbg show
+        pL->show("Left");
+        pR->show("Right");
+        //----
+        p_vo_->onImg(*pL, *pR);
+    }
+    return true;
+}
+
+//-----
+bool VO_mng::run_dualCams(CStrs& args)
+{
+    if(!chk_init()) return false;
+    //-----
+    KeyVals kvs(args);
+    string ssz = kvs.get("resize");
+    Sz sz; bool bSz = false;
+    bool ok = true;
+    if(ssz!="" )
+        ok = sz.set(ssz);
+    if(!ok){ log_e("fail to parse sz '"+ssz+"'"); }
+    //----
+        
+
+    auto pv0 = Video::open(0);
+    auto pv1 = Video::open(1);
+    if((pv0==nullptr)||pv1==nullptr)
+        return false;
+
+    while(1)
+    {
+
+        auto pL = pv0->read();
+        auto pR = pv1->read();
+        if(pL==nullptr || pR==nullptr)
+            break;
+        //---- scale
+        if(bSz)
+        {
+            pL->scale(sz);
+            pR->scale(sz);
+        }
+        //---- dbg show
+        pL->show("Left");
+        pR->show("Right");
         //----
         p_vo_->onImg(*pL, *pR);
     }
