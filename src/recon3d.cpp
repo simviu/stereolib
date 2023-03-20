@@ -547,6 +547,12 @@ void Recon3d::show(const Frm& f)
         auto& vis = *pv;
         vis.clear();
         vis.add(f.pnts, "frm");
+        // dbg
+        {
+            vec3 sz; sz << 1,1,1;
+            Pose T;
+            vis.addCube("dbg_box", T, sz);
+        }
         vis.spin();
     }
     
