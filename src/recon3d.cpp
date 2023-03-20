@@ -122,6 +122,7 @@ bool Recon3d::Cfg::load(const string& sf)
             if(s2data(sr, ds)) depth.range = {ds[0], ds[1]}; 
             else ok = false;
         }
+        
     }
     catch(exception& e)
     {
@@ -134,6 +135,10 @@ bool Recon3d::Cfg::load(const string& sf)
         log_e("CamsCfg::load() json error");
         return false;
     }    
+    //---- after process
+    visc.pntvc.axisL = depth.range.d1;
+    //visc.pntvc.axisL = 0.1; // dbg
+    //----
     log_i("Recon3d cfg loaded '"+sf +"'");
     return true;
 }
@@ -464,11 +469,12 @@ bool Recon3d::run_frm(const string& sPath, int i)
         return false;
     }
     
-
+    //----
+    auto pv = get_frm_pnt_vis();
+    assert(pv!=nullptr);
     while(ok)
     {
-        assert(data_.p_pvis_frm!=nullptr);
-        data_.p_pvis_frm->spin();
+        pv->spin();
         sys::sleep(1.0/lc_.fps);    
     }
     return ok;
@@ -495,7 +501,14 @@ bool Recon3d::run_frms(const string& sPath)
     }
     return true;
 }
-
+//----
+Sp<Points::Vis> Recon3d::get_frm_pnt_vis()
+{
+    auto& p = data_.p_pvis_frm; 
+    if(p!=nullptr) return p;
+    p = Points::Vis::create(cfg_.visc.pntvc);
+    return p;
+}
 //----
 void Recon3d::show(const Frm& f)
 {
@@ -528,11 +541,13 @@ void Recon3d::show(const Frm& f)
         cv::imshow("disparity", imd);
     }
     //--- local points
-    assert(data_.p_pvis_frm!=nullptr);
-    auto& vis = *data_.p_pvis_frm;
-    vis.clear();
-    vis.add(f.pnts, "frm");
-    vis.spin();
-
+    {
+        auto pv = get_frm_pnt_vis();
+        assert(pv!=nullptr);
+        auto& vis = *pv;
+        vis.clear();
+        vis.add(f.pnts, "frm");
+        vis.spin();
+    }
     
 }

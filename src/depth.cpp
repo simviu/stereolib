@@ -160,6 +160,8 @@ bool Depth::calc_dispar(const DisparityCfg& cfg,
     //---
     cv::Mat imd;
     float scl = 1.0/16.0;
+    //float scl = 1.0;
+
     int tp = ims.type();
     ims.convertTo(imd, CV_32F, scl);
     int tp1 = imd.type();

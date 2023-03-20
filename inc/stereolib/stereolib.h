@@ -240,7 +240,11 @@ namespace stereo
             struct DepthC{ 
                 Rng<double> range; // box range
             }; DepthC depth;
-
+            //----
+            struct VisCfg{
+                Points::Vis::Cfg pntvc;
+            }; VisCfg visc;
+            //----
             bool load(const string& sf);
         }; Cfg cfg_;
         //----
@@ -288,9 +292,10 @@ namespace stereo
         //----
         struct Data{
             // local point cloud
-            Sp<Points::Vis> p_pvis_frm = 
-                Points::Vis::create();
+            Sp<Points::Vis> p_pvis_frm = nullptr; 
         }; Data data_;
+        Sp<Points::Vis> get_frm_pnt_vis();
+
         void show(const Frm& f);
 
     };

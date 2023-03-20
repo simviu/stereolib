@@ -9,7 +9,7 @@
     },
     "disparity": "disparity.json",
     "depth":{
-	 "range": "0.01, 10" 
+	 "range": "0.01, 1" 
     }
 
 }
