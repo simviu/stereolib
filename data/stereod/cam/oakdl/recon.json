@@ -1,6 +1,6 @@
 {
     
-    "cams_cfg" : "oakdl_stereo.json",
+    "cams_cfg" : "cams.json",
     "frms":{
         "labels":["L","R","C","D","N"],
         "color_img":2,

@@ -548,6 +548,7 @@ void Recon3d::show(const Frm& f)
         vis.clear();
         vis.add(f.pnts, "frm");
         // dbg
+        if(0)
         {
             vec3 sz; sz << 1,1,1;
             Pose T;
