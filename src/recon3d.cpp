@@ -172,23 +172,7 @@ bool Recon3d::Frm::load_imgs(const Cfg& cfg, const string& sPath, int i)
         log_e("not all img loaded OK in path:'"+sPath+"'");
         return false;
     }
-    //--- convert color img to CV_8UC3
-    /*
-    int ic = cfg.frms.color_img;
-    if(ic>=0)
-    {
-        assert(ic<imgs.size());
-        auto p = imgs[ic];
-        cv::Mat imc0 = img2cv(*p);
-        // TODO: convertTo can't handle channel differs
-        cv::Mat imc1; imc0.convertTo(imc1, CV_8UC3);
-        int tp0 = imc0.type(); // dbg
-        int tp1 = imc1.type(); // dbg
-        p = mkSp<ImgCv>(imc1);
-        imgs[ic] = p;
-
-    }
-    */
+    
     return true;
 
 }
@@ -356,7 +340,11 @@ void Recon3d::Frm::disp_to_pnts(const Cfg& cfg)
     assert(p_imd!=nullptr);
     auto imd = img2cv(*p_imd);
     Sp<Img> p_imc = nullptr; // color img may not have
-    if(ic>=0) p_imc = imgs[ic];
+    {
+        auto& ud_imgs = data_.ud_imgs;
+        assert(ic<ud_imgs.size());
+        if(ic>=0) p_imc = ud_imgs[ic];
+    }
     //auto imc = img2cv(*p_imc);
     auto& imc = *p_imc;
     //int tp1 = imc.type();// dbg
@@ -396,8 +384,6 @@ void Recon3d::Frm::disp_to_pnts(const Cfg& cfg)
                 Px px = toPx(q1);
 
                 if(!sz.isIn(px))continue;
-                //BGRA c = imc.ptr<BGRA>(px.y)[px.x];
-                //p.c = c.toUt();
                 Color c; imc.get(px, c);
                 p.c = c;
             }
