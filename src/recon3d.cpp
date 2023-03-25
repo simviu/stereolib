@@ -356,11 +356,10 @@ void Recon3d::Frm::disp_to_pnts(const Cfg& cfg)
     auto imd = img2cv(*p_imd);
     Sp<Img> p_imc = nullptr; // color img may not have
     if(ic>=0) p_imc = imgs[ic];
-    auto imc = img2cv(*p_imc);
-    //cv::Mat imc1; imc0.convertTo(imc1, CV_8UC3);
-    //ImgCv imc(imc1);
-    int tp1 = imc.type();// dbg
-    assert(tp1 == CV_8UC4);
+    //auto imc = img2cv(*p_imc);
+    auto& imc = *p_imc;
+    //int tp1 = imc.type();// dbg
+    //assert(tp1 == CV_8UC4);
     //----
     pnts.clear();
     int k=0;
@@ -396,8 +395,10 @@ void Recon3d::Frm::disp_to_pnts(const Cfg& cfg)
                 Px px = toPx(q1);
 
                 if(!sz.isIn(px))continue;
-                BGRA c = imc.ptr<BGRA>(px.y)[px.x];
-                p.c = c.toUt();
+                //BGRA c = imc.ptr<BGRA>(px.y)[px.x];
+                //p.c = c.toUt();
+                Color c; imc.get(px, c);
+                p.c = c;
             }
             //---
             pnts.add(p);
