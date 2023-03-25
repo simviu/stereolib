@@ -63,13 +63,12 @@ bool ReconFrm::calc(const Recon3d::Cfg& cfg)
 {
     bool ok = true;
 
-    //---- calc disparity
-    ok &= depth.calc_dispar(cfg.disp, *imgs[0], *imgs[1]);
-    if(!ok) return false;
-
     //--- undistortion map(rectify)
     ok &= rectify(cfg.cams);
 
+    //---- calc disparity
+    ok &= depth.calc_dispar(cfg.disp, *imgs[0], *imgs[1]);
+    if(!ok) return false;
     //--- recon
     ok &= recon(cfg);
     return true;
@@ -476,6 +475,7 @@ bool Recon3d::run_frm(const string& sPath, int i)
     while(ok)
     {
         pv->spin();
+        cv_waitESC(5);
         sys::sleep(1.0/lc_.fps);    
     }
     return ok;
@@ -542,6 +542,7 @@ void Recon3d::show(const Frm& f)
         cv::imshow("disparity", imd);
     }
     //--- local points
+    if(1)
     {
         auto pv = get_frm_pnt_vis();
         assert(pv!=nullptr);
@@ -557,5 +558,7 @@ void Recon3d::show(const Frm& f)
         }
         vis.spin();
     }
+    //--- cv show spin
+    cv_waitkey(10);
     
 }
