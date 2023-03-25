@@ -67,7 +67,9 @@ bool ReconFrm::calc(const Recon3d::Cfg& cfg)
     ok &= rectify(cfg.cams);
 
     //---- calc disparity
-    ok &= depth.calc_dispar(cfg.disp, *imgs[0], *imgs[1]);
+    auto& uds = data_.ud_imgs;
+    assert(uds.size()>1);
+    ok &= depth.calc_dispar(cfg.disp, *uds[0], *uds[1]);
     if(!ok) return false;
     //--- recon
     ok &= recon(cfg);
