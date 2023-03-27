@@ -272,7 +272,7 @@ namespace stereo
                 vector<Sp<Img>> ud_imgs;
             };
             auto& data()const{ return data_; }
-            
+            bool load(Video& vid);
         protected:
             Data data_;
 
@@ -284,6 +284,7 @@ namespace stereo
 
         Recon3d(){ init_cmds(); }
         bool onImg(Frm& frm);
+        bool run_video(const string& sf);
         bool run_frms(const string& sPath);
         bool run_frm(const string& sPath, int i);
     protected:

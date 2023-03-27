@@ -144,6 +144,27 @@ bool Recon3d::Cfg::load(const string& sf)
     return true;
 }
 //-----
+bool Recon3d::Frm::load(Video& vid)
+{
+    auto p = vid.read();
+    if(p==nullptr)return false;
+    auto& im = *p;
+    Sz sz = vid.cfg_.sz;
+    sz.w *= 0.5;
+
+    //---
+    for(int i=0;i<2;i++)
+    {
+        Px c(sz.w*(i+0.5), sz.h*0.5);
+        Rect r(c, sz);
+        auto pi = p->crop(r);
+        if(p==nullptr)return false;
+        imgs.push_back(pi);
+    }
+    return true;
+}
+
+//-----
 
 bool Recon3d::Frm::load_imgs(const Cfg& cfg, const string& sPath, int i)
 {
@@ -415,6 +436,13 @@ void Recon3d::init_cmds()
         return run_frms(sdir); 
     }));
 
+    Cmd::add("video", mkSp<Cmd>("file=<FILE>",
+    [&](CStrs& args)->bool{ 
+        string sf = KeyVals(args)["file"];
+        if(sf=="") return false; 
+        return run_video(sf); 
+    }));
+
     Cmd::add("frm", mkSp<Cmd>("dir=<DIR> i=<IDX> (Run one frm)",
     [&](CStrs& args)->bool{ 
         StrTbl kv; parseKV(args, kv);
@@ -467,6 +495,30 @@ bool Recon3d::run_frm(const string& sPath, int i)
         sys::sleep(1.0/lc_.fps);    
     }
     return ok;
+}
+//----
+bool Recon3d::run_video(const string& sf)
+{
+  //----
+    int i=0;
+    auto pv = Video::open(sf);
+    if(pv==nullptr)return false;
+
+    while(1)
+    {
+        i++;
+        log_i("frm:"+str(i));
+        auto p = Frm::create();
+        if(!p->load(*pv))
+            break;
+        
+        //---- call
+        onImg(*p);
+
+        
+        sys::sleep(1.0/lc_.fps);
+    }
+    return true;
 }
 
 //----
