@@ -97,8 +97,8 @@ bool VO_mng::run_video(CStrs& args)
         if(p==nullptr)break;
         Sz sz = p->size();
         sz.w *= 0.5;
-        Rect r1({sz.w*0.5,sz.h*0.5}, sz);
-        Rect r2({sz.w*1.5,sz.h*0.5}, sz);
+        Rect r1(Px(sz.w*0.5,sz.h*0.5), sz);
+        Rect r2(Px(sz.w*1.5,sz.h*0.5), sz);
         auto pL = p->crop(r1);
         auto pR = p->crop(r2);
 
