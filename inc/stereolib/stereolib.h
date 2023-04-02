@@ -195,7 +195,10 @@ namespace stereo
         virtual bool genDepth(const Img& im1,  
                             const Img& im2,
                             Depth& depth)=0;
-
+        //--- save trajectory
+        virtual void onClose(){};
+        virtual bool save(const string& sf)=0;
+        //----
         auto& getData()const{ return data_; }
         void onFinish(){ data_.close(); }
         void setFrmIdx(int i){ data_.frmIdx=i; }

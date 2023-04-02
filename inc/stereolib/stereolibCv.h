@@ -54,6 +54,9 @@ namespace stereo
         virtual bool genDepth(const Img& im1,  
                             const Img& im2,
                             Depth& depth)override;
+        virtual bool save(const string& sf)override
+        { log_e("not yet"); return false; }
+
     protected:
         bool odometry(const FrmCv& frm1,
                     const FrmCv& frm2);

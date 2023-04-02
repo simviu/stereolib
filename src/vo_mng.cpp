@@ -12,7 +12,9 @@
 using namespace stereo;
 //----
 namespace{
-
+    struct LC{
+        string sf_traj = "./traj.txt";
+    }; LC lc_;
 }
 
 void VO_mng::init_cmds()
@@ -84,6 +86,7 @@ bool VO_mng::run_video(CStrs& args)
 {
     if(!chk_init()) return false;
     //-----
+    bool ok = true;
     KeyVals kvs(args);
     string sf; 
     if(!kvs.get("file", sf)) return false;
@@ -113,7 +116,11 @@ bool VO_mng::run_video(CStrs& args)
         //----
         p_vo_->onImg(*pL, *pR);
     }
-    return true;
+    //--- 
+    log_i("VO finished, saving traj...");
+    p_vo_->onClose();
+    ok &= p_vo_->save(lc_.sf_traj);
+    return ok;
 }
 
 //-----

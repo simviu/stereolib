@@ -10,6 +10,10 @@
 
 using namespace stereo;
 
+namespace{
+   
+}
+
 //---- factory
 Sp<VO> VO::create_os3(
             const string& sf_cfg,   // Yaml cfg of ORB-SLAM
@@ -53,5 +57,24 @@ bool VO_os3::onImg(const Img& im1,
     double dt = 1.0/cfg_.fps;
     t += dt;
     fi ++;
+    return true;
+}
+//----
+void VO_os3::onClose()
+{
+    if(p_sys_==nullptr)return;
+    p_sys_->Shutdown();
+}
+
+//---
+bool VO_os3::save(const string& sf)
+{
+    if(p_sys_==nullptr)
+    {
+        log_e("ORB-SLAM3 not init");
+        return false;
+    }
+    //----
+    p_sys_->SaveTrajectoryEuRoC(sf);
     return true;
 }

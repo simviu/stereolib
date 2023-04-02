@@ -22,6 +22,8 @@ public:
                           const Img& im2,
                           Depth& depth)override
                         { return false; }
+    virtual bool save(const string& sf)override;
+    virtual void onClose()override;
     bool init(
             const string& sf_voc,    // VOC txt files
             const string& sf_cfg     // Yaml cfg of ORB-SLAM
