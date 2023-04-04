@@ -115,6 +115,9 @@ bool VO_mng::run_video(CStrs& args)
         pR->show("Right");
         //----
         p_vo_->onImg(*pL, *pR);
+
+        //----
+        if(cv_waitESC(1))break;
     }
     //--- 
     log_i("VO finished, saving traj...");
@@ -161,6 +164,11 @@ bool VO_mng::run_dualCams(CStrs& args)
         pR->show("Right");
         //----
         p_vo_->onImg(*pL, *pR);
+        if(cv_waitESC(1))break;
     }
-    return true;
+    //----
+    log_i("VO finished, saving traj...");
+    p_vo_->onClose();
+    ok &= p_vo_->save(lc_.sf_traj);
+    return ok;
 }
