@@ -295,7 +295,7 @@ namespace stereo
 
         //----
         struct Data{
-            // local point cloud
+            Points pnts; // all points
             Sp<Points::Vis> p_pvis_frm = nullptr; 
         }; Data data_;
         Sp<Points::Vis> get_frm_pnt_vis();
