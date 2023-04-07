@@ -20,6 +20,7 @@ namespace{
 void VO_mng::init_cmds()
 {
     //----
+    string sH;
     add("init", mkSp<Cmd>("cfg=<CFG_FILE>",
     [&](CStrs& args)->bool{ 
        return init(args);
@@ -40,7 +41,7 @@ void VO_mng::init_cmds()
        return run_video(args);
     }));
     //----
-    add("dualCams", mkSp<Cmd>("[resize=640,362]",
+    add("cams", mkSp<Cmd>("[resize=640,362] [-save_frms]",
     [&](CStrs& args)->bool{ 
        return run_dualCams(args);
     }));
@@ -139,15 +140,18 @@ bool VO_mng::run_dualCams(CStrs& args)
         ok = sz.set(ssz);
     if(!ok){ log_e("fail to parse sz '"+ssz+"'"); }
     //----
-        
-
+    bool b_wf = kvs.has("-save_frms");
+    if(b_wf) sys::mkdir("./frms");
+    //----
     auto pv0 = Video::open(0);
     auto pv1 = Video::open(1);
     if((pv0==nullptr)||pv1==nullptr)
         return false;
 
+    int i=0;
     while(1)
     {
+        i++;
 
         auto pL = pv0->read();
         auto pR = pv1->read();
@@ -162,6 +166,14 @@ bool VO_mng::run_dualCams(CStrs& args)
         //---- dbg show
         pL->show("Left");
         pR->show("Right");
+        //--- save frm
+        if(b_wf)
+        {
+            string sf = to_string(i)+".png";
+            ok &= pL->save("./frms/L/"+sf);
+            ok &= pL->save("./frms/L/"+sf);
+            if(!ok)break;
+        }
         //----
         p_vo_->onImg(*pL, *pR);
         if(cv_waitESC(1))break;
