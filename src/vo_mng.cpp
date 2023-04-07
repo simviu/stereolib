@@ -31,7 +31,7 @@ void VO_mng::init_cmds()
        return init_os3(args);
     }));
     //----
-    add("frms", mkSp<Cmd>("pathL=<PATH_L> pathR=<PATH_R>",
+    add("frms", mkSp<Cmd>("dir=<PATH>",
     [&](CStrs& args)->bool{ 
        return run_frms(args);
     }));
@@ -78,8 +78,37 @@ bool VO_mng::chk_init()const
 //-----
 bool VO_mng::run_frms(CStrs& args)
 {
-    log_e("not yet");
-    return false;
+    
+    if(!chk_init()) return false;
+    //-----
+    bool ok = true;
+    KeyVals kvs(args);
+    string sdir; 
+    if(!kvs.get("dir", sdir)) return false;
+    
+    int i=0;
+    while(1)
+    {
+        i++;
+        string sf = to_string(i)+".png";
+        auto pL = Img::loadFile(sdir+"/L/"+sf);
+        auto pR = Img::loadFile(sdir+"/R/"+sf);
+        if(pL==nullptr || pR==nullptr)break;
+
+        //---- dbg show
+        pL->show("Left");
+        pR->show("Right");
+        //----
+        p_vo_->onImg(*pL, *pR);
+
+        //----
+        if(cv_waitESC(1))break;
+    }
+    //--- 
+    log_i("VO finished, saving traj...");
+    p_vo_->onClose();
+    ok &= p_vo_->save(lc_.sf_traj);
+    return ok;
 }
 
 //-----
