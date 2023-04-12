@@ -86,6 +86,7 @@ namespace stereo
     class ReconFrm : public Recon3d::Frm
     {
     public:
+        using Frm::Frm;
         virtual bool calc(const Recon3d::Cfg& cfg)override;
 
     };

@@ -13,7 +13,8 @@ using namespace stereo;
 //----
 namespace{
     struct LC{
-        string sf_traj = "./traj.txt";
+        string s_wdir = "./out/";
+        string sf_traj = "traj.txt";
     }; LC lc_;
 }
 
@@ -70,7 +71,12 @@ bool VO_mng::init_os3(CStrs& args)
 //-----
 bool VO_mng::chk_init()const
 {
-    if(p_vo_!=nullptr) return true;
+    if(!sys::mkdir(lc_.s_wdir))
+        return false;
+
+    //----
+    if(p_vo_!=nullptr) 
+        return true;
     log_e("VO not init, call 'init' or 'init_os3'");
     return false;
 }
@@ -210,6 +216,7 @@ bool VO_mng::run_dualCams(CStrs& args)
     //----
     log_i("VO finished, saving traj...");
     p_vo_->onClose();
-    ok &= p_vo_->save(lc_.sf_traj);
+    string sft = lc_.s_wdir + lc_.sf_traj;
+    ok &= p_vo_->save(sft);
     return ok;
 }

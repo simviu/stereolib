@@ -239,6 +239,7 @@ namespace stereo
                 int color_img = 2;
                 int dispar_img = -1;
                 int depth_img = -1; // TODO: json
+                bool b_save_pcd = false;
             }; FrmsCfg frms;
             struct DepthC{ 
                 Rng<double> range; // box range
@@ -248,17 +249,21 @@ namespace stereo
                 Points::Vis::Cfg pntvc;
             }; VisCfg visc;
             //----
+            string s_wdir = "./out/";
+            //----
             bool load(const string& sf);
         }; Cfg cfg_;
         //----
         struct Frm{
+            Frm(int i):idx(i){}
+            int idx=0;
             vector<Sp<Img>> imgs;
             Pose T;
             Points pnts;
             Depth depth;
 
             virtual bool calc(const Cfg& cfg)=0;
-            static Sp<Frm> create();
+            static Sp<Frm> create(int i);
 
             bool recon(const Cfg& cfg);
             bool load(const Cfg& cfg, const string& sPath, int i);
@@ -301,7 +306,6 @@ namespace stereo
         Sp<Points::Vis> get_frm_pnt_vis();
 
         void show(const Frm& f);
-
     };
 
     //-----

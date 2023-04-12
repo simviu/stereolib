@@ -15,6 +15,8 @@ using namespace stereo;
 namespace{
     struct LCfg{
         float fps = 30; 
+        string s_wdir_pcds = "pcds/";
+        string s_gpcd = "global_pnts.pcd";
     }; LCfg lc_;
     
 }
@@ -54,9 +56,9 @@ namespace{
 // ReconFrm
 //----------
 // Factory
-Sp<Recon3d::Frm> Recon3d::Frm::create()
+Sp<Recon3d::Frm> Recon3d::Frm::create(int i)
 {
-    return mkSp<ReconFrm>();
+    return mkSp<ReconFrm>(i);
 }
 //-------
 bool ReconFrm::calc(const Recon3d::Cfg& cfg)
@@ -73,6 +75,8 @@ bool ReconFrm::calc(const Recon3d::Cfg& cfg)
     if(!ok) return false;
     //--- recon
     ok &= recon(cfg);
+
+    //----
     return true;
 }
 
@@ -110,7 +114,8 @@ bool Recon3d::Cfg::load(const string& sf)
             frms.color_img = std::stoi(jf["color_img"].asString());
             frms.dispar_img = std::stoi(jf["dispar_img"].asString());
             frms.depth_img = std::stoi(jf["depth_img"].asString());
-        }    
+            frms.b_save_pcd = jf["save_pcd"].asBool();
+        }
         //---
         string sfd = jd.get("disparity", "").asString();
         if(sfd!="")
@@ -122,6 +127,12 @@ bool Recon3d::Cfg::load(const string& sf)
             vector<double> ds; 
             if(s2data(sr, ds)) depth.range = {ds[0], ds[1]}; 
             else ok = false;
+        }
+        //---- others
+        {
+            s_wdir = jd["wdir"].asString();
+            if(!sys::mkdir(s_wdir))
+                ok = false;
         }
         
     }
@@ -227,13 +238,24 @@ bool Recon3d::Frm::rectify(const CamsCfg& camcs)
 //----
 bool Recon3d::Frm::genPnts(const Cfg& cfg)
 {
+    bool ok = true;
     if(cfg.frms.depth_img>=0)
-        return genPnts_byDepth(cfg);
+        ok &= genPnts_byDepth(cfg);
     else if(cfg.frms.dispar_img>=0)
-        return genPnts_byDisp(cfg);
+        ok &= genPnts_byDisp(cfg);
     else // Full pipeline L/R stereo from scratch
-        return genPnts_byLR(cfg);
+        ok &= genPnts_byLR(cfg);
+    
+    //--- save frm
+    string swdir = cfg.s_wdir + lc_.s_wdir_pcds;
+    if(!sys::mkdir(swdir)) ok &= false;
+    if(ok && cfg.frms.b_save_pcd)
+        ok &= pnts.save(swdir + to_string(idx) + ".pcd");
+
+    return ok;
 }
+
+
 //----
 bool Recon3d::Frm::genPnts_byDepth(const Cfg& cfg)
 {
@@ -462,18 +484,19 @@ bool Recon3d::onImg(Frm& f)
     //---- recon
     bool ok = true;
     ok &= f.calc(cfg_);
-
+    
     //--- show
     show(f);
     return true;
 
 }
+
 //----
 bool Recon3d::run_frm(const string& sPath, int i)
 {
 
     log_i("frm:"+str(i));
-    auto p = Frm::create();
+    auto p = Frm::create(i);
     if(!p->load(cfg_, sPath, i))
         return false;
     
@@ -508,14 +531,13 @@ bool Recon3d::run_video(const string& sf)
     {
         i++;
         log_i("frm:"+str(i));
-        auto p = Frm::create();
+        auto p = Frm::create(i);
         if(!p->load(*pv))
             break;
         
         //---- call
         onImg(*p);
 
-        
         sys::sleep(1.0/lc_.fps);
     }
     return true;
@@ -530,13 +552,12 @@ bool Recon3d::run_frms(const string& sPath)
     {
         i++;
         log_i("frm:"+str(i));
-        auto p = Frm::create();
+        auto p = Frm::create(i);
         if(!p->load(cfg_, sPath, i))
             break;
         
         //---- call
         onImg(*p);
-
         
         sys::sleep(1.0/lc_.fps);
     }
