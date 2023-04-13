@@ -94,12 +94,12 @@ bool VOcv::onImg(const Img& im1,
     auto& frmo = *p_frmo;
     VO::data_.p_frm = p_frmo;
     auto& depth = frmo.depth;
-    if(cfg_.run.enDepth)
-        ok &= genDepth(im1, im2, depth);
+ //   if(cfg_.run.enDepth)
+ //       ok &= genDepth(im1, im2, depth);
 
     //---- gen denth map
-    if(cfg_.run.enDense)
-        ok &= genDense(im1);
+ //   if(cfg_.run.enDense)
+ //       ok &= genDense(im1);
     
     //---- do odometry
     auto p_frmp = data_.p_frm_prev;
@@ -378,11 +378,11 @@ void VOcv::calc_pnts(const FrmCv& frmc,
         Ps.push_back(P);
     }
 }
-
+/*
 //-----------
 bool VOcv::genDepth(const Img& im1,  
                     const Img& im2,
-                    Depth& depth)
+                    Dispar& depth)
 {
     bool ok = true;
     //---- quasi slow and result not good
@@ -391,10 +391,11 @@ bool VOcv::genDepth(const Img& im1,
     return ok;
 
 }
+*/
 //----------------
 bool VOcv::run_quasi(const Img& im1,
                      const Img& im2,
-                     Depth& depth)
+                     Dispar& depth)
 {
     bool ok = true;
 
@@ -417,6 +418,7 @@ bool VOcv::run_quasi(const Img& im1,
 }
 
 //------
+/*
 bool VOcv::genDense(const Img& imL)
 {
     auto p_frmo = VO::data_.p_frm;
@@ -469,7 +471,7 @@ bool VOcv::genDense(const Img& imL)
     return true;
 }
 
-
+*/
 //-----
 void VOcv::show()
 {

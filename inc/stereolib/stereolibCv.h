@@ -25,7 +25,7 @@ namespace stereo
         struct MPnt{
             int mi=-1; // index to matches
             cv::Point3f Pt; // 3d triangulation pnt
-            cv::Point3f Pd; // 3d pnt by depth
+            cv::Point3f Pd; // 3d pnt by dspr
         };
 
         //--- frm data
@@ -50,10 +50,11 @@ namespace stereo
         //----
         virtual bool onImg(const Img& im1, 
                         const Img& im2)override;
-
+        /*
         virtual bool genDepth(const Img& im1,  
                             const Img& im2,
-                            Depth& depth)override;
+                            Dispar& dspr)override;
+        */
         virtual bool save(const string& sf)override
         { log_e("not yet"); return false; }
 
@@ -70,16 +71,16 @@ namespace stereo
         void calc_pnts(const FrmCv& frmc,
                     const set<int>& mi_ary,
                     vec3s& Ps)const;
-        bool genDense(const Img& imL);
+    //    bool genDense(const Img& imL);
         void show();
 
         //----
         bool run_sgbm(const Img& im1,
                     const Img& im2,
-                    Depth& depth);
+                    Dispar& dspr);
         bool run_quasi(const Img& im1,
                     const Img& im2,
-                    Depth& depth);
+                    Dispar& dspr);
 
     };
     //---- impl Recon3d::Frm

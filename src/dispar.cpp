@@ -86,7 +86,7 @@ bool DisparityCfg::load(const string& sf)
 
 
 //----------------
-bool Depth::calc_dispar(const DisparityCfg& cfg,
+bool Dispar::calc_dispar(const DisparityCfg& cfg,
                         const Img& im1, 
                         const Img& im2)
 {

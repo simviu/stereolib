@@ -65,8 +65,8 @@ namespace stereo
         float vis_mul = 8.0;
         bool load(const string& sf);
     };
-    //---- Depth
-    class Depth{
+    //---- Dispar
+    class Dispar{
     public:
         
         //---- depth disparity map
@@ -142,8 +142,8 @@ namespace stereo
             // Triangulated feature points
             //  in global space.
             vec3s Pws; 
-            //---- Depth
-            Depth depth;
+            //---- Dispar
+            Dispar depth;
             
             //---- point cloud
             struct PntCloud{
@@ -191,10 +191,11 @@ namespace stereo
         //----
         virtual bool onImg(const Img& im1, 
                         const Img& im2)=0;
-
+        /*
         virtual bool genDepth(const Img& im1,  
                             const Img& im2,
-                            Depth& depth)=0;
+                            Dispar& dspr)=0;
+        */
         //--- save trajectory
         virtual void onClose(){};
         virtual bool save(const string& sf)=0;
@@ -260,7 +261,7 @@ namespace stereo
             vector<Sp<Img>> imgs;
             Pose T;
             Points pnts;
-            Depth depth;
+            Dispar depth;
 
             virtual bool calc(const Cfg& cfg)=0;
             static Sp<Frm> create(int i);

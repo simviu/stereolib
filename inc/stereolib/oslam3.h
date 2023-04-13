@@ -18,10 +18,13 @@ public:
     
     virtual bool onImg(const Img& im1, 
                        const Img& im2)override;
+    /*
     virtual bool genDepth(const Img& im1,  
                           const Img& im2,
-                          Depth& depth)override
+                          Dispar& dspr)override
                         { return false; }
+    */
+   
     virtual bool save(const string& sf)override;
     virtual void onClose()override;
     bool init(
