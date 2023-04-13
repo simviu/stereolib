@@ -306,7 +306,7 @@ namespace stereo
     protected:
         void init_cmds();
         bool init(CStrs& args);
-        Sp<DepthGen> p_recon_ = mkSp<DepthGen>();
+        Sp<DepthGen> p_depth_ = mkSp<DepthGen>();
         Sp<VO_mng> p_vo_mng_ = mkSp<VO_mng>();
     };
 }

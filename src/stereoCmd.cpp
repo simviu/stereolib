@@ -23,8 +23,8 @@ void StereoCmd::init_cmds()
     }));
     
 
-    assert(p_recon_!=nullptr);
-    Cmd::add("recon", p_recon_);    
+    assert(p_depth_!=nullptr);
+    Cmd::add("depth", p_depth_);    
     
     assert(p_vo_mng_!=nullptr);
     Cmd::add("vo", p_vo_mng_);
