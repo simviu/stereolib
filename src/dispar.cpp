@@ -86,9 +86,9 @@ bool DisparityCfg::load(const string& sf)
 
 
 //----------------
-bool Dispar::calc_dispar(const DisparityCfg& cfg,
+Sp<Img> Recon3d::Frm::calc_dispar(const DisparityCfg& cfg,
                         const Img& im1, 
-                        const Img& im2)
+                        const Img& im2)const
 {
     ocv::ImgCv imc1(im1);
     ocv::ImgCv imc2(im2);
@@ -180,6 +180,6 @@ bool Dispar::calc_dispar(const DisparityCfg& cfg,
         cv::Mat im_conf = p_fltr->getConfidenceMap();    
         imd = imdf;
     }
-    p_im_disp = mkSp<ocv::ImgCv>(imd);
-    return true;
+    auto p = mkSp<ocv::ImgCv>(imd);
+    return p;
 }

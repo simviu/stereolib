@@ -93,14 +93,7 @@ bool VOcv::onImg(const Img& im1,
     auto p_frmo = mkSp<VO::Frm>();
     auto& frmo = *p_frmo;
     VO::data_.p_frm = p_frmo;
-    auto& depth = frmo.depth;
- //   if(cfg_.run.enDepth)
- //       ok &= genDepth(im1, im2, depth);
 
-    //---- gen denth map
- //   if(cfg_.run.enDense)
- //       ok &= genDense(im1);
-    
     //---- do odometry
     auto p_frmp = data_.p_frm_prev;
     if(p_frmp!=nullptr)
@@ -393,9 +386,8 @@ bool VOcv::genDepth(const Img& im1,
 }
 */
 //----------------
-bool VOcv::run_quasi(const Img& im1,
-                     const Img& im2,
-                     Dispar& depth)
+Sp<Img> VOcv::run_quasi(const Img& im1,
+                        const Img& im2)
 {
     bool ok = true;
 
@@ -413,8 +405,7 @@ bool VOcv::run_quasi(const Img& im1,
 
     vector<cv::stereo::MatchQuasiDense> matches;
     stereo->getDenseMatches(matches);
-    depth.p_im_disp = mkSp<ocv::ImgCv>(im_disp);
-    return ok;
+    return mkSp<ocv::ImgCv>(im_disp);
 }
 
 //------
@@ -479,10 +470,9 @@ void VOcv::show()
     if(p_frmo==nullptr)
         return;
     auto& frmo = *p_frmo;
-    auto& depth = frmo.depth;
     auto& pntc = frmo.pntc;
     //---- show disparity img
-    auto p_imd = frmo.depth.p_im_disp;
+    auto p_imd = frmo.p_im_disp;
     if(p_imd != nullptr)
     {
         auto& dc = cfg_.dispar;

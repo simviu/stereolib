@@ -71,8 +71,8 @@ bool ReconFrm::calc(const Recon3d::Cfg& cfg)
     //---- calc disparity
     auto& uds = data_.ud_imgs;
     assert(uds.size()>1);
-    ok &= depth.calc_dispar(cfg.disp, *uds[0], *uds[1]);
-    if(!ok) return false;
+    data_.p_im_disp = calc_dispar(cfg.disp, *uds[0], *uds[1]);
+    
     //--- recon
     ok &= recon(cfg);
 
@@ -306,7 +306,7 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     bool ok = true;
 
     //-----
-    auto p_imd = depth.p_im_disp;
+    auto p_imd = data_.p_im_disp;
     assert(p_imd);
     cv::Mat imd = img2cv(*p_imd);
     int tp = imd.type();
@@ -379,7 +379,7 @@ void Recon3d::Frm::disp_to_pnts(const Cfg& cfg)
     //---- get disparity and color
     int ic = cfg.frms.color_img;
     assert(ic < imgs.size()); 
-    auto p_imd = depth.p_im_disp;
+    auto p_imd = data_.p_im_disp;
     assert(p_imd!=nullptr);
     auto imd = img2cv(*p_imd);
     Sp<Img> p_imc = nullptr; // color img may not have
@@ -595,7 +595,8 @@ void Recon3d::show(const Frm& f)
         pC->show("Color undistorted");
     }
     //--- disparity
-    auto p_imd = f.depth.p_im_disp;
+    auto& fdt = f.data();
+    auto p_imd = fdt.p_im_disp;
     if(p_imd!=nullptr)
     {
         cv::Mat imd = img2cv(*p_imd);

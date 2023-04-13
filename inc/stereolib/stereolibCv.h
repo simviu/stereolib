@@ -75,12 +75,10 @@ namespace stereo
         void show();
 
         //----
-        bool run_sgbm(const Img& im1,
-                    const Img& im2,
-                    Dispar& dspr);
-        bool run_quasi(const Img& im1,
-                    const Img& im2,
-                    Dispar& dspr);
+        Sp<Img> run_sgbm(const Img& im1,
+                         const Img& im2);
+        Sp<Img> run_quasi(const Img& im1,
+                          const Img& im2);
 
     };
     //---- impl Recon3d::Frm

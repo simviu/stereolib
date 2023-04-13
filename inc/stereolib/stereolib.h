@@ -65,20 +65,7 @@ namespace stereo
         float vis_mul = 8.0;
         bool load(const string& sf);
     };
-    //---- Dispar
-    class Dispar{
-    public:
-        
-        //---- depth disparity map
-        Sp<Img> p_im_disp = nullptr;
-         // depth img
-        Sp<Img> p_im_depth = nullptr;
-
-        bool calc_dispar(const DisparityCfg& cfg,
-                         const Img& im1,
-                         const Img& im2);
-    };
-
+    
     //Stereo video odometry
     class VO {
     public:
@@ -142,14 +129,14 @@ namespace stereo
             // Triangulated feature points
             //  in global space.
             vec3s Pws; 
-            //---- Dispar
-            Dispar depth;
             
             //---- point cloud
             struct PntCloud{
                 Sp<Points> p_dense  = nullptr;
                 Sp<Points> p_sparse = nullptr;
             }; PntCloud pntc;
+
+            Sp<Img> p_im_disp = nullptr;
         };
         //----
         struct Data{
@@ -261,7 +248,6 @@ namespace stereo
             vector<Sp<Img>> imgs;
             Pose T;
             Points pnts;
-            Dispar depth;
 
             virtual bool calc(const Cfg& cfg)=0;
             static Sp<Frm> create(int i);
@@ -285,6 +271,9 @@ namespace stereo
         protected:
             Data data_;
 
+            Sp<Img> calc_dispar(const DisparityCfg& cfg,
+                            const Img& im1,
+                            const Img& im2)const;            
             bool genPnts_byDepth(const Cfg& cfg);
             bool genPnts_byDisp(const Cfg& cfg);
             bool genPnts_byLR(const Cfg& cfg);
