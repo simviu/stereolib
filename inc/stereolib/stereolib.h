@@ -213,11 +213,11 @@ namespace stereo
     };
     
     //------------
-    // Recon3d
+    // DepthGen
     //------------
 
     //---- Re-construct 3d point cloud scene
-    class Recon3d : public Cmd{
+    class DepthGen : public Cmd{
     public:
         struct Cfg{
             CamsCfg cams;
@@ -280,7 +280,7 @@ namespace stereo
             void disp_to_pnts(const Cfg& cfg);
         };
 
-        Recon3d(){ init_cmds(); }
+        DepthGen(){ init_cmds(); }
         bool onImg(Frm& frm);
         bool run_video(const string& sf);
         bool run_frms(const string& sPath);
@@ -306,7 +306,7 @@ namespace stereo
     protected:
         void init_cmds();
         bool init(CStrs& args);
-        Sp<Recon3d> p_recon_ = mkSp<Recon3d>();
+        Sp<DepthGen> p_recon_ = mkSp<DepthGen>();
         Sp<VO_mng> p_vo_mng_ = mkSp<VO_mng>();
     };
 }

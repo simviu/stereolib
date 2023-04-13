@@ -56,12 +56,12 @@ namespace{
 // ReconFrm
 //----------
 // Factory
-Sp<Recon3d::Frm> Recon3d::Frm::create(int i)
+Sp<DepthGen::Frm> DepthGen::Frm::create(int i)
 {
     return mkSp<ReconFrm>(i);
 }
 //-------
-bool ReconFrm::calc(const Recon3d::Cfg& cfg)
+bool ReconFrm::calc(const DepthGen::Cfg& cfg)
 {
     bool ok = true;
 
@@ -82,10 +82,10 @@ bool ReconFrm::calc(const Recon3d::Cfg& cfg)
 
 
 //------------------------------
-bool Recon3d::Cfg::load(const string& sf)
+bool DepthGen::Cfg::load(const string& sf)
 {
 
-    log_i("Load Recon3d cfg :'"+sf+"'");
+    log_i("Load DepthGen cfg :'"+sf+"'");
     ifstream ifs(sf);
     sys::FPath fp(sf);
 
@@ -151,11 +151,11 @@ bool Recon3d::Cfg::load(const string& sf)
     visc.pntvc.axisL = depth.range.d1;
     //visc.pntvc.axisL = 0.1; // dbg
     //----
-    log_i("Recon3d cfg loaded '"+sf +"'");
+    log_i("DepthGen cfg loaded '"+sf +"'");
     return true;
 }
 //-----
-bool Recon3d::Frm::load(Video& vid)
+bool DepthGen::Frm::load(Video& vid)
 {
     auto p = vid.read();
     if(p==nullptr)return false;
@@ -177,7 +177,7 @@ bool Recon3d::Frm::load(Video& vid)
 
 //-----
 
-bool Recon3d::Frm::load_imgs(const Cfg& cfg, const string& sPath, int i)
+bool DepthGen::Frm::load_imgs(const Cfg& cfg, const string& sPath, int i)
 {
     string si = to_string(i);
     auto& sDirs = cfg.frms.sDirs;
@@ -209,14 +209,14 @@ bool Recon3d::Frm::load_imgs(const Cfg& cfg, const string& sPath, int i)
 
 }
 //----
-bool Recon3d::Frm::load(const Cfg& cfg, const string& sPath, int i)
+bool DepthGen::Frm::load(const Cfg& cfg, const string& sPath, int i)
 {
     bool ok = true;
     ok &= load_imgs(cfg, sPath, i);
     return ok;
 }
 //----
-bool Recon3d::Frm::rectify(const CamsCfg& camcs)
+bool DepthGen::Frm::rectify(const CamsCfg& camcs)
 {
   //  auto& ccvd = cast_imp(*camcs.get_cvd());
     int N = camcs.cams.size();
@@ -236,7 +236,7 @@ bool Recon3d::Frm::rectify(const CamsCfg& camcs)
 }
 
 //----
-bool Recon3d::Frm::genPnts(const Cfg& cfg)
+bool DepthGen::Frm::genPnts(const Cfg& cfg)
 {
     bool ok = true;
     if(cfg.frms.depth_img>=0)
@@ -257,7 +257,7 @@ bool Recon3d::Frm::genPnts(const Cfg& cfg)
 
 
 //----
-bool Recon3d::Frm::genPnts_byDepth(const Cfg& cfg)
+bool DepthGen::Frm::genPnts_byDepth(const Cfg& cfg)
 {
     int i_d = cfg.frms.depth_img;
     assert(i_d<imgs.size());
@@ -299,7 +299,7 @@ bool Recon3d::Frm::genPnts_byDepth(const Cfg& cfg)
     return true;
 }
 //----
-bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
+bool DepthGen::Frm::genPnts_byLR(const Cfg& cfg)
 {
     // img 0/1 are always L/R
     assert(imgs.size()>1);
@@ -319,7 +319,7 @@ bool Recon3d::Frm::genPnts_byLR(const Cfg& cfg)
     return true;
 }
 //----
-bool Recon3d::Frm::genPnts_byDisp(const Cfg& cfg)
+bool DepthGen::Frm::genPnts_byDisp(const Cfg& cfg)
 {
 
     //--- if depth image is disparity
@@ -341,7 +341,7 @@ bool Recon3d::Frm::genPnts_byDisp(const Cfg& cfg)
 }
 //----
 /*
-bool Recon3d::Frm::renderPnts(const Cfg& cfg)
+bool DepthGen::Frm::renderPnts(const Cfg& cfg)
 {
     int ic = cfg.frms.color_img; 
     if(ic<0) return false; // no color
@@ -355,7 +355,7 @@ bool Recon3d::Frm::renderPnts(const Cfg& cfg)
 }
 */
 //-----
-bool Recon3d::Frm::recon(const Cfg& cfg)
+bool DepthGen::Frm::recon(const Cfg& cfg)
 {
     bool ok = true;
     ok &= genPnts(cfg);
@@ -367,7 +367,7 @@ bool Recon3d::Frm::recon(const Cfg& cfg)
 //---------------
 // calc_disp_to_pnts
 //---------------
-void Recon3d::Frm::disp_to_pnts(const Cfg& cfg)
+void DepthGen::Frm::disp_to_pnts(const Cfg& cfg)
 {
     //----
     auto& ccs = cfg.cams.cams;
@@ -437,10 +437,10 @@ void Recon3d::Frm::disp_to_pnts(const Cfg& cfg)
     }
 }
 //----------
-// Recon3d
+// DepthGen
 //----------
 //----
-void Recon3d::init_cmds()
+void DepthGen::init_cmds()
 {
     sHelp_ = "(Recon 3d point cloud from frms)";
 
@@ -478,7 +478,7 @@ void Recon3d::init_cmds()
 
 
 //---
-bool Recon3d::onImg(Frm& f)
+bool DepthGen::onImg(Frm& f)
 {
     
     //---- recon
@@ -492,7 +492,7 @@ bool Recon3d::onImg(Frm& f)
 }
 
 //----
-bool Recon3d::run_frm(const string& sPath, int i)
+bool DepthGen::run_frm(const string& sPath, int i)
 {
 
     log_i("frm:"+str(i));
@@ -504,7 +504,7 @@ bool Recon3d::run_frm(const string& sPath, int i)
     bool ok = onImg(*p);
     if(!ok)
     {
-        log_e("Recon3d::run_frm() failed");
+        log_e("DepthGen::run_frm() failed");
         return false;
     }
     
@@ -520,7 +520,7 @@ bool Recon3d::run_frm(const string& sPath, int i)
     return ok;
 }
 //----
-bool Recon3d::run_video(const string& sf)
+bool DepthGen::run_video(const string& sf)
 {
   //----
     int i=0;
@@ -544,7 +544,7 @@ bool Recon3d::run_video(const string& sf)
 }
 
 //----
-bool Recon3d::run_frms(const string& sPath)
+bool DepthGen::run_frms(const string& sPath)
 {
     //----
     int i=0;
@@ -564,7 +564,7 @@ bool Recon3d::run_frms(const string& sPath)
     return true;
 }
 //----
-Sp<Points::Vis> Recon3d::get_frm_pnt_vis()
+Sp<Points::Vis> DepthGen::get_frm_pnt_vis()
 {
     auto& p = data_.p_pvis_frm; 
     if(p!=nullptr) return p;
@@ -572,7 +572,7 @@ Sp<Points::Vis> Recon3d::get_frm_pnt_vis()
     return p;
 }
 //----
-void Recon3d::show(const Frm& f)
+void DepthGen::show(const Frm& f)
 {
     auto& fd = f.data();
 

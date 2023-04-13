@@ -86,7 +86,7 @@ bool DisparityCfg::load(const string& sf)
 
 
 //----------------
-Sp<Img> Recon3d::Frm::calc_dispar(const DisparityCfg& cfg,
+Sp<Img> DepthGen::Frm::calc_dispar(const DisparityCfg& cfg,
                         const Img& im1, 
                         const Img& im2)const
 {

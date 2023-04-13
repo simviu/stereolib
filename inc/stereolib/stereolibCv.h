@@ -81,12 +81,12 @@ namespace stereo
                           const Img& im2);
 
     };
-    //---- impl Recon3d::Frm
-    class ReconFrm : public Recon3d::Frm
+    //---- impl DepthGen::Frm
+    class ReconFrm : public DepthGen::Frm
     {
     public:
         using Frm::Frm;
-        virtual bool calc(const Recon3d::Cfg& cfg)override;
+        virtual bool calc(const DepthGen::Cfg& cfg)override;
 
     };
     //---- cv data
@@ -110,10 +110,10 @@ namespace stereo
     // stereo algorithm
     //--------
     extern void calc_disp_to_pnts_cv(
-            const Recon3d::Cfg& cfg,
+            const DepthGen::Cfg& cfg,
             cv::Mat imd, Points& pnts);
    
     extern void calc_im3d_to_pnts(
-            const Recon3d::Cfg& cfg,
+            const DepthGen::Cfg& cfg,
             cv::Mat im3d, Points& pnts);
 } // stereo
