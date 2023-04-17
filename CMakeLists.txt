@@ -65,7 +65,7 @@ target_link_libraries(stereoLib
     vsnLib 
     -fPIC
     pthread
-    -lGL
+#    -lGL
 #    ${OpenCV_LIBRARIES}
 #    ${Eigen3_LIBRARY}    
     )
