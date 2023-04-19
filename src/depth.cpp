@@ -107,15 +107,21 @@ bool DepthGen::Cfg::load(const string& sf)
             return false;
         //---
         {
-            frms.sDirs.clear();
-            auto jf = jd["frms"];
-            for(auto& j : jf["labels"])
-                frms.sDirs.push_back(j.asString());
-            frms.color_img = std::stoi(jf["color_img"].asString());
-            frms.dispar_img = std::stoi(jf["dispar_img"].asString());
-            frms.depth_img = std::stoi(jf["depth_img"].asString());
-            frms.b_save_pcd = jf["save_pcd"].asBool();
+            imgs.sDirs.clear();
+            auto jimgs = jd["imgs"];
+            for(auto& j : jimgs["dirs"])
+                imgs.sDirs.push_back(j.asString());
+            auto& idxs = imgs.idxs;
+
+            //---- 
+            auto jis = jimgs["idxs"];
+            idxs.color = std::stoi(jis["color"].asString());
+            idxs.dispar = std::stoi(jis["dispar"].asString());
+            idxs.depth = std::stoi(jis["depth"].asString());
+            
         }
+        //---
+        b_save_pcd = jd["save_pcd"].asBool();
         //---
         string sfd = jd.get("disparity", "").asString();
         if(sfd!="")
@@ -181,7 +187,7 @@ bool DepthGen::Frm::load(Video& vid)
 bool DepthGen::Frm::load_imgs(const Cfg& cfg, const string& sPath, int i)
 {
     string si = to_string(i);
-    auto& sDirs = cfg.frms.sDirs;
+    auto& sDirs = cfg.imgs.sDirs;
     int N = sDirs.size();
     int k=0;
     for(k=0;k<N;k++)
@@ -240,9 +246,9 @@ bool DepthGen::Frm::rectify(const CamsCfg& camcs)
 bool DepthGen::Frm::genPnts(const Cfg& cfg)
 {
     bool ok = true;
-    if(cfg.frms.depth_img>=0)
+    if(cfg.imgs.idxs.depth>=0)
         ok &= genPnts_byDepth(cfg);
-    else if(cfg.frms.dispar_img>=0)
+    else if(cfg.imgs.idxs.dispar>=0)
         ok &= genPnts_byDisp(cfg);
     else // Full pipeline L/R stereo from scratch
         ok &= genPnts_byLR(cfg);
@@ -250,7 +256,7 @@ bool DepthGen::Frm::genPnts(const Cfg& cfg)
     //--- save frm
     string swdir = cfg.s_wdir + lc_.s_wdir_pcds;
     if(!sys::mkdir(swdir)) ok &= false;
-    if(ok && cfg.frms.b_save_pcd)
+    if(ok && cfg.b_save_pcd)
         ok &= pnts.save(swdir + to_string(idx) + ".pcd");
 
     return ok;
@@ -260,14 +266,14 @@ bool DepthGen::Frm::genPnts(const Cfg& cfg)
 //----
 bool DepthGen::Frm::genPnts_byDepth(const Cfg& cfg)
 {
-    int i_d = cfg.frms.depth_img;
+    int i_d = cfg.imgs.idxs.depth;
     assert(i_d<imgs.size());
     auto pd = imgs[i_d];
     assert(pd!=nullptr);
     
 
     // assume depth aligned with RGB
-    int i_c = cfg.frms.color_img;
+    int i_c = cfg.imgs.idxs.color;
     assert(i_c<imgs.size());
     auto pc = imgs[i_c];
 
@@ -378,7 +384,7 @@ void DepthGen::Frm::disp_to_pnts(const Cfg& cfg)
     CamCfg::Lense l; cc0.toLense(l);
     double fx = l.fx; // focal length
     //---- get disparity and color
-    int ic = cfg.frms.color_img;
+    int ic = cfg.imgs.idxs.color;
     assert(ic < imgs.size()); 
     auto p_imd = data_.p_im_disp;
     assert(p_imd!=nullptr);
@@ -586,7 +592,7 @@ void DepthGen::show(const Frm& f)
     pR->show("Right undistorted");
     
     // show color img
-    int i_c = cfg_.frms.color_img;
+    int i_c = cfg_.imgs.idxs.color;
     if(i_c>1)
     {
         assert(i_c<ud_imgs.size());

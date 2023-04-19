@@ -215,20 +215,21 @@ namespace stereo
     //------------
     // DepthGen
     //------------
-
     //---- Re-construct 3d point cloud scene
     class DepthGen : public Cmd{
     public:
         struct Cfg{
             CamsCfg cams;
             DisparityCfg disp;
-            struct FrmsCfg{
+            struct Imgs{
                 vector<string> sDirs{"L","R","C","D","N"};                
-                int color_img = 2;
-                int dispar_img = -1;
-                int depth_img = -1; // TODO: json
-                bool b_save_pcd = false;
-            }; FrmsCfg frms;
+                struct Idxs{
+                    int color=0;
+                    int dispar=-1;
+                    int depth=-1; 
+                }; Idxs idxs;
+            };Imgs imgs;
+            bool b_save_pcd = false;
             struct DepthC{ 
                 Rng<double> range; // box range
             }; DepthC depth;

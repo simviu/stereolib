@@ -1,13 +1,11 @@
 {
     
     "cams_cfg" : "cams.json",
-    "frms":{
-        "# labels":["L","R","C","D","N"],        
-        "labels":["L","R","C"],
-        "color_img":2,
-        "depth_img":-1,
-        "dispar_img":-1
+    "imgs":{
+        "dirs":["L","R","C"],
+        "idxs":{ "color":2, "depth":-1, "dispar":-1 }
     },
+    "save_pcd":true,
     "disparity": "disparity.json",
     "depth":{
 	 "range": "0.01, 1" 
