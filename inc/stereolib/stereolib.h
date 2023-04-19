@@ -297,6 +297,8 @@ namespace stereo
 
         void show(const Frm& f);
     };
+    //-------------
+    // 
 
     //-----
     class StereoCmd : public Cmd

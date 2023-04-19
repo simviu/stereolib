@@ -129,12 +129,13 @@ bool DepthGen::Cfg::load(const string& sf)
             else ok = false;
         }
         //---- others
-        {
-            s_wdir = jd["wdir"].asString();
-            if(!sys::mkdir(s_wdir))
-                ok = false;
+        s_wdir = jd["wdir"].asString();
+        if(s_wdir!="")
+            ok &= sys::mkdir(s_wdir);
+        else{
+            log_e("missing 'wdir'");
+            ok = false;
         }
-        
     }
     catch(exception& e)
     {
