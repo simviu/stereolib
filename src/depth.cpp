@@ -15,8 +15,7 @@ using namespace stereo;
 namespace{
     struct LCfg{
         float fps = 30; 
-        string s_wdir_pcds = "pcds/";
-        string s_gpcd = "global_pnts.pcd";
+        string s_pcds = "pcds/";
     }; LCfg lc_;
     
 }
@@ -254,7 +253,7 @@ bool DepthGen::Frm::genPnts(const Cfg& cfg)
         ok &= genPnts_byLR(cfg);
     
     //--- save frm
-    string swdir = cfg.s_wdir + lc_.s_wdir_pcds;
+    string swdir = cfg.s_wdir + lc_.s_pcds;
     if(!sys::mkdir(swdir)) ok &= false;
     if(ok && cfg.b_save_pcd)
         ok &= pnts.save(swdir + to_string(idx) + ".pcd");
@@ -449,7 +448,7 @@ void DepthGen::Frm::disp_to_pnts(const Cfg& cfg)
 //----
 void DepthGen::init_cmds()
 {
-    sHelp_ = "(Recon 3d point cloud from frms)";
+    sHelp_ = "(Depth generation)";
 
 
     Cmd::add("init", mkSp<Cmd>("cfg=<CFG_FILE>",

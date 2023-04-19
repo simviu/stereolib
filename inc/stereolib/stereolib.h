@@ -299,7 +299,20 @@ namespace stereo
         void show(const Frm& f);
     };
     //-------------
-    // 
+    // ReconScn
+    //-------------
+    class ReconScn : public Cmd
+    {
+    public:
+        ReconScn(){ init_cmds(); }
+        struct Cfg{
+            bool load(const string& sf);
+        }; Cfg cfg_;
+    protected:
+        void init_cmds();
+        bool init(CStrs& args);
+        bool run_frms(const string& sdir);
+    };
 
     //-----
     class StereoCmd : public Cmd
