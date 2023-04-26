@@ -22,12 +22,14 @@ add_definitions(${PCL_DEFINITIONS})
 link_directories(/opt/dep/local/lib)
 
 #---- 
-message(STATUS "vsnLb_DIR=$ENV{vsnLib_DIR}")
+message(STATUS "utLib_DIR=$ENV{utLib_DIR}")
+message(STATUS "vsnLib_DIR=$ENV{vsnLib_DIR}")
 
 include_directories(
     inc 
     ${OpenCV_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIR}
+    $ENV{utLib_DIR}/inc
     $ENV{vsnLib_DIR}/inc
     ${JsonCpp_INCLUDE_DIR}
     /opt/dep/local/include
