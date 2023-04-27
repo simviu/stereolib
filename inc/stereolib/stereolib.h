@@ -298,6 +298,7 @@ namespace stereo
 
         void show(const Frm& f);
     };
+    
     //-------------
     // ReconScn
     //-------------
@@ -308,10 +309,19 @@ namespace stereo
         struct Cfg{
             bool load(const string& sf);
         }; Cfg cfg_;
+
+        //----
+        struct Traj{
+            bool load(const string& sf);
+            struct TPnt{
+                Pose T;
+                double t=0;
+            };     
+        };
     protected:
         void init_cmds();
         bool init(CStrs& args);
-        bool run_frms(const string& sdir);
+        bool run_pcds(const string& sdir);
     };
 
     //-----
@@ -322,7 +332,6 @@ namespace stereo
     protected:
         void init_cmds();
         bool init(CStrs& args);
-        Sp<DepthGen> p_depth_ = mkSp<DepthGen>();
-        Sp<VO_mng> p_vo_mng_ = mkSp<VO_mng>();
+       
     };
 }

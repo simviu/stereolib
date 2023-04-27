@@ -21,13 +21,11 @@ void StereoCmd::init_cmds()
     [&](CStrs& args)->bool{ 
        return init(args);
     }));
-    
 
-    assert(p_depth_!=nullptr);
-    Cmd::add("depth", p_depth_);    
-    
-    assert(p_vo_mng_!=nullptr);
-    Cmd::add("vo", p_vo_mng_);
+    //---- modules    
+    Cmd::add("vo",      mkSp<VO_mng>());
+    Cmd::add("depth",   mkSp<DepthGen>());    
+    Cmd::add("recon",   mkSp<ReconScn>());
   
 }
 //----

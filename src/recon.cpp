@@ -20,7 +20,11 @@ namespace{
     }; LCfg lc_;
     
 }
-
+//----
+bool ReconScn::Cfg::load(const string& sf)
+{
+    return true;
+}
 //----
 void ReconScn::init_cmds()
 {
@@ -32,16 +36,43 @@ void ReconScn::init_cmds()
         return cfg_.load(lookup(kv, "cfg")); 
     }));
 
-    Cmd::add("frms", mkSp<Cmd>("dir=<DIR> (Run frms)",
+    Cmd::add("pcds", mkSp<Cmd>("dir=<DIR> traj=<TRAJ_FILE> (Recon by frm pcd and traj file)",
     [&](CStrs& args)->bool{ 
         StrTbl kv; parseKV(args, kv);
         string sdir = lookup(kv, "dir"); 
-        return run_frms(sdir); 
+        return run_pcds(sdir); 
     }));
 }
 
 //----
-bool ReconScn::run_frms(const string& sdir)
+bool ReconScn::run_pcds(const string& sdir)
 {
+
     return true;
 }
+//----
+bool ReconScn::Traj::load(const string& sf)
+{
+    ifstream ifs(sf);
+    if(!ifs.is_open())
+        { log_ef(sf); return false; }
+    //---
+    bool ok = true;
+    int i=0;
+    while(!ifs.eof())
+    {
+        i++;
+        string sln;
+        getline(ifs, sln);
+        ok &= !ifs.fail();
+        if(!ok)break;
+    }
+    //---
+    if(!ok)
+    {
+        log_e("Error reading line:"+to_string(i));
+        return false;
+    }
+    return true;
+}
+
