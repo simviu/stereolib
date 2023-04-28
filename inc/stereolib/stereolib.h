@@ -319,13 +319,18 @@ namespace stereo
             }; 
             vector<TPnt> tpnts;  
         private:
-            //--- Kitti format traj
-            bool dec_Kitti(const string& sln, TPnt& tp)const;  
+        };
+        //-----
+        struct Data{
+            Traj traj;
+            Points pnts;
         };
     protected:
+        Data data_;
+
         void init_cmds();
         bool init(CStrs& args);
-        bool run_pcds(const string& sdir);
+        bool run_merge(CStrs& args);
     };
 
     //-----

@@ -36,65 +36,77 @@ void ReconScn::init_cmds()
         return cfg_.load(lookup(kv, "cfg")); 
     }));
 
-    Cmd::add("pcds", mkSp<Cmd>("dir=<DIR> traj=<TRAJ_FILE> (Recon by frm pcd and traj file)",
+    Cmd::add("merge", mkSp<Cmd>("pcds=<DIR> traj=<TRAJ_FILE> (Recon by frm pcd and traj file)",
     [&](CStrs& args)->bool{ 
-        StrTbl kv; parseKV(args, kv);
-        string sdir = lookup(kv, "dir"); 
-        return run_pcds(sdir); 
+       
+        return run_merge(args); 
     }));
 }
 
+
 //----
-bool ReconScn::run_pcds(const string& sdir)
+bool ReconScn::Traj::load(const string& sf)
 {
 
-    return true;
-}
-//-----
-bool ReconScn::Traj::dec_Kitti(const string& sln, TPnt& tp)const
-{
+    ifstream ifs(sf);
+    if(!ifs.is_open())
+        { log_ef(sf); return false; }
+    log_i("loading traj file:'"+sf+"'...");
+    //---
+    bool ok = true;
+    int i=0;
     try{
-        vector<double> ds;
-        s2data(sln, ds, ' ');
-        if(ds.size()<8) 
-            throw ErrExcept("dec_Kitti() expect 8 digit each line"); 
-        return true;
+        while(!ifs.eof())
+        {
+            i++;
+            string sln;
+            getline(ifs, sln);
+            if(ifs.fail())continue;
+            //-----
+            TPnt tp; 
+            vector<double> ds;
+            ok &= s2data(sln, ds, ' ');
+            if(ds.size()==0)continue;
+            if(ds.size()<8) 
+                throw ErrExcept("dec_Kitti() expect 8 digit each line"); 
+            tp.t = ds[0];
+            tp.T.t << ds[1], ds[2], ds[3];
+            // quat w,x,y,z
+            tp.T.q = quat(ds[7],ds[4],ds[5],ds[6]);
+            tpnts.push_back(tp);
+            
+        }
+        //----
+        if(i==0) 
+            throw ErrExcept(" empty traj file");
     }
     catch(ErrExcept& e)
     {
         log_e(e.str());
         return false;
     }
+    //---
+    log_i("  load OK, N="+to_string(tpnts.size()));
     return true;
 }
+
 
 //----
-bool ReconScn::Traj::load(const string& sf)
+bool ReconScn::run_merge(CStrs& args)
 {
-    ifstream ifs(sf);
-    if(!ifs.is_open())
-        { log_ef(sf); return false; }
-    //---
-    bool ok = true;
-    int i=0;
-    while(!ifs.eof())
-    {
-        i++;
-        string sln;
-        getline(ifs, sln);
-        ok &= !ifs.fail();
-        TPnt tp;
-        ok &= dec_Kitti(sln, tp); 
-        if(!ok)break;
-        tpnts.push_back(tp);
-        
-    }
-    //---
-    if(!ok)
-    {
-        log_e("Error reading line:"+to_string(i));
+    KeyVals kvs(args);
+    string sd_pcds = kvs["pcds"]; 
+    string sf_traj = kvs["traj"];
+    if(sd_pcds=="" || sf_traj=="")return false; 
+    int i=1;
+    //---- Load Traj
+    if(!data_.traj.load(sf_traj))
         return false;
+
+    //---- load PCDs
+    while(1)
+    {
+        string sf = sd_pcds +"/" + to_string(i)+".pcd";
     }
     return true;
 }
-
