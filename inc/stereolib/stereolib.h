@@ -313,10 +313,14 @@ namespace stereo
         //----
         struct Traj{
             bool load(const string& sf);
-            struct TPnt{
+            struct TPnt{ // traj point
                 Pose T;
                 double t=0;
-            };     
+            }; 
+            vector<TPnt> tpnts;  
+        private:
+            //--- Kitti format traj
+            bool dec_Kitti(const string& sln, TPnt& tp)const;  
         };
     protected:
         void init_cmds();

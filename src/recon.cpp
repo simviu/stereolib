@@ -50,6 +50,24 @@ bool ReconScn::run_pcds(const string& sdir)
 
     return true;
 }
+//-----
+bool ReconScn::Traj::dec_Kitti(const string& sln, TPnt& tp)const
+{
+    try{
+        vector<double> ds;
+        s2data(sln, ds, ' ');
+        if(ds.size()<8) 
+            { throw ErrExcept(string("dec_Kitti() expect 8 digit each line")); }
+        return true;
+    }
+    catch(ErrExcept& e)
+    {
+        log_e(e.str());
+        return false;
+    }
+    return true;
+}
+
 //----
 bool ReconScn::Traj::load(const string& sf)
 {
@@ -65,7 +83,11 @@ bool ReconScn::Traj::load(const string& sf)
         string sln;
         getline(ifs, sln);
         ok &= !ifs.fail();
+        TPnt tp;
+        ok &= dec_Kitti(sln, tp); 
         if(!ok)break;
+        tpnts.push_back(tp);
+        
     }
     //---
     if(!ok)
