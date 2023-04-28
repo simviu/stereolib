@@ -57,7 +57,7 @@ bool ReconScn::Traj::dec_Kitti(const string& sln, TPnt& tp)const
         vector<double> ds;
         s2data(sln, ds, ' ');
         if(ds.size()<8) 
-            { throw ErrExcept(string("dec_Kitti() expect 8 digit each line")); }
+            throw ErrExcept("dec_Kitti() expect 8 digit each line"); 
         return true;
     }
     catch(ErrExcept& e)
