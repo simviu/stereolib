@@ -1,3 +1,3 @@
 depth init cfg=stereod/cam/oakdl/depth.json
-#recon frms dir=oakd_frms
-depth frm dir=cur_frms i=10
+depth frm dir=rund/frms i=10
+#depth frms dir=rund/frms 
