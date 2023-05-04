@@ -161,6 +161,13 @@ bool DepthGen::Cfg::load(const string& sf)
     return true;
 }
 //-----
+bool DepthGen::Cfg::set(const KeyVals& kvs)
+{
+    if(kvs.has("-save_pcd")) b_save_pcd = true;
+    return true;
+}
+
+//-----
 bool DepthGen::Frm::load(Video& vid)
 {
     auto p = vid.read();
@@ -449,6 +456,7 @@ void DepthGen::Frm::disp_to_pnts(const Cfg& cfg)
 void DepthGen::init_cmds()
 {
     sHelp_ = "(Depth generation)";
+    string sOpts = " [-save_pcd]";
 
 
     Cmd::add("init", mkSp<Cmd>("cfg=<CFG_FILE>",
@@ -457,22 +465,14 @@ void DepthGen::init_cmds()
         return cfg_.load(lookup(kv, "cfg")); 
     }));
 
-    Cmd::add("video", mkSp<Cmd>("file=<FILE>",
-    [&](CStrs& args)->bool{ 
-        string sf = KeyVals(args)["file"];
-        if(sf=="") return false; 
-        return run_video(sf); 
-    }));
+    Cmd::add("video", mkSp<Cmd>("file=<FILE>" + sOpts,
+    [&](CStrs& args)->bool{  return run_video(args);  }));
 
-    Cmd::add("frms", mkSp<Cmd>("dir=<DIR> (Run frms)",
-    [&](CStrs& args)->bool{ 
-        return run_frms(args); 
-    }));
+    Cmd::add("frms", mkSp<Cmd>("dir=<DIR> "+sOpts,
+    [&](CStrs& args)->bool{  return run_frms(args);  }));
 
-    Cmd::add("frm", mkSp<Cmd>("dir=<DIR> i=<IDX> (Run one frm)",
-    [&](CStrs& args)->bool{ 
-        return run_frm(args); 
-    }));
+    Cmd::add("frm", mkSp<Cmd>("dir=<DIR> i=<IDX> "+sOpts,
+    [&](CStrs& args)->bool{   return run_frm(args);  }));
 }
 
 
@@ -494,11 +494,11 @@ bool DepthGen::onImg(Frm& f)
 //----
 bool DepthGen::run_frm(CStrs& args)
 {
-
-    StrTbl kv; parseKV(args, kv);
-    string sPath = lookup(kv, "dir"); 
-    int i=-1; s2d(lookup(kv, "i"), i); 
-    if(i<0) return false;
+    KeyVals kvs(args);
+    string sPath =kvs["dir"]; 
+    int i=-1; 
+    if(!kvs.get("i", i))return false;
+    if(!cfg_.set(kvs))return false;
 
     log_i("frm:"+str(i));
     auto p = Frm::create(i);
@@ -527,8 +527,12 @@ bool DepthGen::run_frm(CStrs& args)
     return ok;
 }
 //----
-bool DepthGen::run_video(const string& sf)
+bool DepthGen::run_video(CStrs& args)
 {
+
+    KeyVals kvs(args);
+    string sf =kvs["file"]; 
+    if(!cfg_.set(kvs))return false;
   //----
     int i=0;
     auto pv = Video::open(sf);
@@ -553,8 +557,9 @@ bool DepthGen::run_video(const string& sf)
 //----
 bool DepthGen::run_frms(CStrs& args)
 {
-    StrTbl kv; parseKV(args, kv);
-    string sPath = lookup(kv, "dir"); 
+    KeyVals kvs(args);
+    string sPath =kvs["dir"]; 
+    if(!cfg_.set(kvs))return false;
     //----
     int i=0;
     while(1)

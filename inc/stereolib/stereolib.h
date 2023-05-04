@@ -229,7 +229,7 @@ namespace stereo
                     int depth=-1; 
                 }; Idxs idxs;
             };Imgs imgs;
-            bool b_save_pcd = false;
+
             struct DepthC{ 
                 Rng<double> range; // box range
             }; DepthC depth;
@@ -241,6 +241,9 @@ namespace stereo
             string s_wdir = "./out/";
             //----
             bool load(const string& sf);
+            //--- run options
+            bool b_save_pcd = false;
+            bool set(const KeyVals& kvs);
         }; Cfg cfg_;
         //----
         struct Frm{
@@ -283,7 +286,7 @@ namespace stereo
 
         DepthGen(){ init_cmds(); }
         bool onImg(Frm& frm);
-        bool run_video(const string& sf);
+        bool run_video(CStrs& args);
         bool run_frm(CStrs& args);
         bool run_frms(CStrs& args);
     protected:
