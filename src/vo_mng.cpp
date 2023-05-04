@@ -27,10 +27,12 @@ void VO_mng::init_cmds()
        return init(args);
     }));
     //----
+#ifdef WITH_ORB_SLAM3
     add("init_os3", mkSp<Cmd>("voc_file=<VOC_FILE> cfg=<CFG_FILE>",
     [&](CStrs& args)->bool{ 
        return init_os3(args);
     }));
+#endif
     //----
     add("frms", mkSp<Cmd>("dir=<PATH>",
     [&](CStrs& args)->bool{ 
@@ -58,6 +60,7 @@ bool VO_mng::init(CStrs& args)
     return ok;    
 }
 //----
+#ifdef WITH_ORB_SLAM3
 bool VO_mng::init_os3(CStrs& args)
 {
     KeyVals kvs(args);
@@ -66,8 +69,9 @@ bool VO_mng::init_os3(CStrs& args)
     if(!kvs.get("cfg", sfc)) return false;
     p_vo_ = VO::create_os3(sfv, sfc);
     return true;
-    
+
 }
+#endif
 //-----
 bool VO_mng::chk_init()const
 {

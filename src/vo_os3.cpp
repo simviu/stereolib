@@ -5,6 +5,9 @@
    Copyright(c): Simviu Inc.
    Website: https://www.simviu.com
  */
+
+#ifdef WITH_ORB_SLAM3
+
 #include "stereolib/oslam3.h"
 #include "stereolib/stereolibCv.h"
 
@@ -78,3 +81,6 @@ bool VO_os3::save(const string& sf)
     p_sys_->SaveTrajectoryEuRoC(sf);
     return true;
 }
+
+
+#endif // WITH_ORB_SLAM3

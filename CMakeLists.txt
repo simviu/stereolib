@@ -2,7 +2,7 @@ project(stereolib)
 cmake_minimum_required(VERSION 3.4)
 
 SET(CMAKE_CXX_STANDARD 14)
-SET(WITH_ORB_SLAM3 TRUE)
+#SET(WITH_ORB_SLAM3 TRUE)
 
 set(ENV{stereoLib_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
