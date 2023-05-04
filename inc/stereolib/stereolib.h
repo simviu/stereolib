@@ -256,7 +256,7 @@ namespace stereo
             virtual bool calc(const Cfg& cfg)=0;
             static Sp<Frm> create(int i);
 
-            bool recon(const Cfg& cfg);
+        //    bool recon(const Cfg& cfg);
             bool load(const Cfg& cfg, const string& sPath, int i);
             bool load_imgs(const Cfg& cfg, const string& sPath, int i);
             bool genPnts(const Cfg& cfg);

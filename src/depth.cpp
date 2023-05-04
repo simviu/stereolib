@@ -17,7 +17,7 @@ namespace{
         float fps = 30; 
         string s_pcds = "pcds/";
     }; LCfg lc_;
-    
+
     //---- impl DepthGen::Frm
     class FrmImp : public DepthGen::Frm
     {
@@ -81,7 +81,8 @@ bool FrmImp::calc(const DepthGen::Cfg& cfg)
     data_.p_im_disp = calc_dispar(cfg.disp, *uds[0], *uds[1]);
     
     //--- recon
-    ok &= recon(cfg);
+ //   ok &= recon(cfg);
+    ok &= genPnts(cfg);
 
     //----
     return true;
@@ -376,6 +377,7 @@ bool DepthGen::Frm::renderPnts(const Cfg& cfg)
 }
 */
 //-----
+/*
 bool DepthGen::Frm::recon(const Cfg& cfg)
 {
     bool ok = true;
@@ -383,7 +385,7 @@ bool DepthGen::Frm::recon(const Cfg& cfg)
     return true;
 
 }
-
+*/
 
 //---------------
 // calc_disp_to_pnts
