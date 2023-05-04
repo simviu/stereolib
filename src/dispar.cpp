@@ -152,18 +152,12 @@ Sp<Img> DepthGen::Frm::calc_dispar(const DisparityCfg& cfg,
     //---------------
     cv::Mat imL = imc1.im_;
     cv::Mat imR = imc2.im_;
-    cv::Mat ims, im_dispR;
-    sgbm.compute(imL, imR, ims);
+    cv::Mat imd, im_dispR;
+    sgbm.compute(imL, imR, imd);
 //    left_matcher->compute(left_for_matcher, right_for_matcher, left_disp);
     p_matcherR->compute(imR, imL, im_dispR);
 
     //---
-    cv::Mat imd;
-    float scl = 1.0/16.0;
-    //float scl = 1.0;
-
-    int tp = ims.type();
-    ims.convertTo(imd, CV_32F, scl);
     int tp1 = imd.type();
 
     //--- filter
@@ -180,6 +174,14 @@ Sp<Img> DepthGen::Frm::calc_dispar(const DisparityCfg& cfg,
         cv::Mat im_conf = p_fltr->getConfidenceMap();    
         imd = imdf;
     }
-    auto p = mkSp<ocv::ImgCv>(imd);
+    //---
+    cv::Mat imdo;
+    float scl = 1.0/16.0;
+    imd.convertTo(imdo, CV_32F, scl);
+ 
+    int tp2 = imd.type();
+    int tp3 = imdo.type();
+ 
+    auto p = mkSp<ocv::ImgCv>(imdo);
     return p;
 }
