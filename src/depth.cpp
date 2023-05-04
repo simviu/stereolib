@@ -18,6 +18,14 @@ namespace{
         string s_pcds = "pcds/";
     }; LCfg lc_;
     
+    //---- impl DepthGen::Frm
+    class FrmImp : public DepthGen::Frm
+    {
+    public:
+        using Frm::Frm;
+        virtual bool calc(const DepthGen::Cfg& cfg)override;
+
+    };
 }
 //---- util
 namespace{
@@ -52,15 +60,15 @@ namespace{
 }
 
 //----------
-// ReconFrm
+// FrmImp
 //----------
 // Factory
 Sp<DepthGen::Frm> DepthGen::Frm::create(int i)
 {
-    return mkSp<ReconFrm>(i);
+    return mkSp<FrmImp>(i);
 }
 //-------
-bool ReconFrm::calc(const DepthGen::Cfg& cfg)
+bool FrmImp::calc(const DepthGen::Cfg& cfg)
 {
     bool ok = true;
 

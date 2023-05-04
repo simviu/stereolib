@@ -81,14 +81,7 @@ namespace stereo
                           const Img& im2);
 
     };
-    //---- impl DepthGen::Frm
-    class ReconFrm : public DepthGen::Frm
-    {
-    public:
-        using Frm::Frm;
-        virtual bool calc(const DepthGen::Cfg& cfg)override;
-
-    };
+    
     //---- cv data
     class CamsCfgCvd : public CamsCfg::CvData
     {
