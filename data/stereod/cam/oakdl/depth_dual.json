@@ -3,7 +3,8 @@
     "cams_cfg" : "cams.json",
     "imgs":{
         "dirs":["L","R","C"],
-        "idxs":{ "color":2, "depth":-1, "dispar":-1 }
+        "idxs":{ "color":2, "dispar":-1, 
+                    "depth":-1, "depth_conf":-1 }
     },
     "save_pcd":true,
     "disparity": "disparity.json",

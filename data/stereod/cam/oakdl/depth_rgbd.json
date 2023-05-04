@@ -1,0 +1,16 @@
+{
+    
+    "cams_cfg" : "cams.json",
+    "imgs":{
+        "dirs":["L","R","C", "D", "N"],
+        "idxs":{ "color":2, "dispar":-1 , 
+                    "depth":2, "depth_conf":3}
+    },
+    "save_pcd":true,
+    "disparity": "disparity.json",
+    "depth":{
+	 "range": "0.01, 1" 
+    },
+    "wdir":"./out/"
+
+}

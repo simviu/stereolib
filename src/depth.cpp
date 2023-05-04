@@ -120,7 +120,7 @@ bool DepthGen::Cfg::load(const string& sf)
             
         }
         //---
-        b_save_pcd = jd["save_pcd"].asBool();
+        //b_save_pcd = jd["save_pcd"].asBool();
         //---
         string sfd = jd.get("disparity", "").asString();
         if(sfd!="")
@@ -252,7 +252,7 @@ bool DepthGen::Frm::genPnts(const Cfg& cfg)
     else // Full pipeline L/R stereo from scratch
         ok &= genPnts_byLR(cfg);
     
-    //--- save frm
+    //--- save frm pcd
     string swdir = cfg.s_wdir + lc_.s_pcds;
     if(!sys::mkdir(swdir)) ok &= false;
     if(ok && cfg.b_save_pcd)
@@ -457,13 +457,6 @@ void DepthGen::init_cmds()
         return cfg_.load(lookup(kv, "cfg")); 
     }));
 
-    Cmd::add("frms", mkSp<Cmd>("dir=<DIR> (Run frms)",
-    [&](CStrs& args)->bool{ 
-        StrTbl kv; parseKV(args, kv);
-        string sdir = lookup(kv, "dir"); 
-        return run_frms(sdir); 
-    }));
-
     Cmd::add("video", mkSp<Cmd>("file=<FILE>",
     [&](CStrs& args)->bool{ 
         string sf = KeyVals(args)["file"];
@@ -471,13 +464,14 @@ void DepthGen::init_cmds()
         return run_video(sf); 
     }));
 
+    Cmd::add("frms", mkSp<Cmd>("dir=<DIR> (Run frms)",
+    [&](CStrs& args)->bool{ 
+        return run_frms(args); 
+    }));
+
     Cmd::add("frm", mkSp<Cmd>("dir=<DIR> i=<IDX> (Run one frm)",
     [&](CStrs& args)->bool{ 
-        StrTbl kv; parseKV(args, kv);
-        string sdir = lookup(kv, "dir"); 
-        int i=-1; s2d(lookup(kv, "i"), i); 
-        if(i<0) return false;
-        return run_frm(sdir, i); 
+        return run_frm(args); 
     }));
 }
 
@@ -498,14 +492,21 @@ bool DepthGen::onImg(Frm& f)
 }
 
 //----
-bool DepthGen::run_frm(const string& sPath, int i)
+bool DepthGen::run_frm(CStrs& args)
 {
+
+    StrTbl kv; parseKV(args, kv);
+    string sPath = lookup(kv, "dir"); 
+    int i=-1; s2d(lookup(kv, "i"), i); 
+    if(i<0) return false;
 
     log_i("frm:"+str(i));
     auto p = Frm::create(i);
     if(!p->load(cfg_, sPath, i))
         return false;
     
+    
+
     //---- call
     bool ok = onImg(*p);
     if(!ok)
@@ -550,8 +551,10 @@ bool DepthGen::run_video(const string& sf)
 }
 
 //----
-bool DepthGen::run_frms(const string& sPath)
+bool DepthGen::run_frms(CStrs& args)
 {
+    StrTbl kv; parseKV(args, kv);
+    string sPath = lookup(kv, "dir"); 
     //----
     int i=0;
     while(1)

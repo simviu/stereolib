@@ -284,8 +284,8 @@ namespace stereo
         DepthGen(){ init_cmds(); }
         bool onImg(Frm& frm);
         bool run_video(const string& sf);
-        bool run_frms(const string& sPath);
-        bool run_frm(const string& sPath, int i);
+        bool run_frm(CStrs& args);
+        bool run_frms(CStrs& args);
     protected:
         void init_cmds();
 
