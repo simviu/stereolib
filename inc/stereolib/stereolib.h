@@ -265,6 +265,7 @@ namespace stereo
             //----
             struct Data{
                 Sp<Img> p_im_disp = nullptr; 
+                Sp<Img> p_im_dispConf = nullptr; // disparity confidence
                 Sp<Img> p_im_depth = nullptr;
                 
                 //--- undistorted, 0,1,2 -> L,R,C
@@ -275,9 +276,9 @@ namespace stereo
         protected:
             Data data_;
 
-            Sp<Img> calc_dispar(const DisparityCfg& cfg,
+            bool calc_dispar(const DisparityCfg& cfg,
                             const Img& im1,
-                            const Img& im2)const;            
+                            const Img& im2);            
             bool genPnts_byDepth(const Cfg& cfg);
             bool genPnts_byDisp(const Cfg& cfg);
             bool genPnts_byLR(const Cfg& cfg);

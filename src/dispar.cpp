@@ -86,9 +86,9 @@ bool DisparityCfg::load(const string& sf)
 
 
 //----------------
-Sp<Img> DepthGen::Frm::calc_dispar(const DisparityCfg& cfg,
+bool DepthGen::Frm::calc_dispar(const DisparityCfg& cfg,
                         const Img& im1, 
-                        const Img& im2)const
+                        const Img& im2)
 {
     ocv::ImgCv imc1(im1);
     ocv::ImgCv imc2(im2);
@@ -171,7 +171,8 @@ Sp<Img> DepthGen::Frm::calc_dispar(const DisparityCfg& cfg,
     // ref    wls_filter->filter(left_disp, left, filtered_disp, right_disp);
         cv::Mat imdf;
         p_fltr->filter(imd, imL, imdf, im_dispR);
-        cv::Mat im_conf = p_fltr->getConfidenceMap();    
+        cv::Mat imdConf = p_fltr->getConfidenceMap();
+        data_.p_im_dispConf = mkSp<ImgCv>(imdConf);    
         imd = imdf;
     }
     //---
@@ -182,6 +183,6 @@ Sp<Img> DepthGen::Frm::calc_dispar(const DisparityCfg& cfg,
     int tp2 = imd.type();
     int tp3 = imdo.type();
  
-    auto p = mkSp<ocv::ImgCv>(imdo);
-    return p;
+    data_.p_im_disp = mkSp<ocv::ImgCv>(imdo);
+    return true;
 }

@@ -78,7 +78,8 @@ bool FrmImp::calc(const DepthGen::Cfg& cfg)
     //---- calc disparity
     auto& uds = data_.ud_imgs;
     assert(uds.size()>1);
-    data_.p_im_disp = calc_dispar(cfg.disp, *uds[0], *uds[1]);
+    if(!calc_dispar(cfg.disp, *uds[0], *uds[1]))
+        return false;
     
     //--- recon
  //   ok &= recon(cfg);
@@ -327,13 +328,6 @@ bool DepthGen::Frm::genPnts_byLR(const Cfg& cfg)
     assert(imgs.size()>1);
     bool ok = true;
 
-    //-----
-    auto p_imd = data_.p_im_disp;
-    assert(p_imd);
-    cv::Mat imd = img2cv(*p_imd);
-    int tp = imd.type();
-
-  //calc_disp_to_pnts_cv(cfg, imd, pnts);
     disp_to_pnts(cfg);
     
     log_d("gen_pnts: "+pnts.info());
@@ -627,6 +621,11 @@ void DepthGen::show(const Frm& f)
         imd = imd * 0.01;
         cv::imshow("disparity", imd);
     }
+    //--- dispar confidence
+    auto p_imdConf = fdt.p_im_dispConf;
+    if(p_imdConf!=nullptr)
+        p_imdConf->show("disparity confidence");
+
     //--- local points
     if(1)
     {

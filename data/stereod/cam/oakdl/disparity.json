@@ -12,9 +12,9 @@
             "speckleWindowSize" : 100,
             "speckleRange" : 1,           
             "wls_filter":{
-                "en":false,
+                "en":true,
                 "lambda":8000,
-                "sigma":2
+                "sigma":0.8
             }
         },
         "vis_mul" : 8
