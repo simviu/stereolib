@@ -4,11 +4,12 @@
     "imgs":{
         "dirs":["L","R","C", "D", "N"],
         "idxs":{ "color":2, "dispar":-1 , 
-                    "depth":2, "depth_conf":3}
+                    "depth":2, "depthConf":3}
     },
     "disparity": "disparity.json",
     "depth":{
-	 "range": "0.01, 1" 
+        "range": "0.01, 1" ,
+        "TH_confidence" : 50
     },
     "wdir":"./out/"
 

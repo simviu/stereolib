@@ -172,7 +172,6 @@ bool DepthGen::Frm::calc_dispar(const DisparityCfg& cfg,
         cv::Mat imdf;
         p_fltr->filter(imd, imL, imdf, im_dispR);
         cv::Mat imdc = p_fltr->getConfidenceMap();
-        imdc.convertTo(imdc, CV_8UC1);
         data_.p_im_dispConf = mkSp<ImgCv>(imdc);    
         imd = imdf;
     }

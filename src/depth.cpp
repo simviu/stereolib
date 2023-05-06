@@ -101,10 +101,13 @@ void FrmImp::show()const
         cv::imshow("disparity", imd);
     }
     //--- dispar confidence
-    auto p_imdConf = data_.p_im_dispConf;
-    if(p_imdConf!=nullptr)
-        p_imdConf->show("disparity confidence");
-
+    auto p_imdc = data_.p_im_dispConf;
+    if(p_imdc!=nullptr)
+    {
+        auto imdc = img2cv(*p_imdc);
+        imdc.convertTo(imdc, CV_8UC1);
+        cv::imshow("disparity confidence", imdc);
+    }
 }
 
 //------------------------------
@@ -144,7 +147,7 @@ bool DepthGen::Cfg::load(const string& sf)
             idxs.color = std::stoi(jis["color"].asString());
             idxs.dispar = std::stoi(jis["dispar"].asString());
             idxs.depth = std::stoi(jis["depth"].asString());
-            
+            idxs.depthConf = std::stoi(jis["depthConf"].asString());
         }
         //---
         //b_save_pcd = jd["save_pcd"].asBool();
@@ -159,6 +162,7 @@ bool DepthGen::Cfg::load(const string& sf)
             vector<double> ds; 
             if(s2data(sr, ds)) depth.range = {ds[0], ds[1]}; 
             else ok = false;
+            depth.TH_confidence = jt.get("TH_confidence","").asDouble();
         }
         //---- others
         s_wdir = jd["wdir"].asString();
@@ -416,6 +420,12 @@ void DepthGen::Frm::disp_to_pnts(const Cfg& cfg)
     auto p_imd = data_.p_im_disp;
     assert(p_imd!=nullptr);
     auto imd = img2cv(*p_imd);
+    //---- get confidence map
+    cv::Mat imdc; auto p_imdc = data_.p_im_dispConf;
+    if(p_imdc)
+        imdc = img2cv(*p_imdc);
+    
+    //----
     Sp<Img> p_imc = nullptr; // color img may not have
     {
         auto& ud_imgs = data_.ud_imgs;
@@ -432,14 +442,22 @@ void DepthGen::Frm::disp_to_pnts(const Cfg& cfg)
     int tp = imd.type(); // dbg
     for(unsigned int y = 0; y < imd.rows; y++)
     {
-        float* prow = (float*)imd.ptr<CV_32F>(y);
+        float* prow = (float*)imd.ptr<CV_32F>(y); // disparity image
+        float* prowc = p_imdc ?   // confidence map
+            (float*)imdc.ptr<CV_32F>(y) : nullptr;
+
+        //----
         for(unsigned int x = 0; x < imd.cols; x++)
         {
             double d = prow[x]; // disparity
             if(d <=0)continue;
             if(std::isnan(d)||std::isinf(d))
                 continue;
+            //---- check confidence
+            if(prowc && prowc[x] < cfg.depth.TH_confidence)
+                continue; // skip this point.
 
+            //----
             Points::Pnt p;
             //--- calc location
             double z = b * fx / d;

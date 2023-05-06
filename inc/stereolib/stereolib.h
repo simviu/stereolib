@@ -227,11 +227,13 @@ namespace stereo
                     int color=0;
                     int dispar=-1;
                     int depth=-1; 
+                    int depthConf = -1;
                 }; Idxs idxs;
             };Imgs imgs;
 
             struct DepthC{ 
                 Rng<double> range; // box range
+                double TH_confidence=200; // 0-255
             }; DepthC depth;
             //----
             struct VisCfg{
