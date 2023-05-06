@@ -24,6 +24,7 @@ namespace{
     public:
         using Frm::Frm;
         virtual bool calc(const DepthGen::Cfg& cfg)override;
+        virtual void show()const override;
 
     };
 }
@@ -88,7 +89,23 @@ bool FrmImp::calc(const DepthGen::Cfg& cfg)
     //----
     return true;
 }
+//----
+void FrmImp::show()const
+{
+    //--- disparity
+    auto p_imd = data_.p_im_disp;
+    if(p_imd!=nullptr)
+    {
+        cv::Mat imd = img2cv(*p_imd);
+        imd = imd * 0.01;
+        cv::imshow("disparity", imd);
+    }
+    //--- dispar confidence
+    auto p_imdConf = data_.p_im_dispConf;
+    if(p_imdConf!=nullptr)
+        p_imdConf->show("disparity confidence");
 
+}
 
 //------------------------------
 bool DepthGen::Cfg::load(const string& sf)
@@ -612,20 +629,9 @@ void DepthGen::show(const Frm& f)
         pC->scale(0.2);
         pC->show("Color undistorted");
     }
-    //--- disparity
-    auto& fdt = f.data();
-    auto p_imd = fdt.p_im_disp;
-    if(p_imd!=nullptr)
-    {
-        cv::Mat imd = img2cv(*p_imd);
-        imd = imd * 0.01;
-        cv::imshow("disparity", imd);
-    }
-    //--- dispar confidence
-    auto p_imdConf = fdt.p_im_dispConf;
-    if(p_imdConf!=nullptr)
-        p_imdConf->show("disparity confidence");
-
+    //---show frm
+    f.show();
+    
     //--- local points
     if(1)
     {

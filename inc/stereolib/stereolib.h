@@ -254,6 +254,8 @@ namespace stereo
             Points pnts;
 
             virtual bool calc(const Cfg& cfg)=0;
+            virtual void show()const=0;
+
             static Sp<Frm> create(int i);
 
         //    bool recon(const Cfg& cfg);
@@ -273,6 +275,7 @@ namespace stereo
             };
             auto& data()const{ return data_; }
             bool load(Video& vid);
+            
         protected:
             Data data_;
 
