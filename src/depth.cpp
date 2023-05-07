@@ -330,7 +330,7 @@ bool DepthGen::Frm::genPnts_byDepth(const Cfg& cfg)
             auto& dx = imd.ptr<uint16_t>(i)[j];
         //    double d = fp16_to_float(dx);
             double d = dx;
-            double z = d*0.001; // was mm
+            double z = d;//*0.001; // was mm
             auto c = imc.ptr<const BGR>(i)[j];
             if(dx!=0)
             { int dbg=0;}
