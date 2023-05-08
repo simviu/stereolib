@@ -263,7 +263,7 @@ namespace stereo
         //    bool recon(const Cfg& cfg);
             bool load(const Cfg& cfg, const string& sPath, int i);
             bool load_imgs(const Cfg& cfg, const string& sPath, int i);
-            bool genPnts(const Cfg& cfg);
+
         //  bool renderPnts(const Cfg& cfg);
             bool rectify(const CamsCfg& camcs);
             //----

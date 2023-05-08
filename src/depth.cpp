@@ -68,27 +68,29 @@ Sp<DepthGen::Frm> DepthGen::Frm::create(int i)
 {
     return mkSp<FrmImp>(i);
 }
-//-------
+
+
+//----
 bool FrmImp::calc(const DepthGen::Cfg& cfg)
 {
     bool ok = true;
-
-    //--- undistortion map(rectify)
-    ok &= rectify(cfg.cams);
-
-    //---- calc disparity
-    auto& uds = data_.ud_imgs;
-    assert(uds.size()>1);
-    if(!calc_dispar(cfg.disp, *uds[0], *uds[1]))
-        return false;
+    if(cfg.imgs.idxs.depth>=0)
+        ok &= genPnts_byDepth(cfg);
+    else if(cfg.imgs.idxs.dispar>=0)
+        ok &= genPnts_byDisp(cfg);
+    else // Full pipeline L/R stereo from scratch
+        ok &= genPnts_byLR(cfg);
     
-    //--- recon
- //   ok &= recon(cfg);
-    ok &= genPnts(cfg);
+    //--- save frm pcd
+    string swdir = cfg.s_wdir + lc_.s_pcds;
+    if(!sys::mkdir(swdir)) ok &= false;
+    if(ok && cfg.b_save_pcd)
+        ok &= pnts.save(swdir + to_string(idx) + ".pcd");
 
-    //----
-    return true;
+    return ok;
 }
+
+
 //----
 void FrmImp::show()const
 {
@@ -280,27 +282,6 @@ bool DepthGen::Frm::rectify(const CamsCfg& camcs)
 }
 
 //----
-bool DepthGen::Frm::genPnts(const Cfg& cfg)
-{
-    bool ok = true;
-    if(cfg.imgs.idxs.depth>=0)
-        ok &= genPnts_byDepth(cfg);
-    else if(cfg.imgs.idxs.dispar>=0)
-        ok &= genPnts_byDisp(cfg);
-    else // Full pipeline L/R stereo from scratch
-        ok &= genPnts_byLR(cfg);
-    
-    //--- save frm pcd
-    string swdir = cfg.s_wdir + lc_.s_pcds;
-    if(!sys::mkdir(swdir)) ok &= false;
-    if(ok && cfg.b_save_pcd)
-        ok &= pnts.save(swdir + to_string(idx) + ".pcd");
-
-    return ok;
-}
-
-
-//----
 bool DepthGen::Frm::genPnts_byDepth(const Cfg& cfg)
 {
     int i_d = cfg.imgs.idxs.depth;
@@ -349,6 +330,16 @@ bool DepthGen::Frm::genPnts_byLR(const Cfg& cfg)
     assert(imgs.size()>1);
     bool ok = true;
 
+    //--- undistortion map(rectify)
+    ok &= rectify(cfg.cams);
+
+    //---- calc disparity
+    auto& uds = data_.ud_imgs;
+    assert(uds.size()>1);
+    if(!calc_dispar(cfg.disp, *uds[0], *uds[1]))
+        return false;
+
+    //---
     disp_to_pnts(cfg);
     
     log_d("gen_pnts: "+pnts.info());
@@ -391,16 +382,7 @@ bool DepthGen::Frm::renderPnts(const Cfg& cfg)
     return true;
 }
 */
-//-----
-/*
-bool DepthGen::Frm::recon(const Cfg& cfg)
-{
-    bool ok = true;
-    ok &= genPnts(cfg);
-    return true;
 
-}
-*/
 
 //---------------
 // calc_disp_to_pnts
