@@ -109,4 +109,6 @@ namespace stereo
     extern void calc_im3d_to_pnts(
             const DepthGen::Cfg& cfg,
             cv::Mat im3d, Points& pnts);
+    //----
+    
 } // stereo

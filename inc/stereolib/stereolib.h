@@ -264,8 +264,6 @@ namespace stereo
             bool load(const Cfg& cfg, const string& sPath, int i);
             bool load_imgs(const Cfg& cfg, const string& sPath, int i);
 
-        //  bool renderPnts(const Cfg& cfg);
-            bool rectify(const CamsCfg& camcs);
             //----
             struct Data{
                 Sp<Img> p_im_disp = nullptr; 
@@ -279,15 +277,11 @@ namespace stereo
             bool load(Video& vid);
             
         protected:
+            bool calc_dispar(const DisparityCfg& cfg,
+                        const Img& im1,
+                        const Img& im2);            
             Data data_;
 
-            bool calc_dispar(const DisparityCfg& cfg,
-                            const Img& im1,
-                            const Img& im2);            
-            bool genPnts_byDepth(const Cfg& cfg);
-            bool genPnts_byDisp(const Cfg& cfg);
-            bool genPnts_byLR(const Cfg& cfg);
-            void disp_to_pnts(const Cfg& cfg);
         };
 
         DepthGen(){ init_cmds(); }
