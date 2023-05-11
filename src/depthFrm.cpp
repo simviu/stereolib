@@ -29,6 +29,8 @@ namespace{
         bool calc_byDisp(const DepthGen::Cfg& cfg);
         bool calc_byLR(const DepthGen::Cfg& cfg);
         void disp_to_pnts(const DepthGen::Cfg& cfg);
+
+        Px alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const;
     };
 }
 
@@ -83,6 +85,17 @@ bool FrmImp::calc(const DepthGen::Cfg& cfg)
     return ok;
 }
 
+//----
+Px FrmImp::alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const
+{
+    // T , or T_CL, is transform from depth map camera (Left)
+    //   to color camera.
+    // transform to color camera frame.
+    vec3 vc = T * v;  
+    vec2 qc = camc.proj(vc);
+    Px px = toPx(qc);
+    return px;
+}
 
 //----
 bool FrmImp::calc_byDepth(const DepthGen::Cfg& cfg)
@@ -257,25 +270,19 @@ void FrmImp::disp_to_pnts(const DepthGen::Cfg& cfg)
             vec2 q; q << x, y;
             vec3 v = cc0.proj(q, z);
             p.p = v;
+            p.c = {0,0,0,0};
 
             //--- get color, with alignment
-            p.c = {255,255,255,255};
             if(p_imc!=nullptr)
             {
                 assert(ic < ccs.size());
                 auto& c1 = ccs[ic];
                 auto& camc = c1.camc;
 
-                // T , or T_CL, is transform from depth map camera (Left)
-                //   to color camera.
-                auto& T = c1.T; 
-                auto szc = p_imc->size();
-                // transform to color camera frame.
-                vec3 vc = T * v;  
-                vec2 qc = camc.proj(vc);
-                Px px_c = toPx(qc);
+                Px px_c = alignPnt(v, camc, c1.T);
 
                 //---- new px
+                auto szc = p_imc->size();
                 if(!szc.isIn(px_c))continue;
                 Color c; imc.get(px_c, c);
                 p.c = c;

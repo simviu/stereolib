@@ -291,7 +291,6 @@ namespace stereo
         bool run_frms(CStrs& args);
     protected:
         void init_cmds();
-
         //----
         struct Data{
             Points pnts; // all points
