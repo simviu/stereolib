@@ -23,14 +23,20 @@ namespace{
         using Frm::Frm;
         virtual bool calc(const DepthGen::Cfg& cfg)override;
         virtual void show()const override;
+        struct Data{
+            cv::Mat imd; // depth map
+        }; Data data_;
     protected:
         bool rectify(const CamsCfg& camcs);
         bool calc_byDepth(const DepthGen::Cfg& cfg);
         bool calc_byDisp(const DepthGen::Cfg& cfg);
         bool calc_byLR(const DepthGen::Cfg& cfg);
+        
+        void disp_to_depth(const DepthGen::Cfg& cfg);
         void disp_to_pnts(const DepthGen::Cfg& cfg);
 
         Px alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const;
+        
     };
 }
 
@@ -59,7 +65,7 @@ bool FrmImp::rectify(const CamsCfg& camcs)
         //auto pu = cvd.remap(*imgs[i], i);  
         auto& cc = camcs.cams[i].camc; 
         auto pu = cc.undist(*imgs[i]);
-        data_.ud_imgs.push_back(pu);  
+        Frm::data_.ud_imgs.push_back(pu);  
     }
     return true;
 }
@@ -95,6 +101,45 @@ Px FrmImp::alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const
     vec2 qc = camc.proj(vc);
     Px px = toPx(qc);
     return px;
+}
+//-----
+void FrmImp::disp_to_depth(const DepthGen::Cfg& cfg)
+{
+
+    //---- get : b, fx
+    auto& ccs = cfg.cams.cams;
+    assert(ccs.size()>1);
+    auto& cc0 = ccs[0].camc; // Left cam
+    double b = ccs[1].T.t.norm(); // baseline
+    CamCfg::Lense l; cc0.toLense(l);
+    double fx = l.fx; // focal length
+
+    //---- get disp map
+    auto p_imp = Frm::data_.p_im_disp;
+    assert(p_imp!=nullptr);
+    auto imp = img2cv(*p_imp);
+
+    //----
+    int w = imp.cols;
+    int h = imp.rows;
+    cv::Mat imd(h,w, CV_32F, 0.0);    
+    for(unsigned int y = 0; y < h; y++)
+    {
+        float* pp = (float*)imp.ptr<CV_32F>(y);       
+        float* pd = (float*)imd.ptr<CV_32F>(y);       
+        for(unsigned int x = 0; x < w; x++)
+        {
+            double d = pp[x]; // disparity
+            if(d <=0)continue;
+            if(std::isnan(d)||std::isinf(d))
+                continue;
+            
+            float z = b * fx / d;
+            pd[x] = z;
+        }
+    }
+    //----
+    data_.imd = imd;
 }
 
 //----
@@ -139,6 +184,7 @@ bool FrmImp::calc_byDepth(const DepthGen::Cfg& cfg)
         }
     return true;
 }
+
 //----
 bool FrmImp::calc_byLR(const DepthGen::Cfg& cfg)
 {
@@ -150,7 +196,7 @@ bool FrmImp::calc_byLR(const DepthGen::Cfg& cfg)
     ok &= rectify(cfg.cams);
 
     //---- calc disparity
-    auto& uds = data_.ud_imgs;
+    auto& uds = Frm::data_.ud_imgs;
     assert(uds.size()>1);
     if(!calc_dispar(cfg.disp, *uds[0], *uds[1]))
         return false;
@@ -211,6 +257,7 @@ bool DepthGen::Frm::renderPnts(const Cfg& cfg)
 // So un-aligned cameras supported.
 void FrmImp::disp_to_pnts(const DepthGen::Cfg& cfg)
 {
+
     //----
     auto& ccs = cfg.cams.cams;
     assert(ccs.size()>1);
@@ -222,19 +269,20 @@ void FrmImp::disp_to_pnts(const DepthGen::Cfg& cfg)
     //---- get depth image
     int ic = cfg.imgs.idxs.color;
     assert(ic < imgs.size()); 
-    auto p_imd = data_.p_im_disp;
+    auto p_imd = Frm::data_.p_im_disp;
     assert(p_imd!=nullptr);
     auto imd = img2cv(*p_imd);
 
     //---- get confidence map
-    cv::Mat imdc; auto p_imdc = data_.p_im_dispConf;
+    cv::Mat imdc; 
+    auto p_imdc = Frm::data_.p_im_dispConf;
     if(p_imdc)
         imdc = img2cv(*p_imdc);
     
     //----
     Sp<Img> p_imc = nullptr; // color img may not have
     {
-        auto& ud_imgs = data_.ud_imgs;
+        auto& ud_imgs = Frm::data_.ud_imgs;
         assert(ic<ud_imgs.size());
         if(ic>=0) p_imc = ud_imgs[ic];
     }
@@ -269,6 +317,7 @@ void FrmImp::disp_to_pnts(const DepthGen::Cfg& cfg)
             double z = b * fx / d;
             vec2 q; q << x, y;
             vec3 v = cc0.proj(q, z);
+            
             p.p = v;
             p.c = {0,0,0,0};
 
@@ -298,7 +347,7 @@ void FrmImp::disp_to_pnts(const DepthGen::Cfg& cfg)
 void FrmImp::show()const
 {
     //--- disparity
-    auto p_imd = data_.p_im_disp;
+    auto p_imd = Frm::data_.p_im_disp;
     if(p_imd!=nullptr)
     {
         cv::Mat imd = img2cv(*p_imd);
@@ -306,7 +355,7 @@ void FrmImp::show()const
         cv::imshow("disparity", imd);
     }
     //--- dispar confidence
-    auto p_imdc = data_.p_im_dispConf;
+    auto p_imdc = Frm::data_.p_im_dispConf;
     if(p_imdc!=nullptr)
     {
         auto imdc = img2cv(*p_imdc);
