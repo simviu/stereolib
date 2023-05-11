@@ -205,12 +205,14 @@ void FrmImp::disp_to_pnts(const DepthGen::Cfg& cfg)
     double b = ccs[1].T.t.norm(); // baseline
     CamCfg::Lense l; cc0.toLense(l);
     double fx = l.fx; // focal length
-    //---- get disparity and color
+
+    //---- get depth image
     int ic = cfg.imgs.idxs.color;
     assert(ic < imgs.size()); 
     auto p_imd = data_.p_im_disp;
     assert(p_imd!=nullptr);
     auto imd = img2cv(*p_imd);
+
     //---- get confidence map
     cv::Mat imdc; auto p_imdc = data_.p_im_dispConf;
     if(p_imdc)
@@ -250,27 +252,32 @@ void FrmImp::disp_to_pnts(const DepthGen::Cfg& cfg)
 
             //----
             Points::Pnt p;
-            //--- calc location
+            //--- depth to pnt
             double z = b * fx / d;
             vec2 q; q << x, y;
             vec3 v = cc0.proj(q, z);
             p.p = v;
-            //--- get color
+
+            //--- get color, with alignment
             p.c = {255,255,255,255};
             if(p_imc!=nullptr)
             {
                 assert(ic < ccs.size());
                 auto& c1 = ccs[ic];
                 auto& camc = c1.camc;
-                auto& T = c1.T;
-                auto sz = p_imc->size();
-                // transform to color camera frame.
-                vec3 v1 = T * v;  
-                vec2 q1 = camc.proj(v1);
-                Px px = toPx(q1);
 
-                if(!sz.isIn(px))continue;
-                Color c; imc.get(px, c);
+                // T , or T_CL, is transform from depth map camera (Left)
+                //   to color camera.
+                auto& T = c1.T; 
+                auto szc = p_imc->size();
+                // transform to color camera frame.
+                vec3 vc = T * v;  
+                vec2 qc = camc.proj(vc);
+                Px px_c = toPx(qc);
+
+                //---- new px
+                if(!szc.isIn(px_c))continue;
+                Color c; imc.get(px_c, c);
                 p.c = c;
             }
             //---
