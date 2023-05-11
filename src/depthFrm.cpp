@@ -265,7 +265,7 @@ void FrmImp::disp_to_pnts(const DepthGen::Cfg& cfg)
 
             //----
             Points::Pnt p;
-            //--- depth to pnt
+            //--- depth z from disparity
             double z = b * fx / d;
             vec2 q; q << x, y;
             vec3 v = cc0.proj(q, z);
