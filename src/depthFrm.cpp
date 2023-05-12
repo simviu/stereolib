@@ -34,7 +34,7 @@ namespace{
         bool chk_get_depth(const DepthGen::Cfg& cfg);
 
         Px alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const;
-        cv::Mat convDepth_16U(const cv::Mat& imd)const;
+        bool chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const;
     };
 }
 
@@ -138,18 +138,31 @@ void FrmImp::disp_to_depth(const DepthGen::Cfg& cfg)
     data_.p_im_depth = mkSp<ImgCv>(imd);
 }
 //---
-cv::Mat FrmImp::convDepth_16U(const cv::Mat& imd)const
+bool FrmImp::chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const
 {
-    cv::Mat imdo(sz.h, sz.w, CV_32F);
+    int tp = imdi.type();
+    if(tp==CV_32F) imd = imdi;
+    if(tp!=CV_16U)
+    {
+        log_e("chkConvDepthFmt() unsupport type:"+to_string(tp));
+        return false;
+    }
+    //----
+    Sz sz(imdi.cols, imdi.rows);
+    imd = cv::Mat(sz.h, sz.w, CV_32F);
     for(int y=0;y<sz.h; y++)
     {
-        float* pd = (float*)imd0.ptr<CV_32F>(y); // depth map
+        float* pdi = (float*)imdi.ptr<CV_16U>(y);
+        float* pd = (float*)imd.ptr<CV_32F>(y);
         for(int x=0;x<sz.w;x++)
         {
-            pd[x]
+            uint16_t zi = pdi[x];
+            float z = (float)zi * 0.001; // was in mm.
+            pd[x] = z;
+
         }
     }    
-    return imdo;
+    return true;
 }
 
 //----
@@ -167,9 +180,9 @@ bool FrmImp::chk_get_depth(const DepthGen::Cfg& cfg)
     auto p_imd = imgs[i_d];
     Sz sz = p_imd->size();
     auto imd0 = img2cv(*p_imd);
-    int tpd = imd0.type();
     //--- chk convert
-    
+    cv::Mat imd;
+    if(!chkConvDepthFmt(imd0, imd))return false;
     data_.p_im_depth = mkSp<ImgCv>(imd);
 
 
@@ -327,7 +340,7 @@ bool FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
             vec3 v = cc0.proj(q, z);
             
             p.p = v;
-            p.c = {0,0,0,0};
+            p.c = {255,255,255,255};
 
             //--- get color, with alignment
             if(p_imc!=nullptr)
