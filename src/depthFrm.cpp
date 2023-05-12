@@ -277,10 +277,8 @@ bool FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
     auto& ccs = cfg.cams.cams;
     assert(ccs.size()>1);
     auto& cc0 = ccs[0].camc; // Left cam
-    double b = ccs[1].T.t.norm(); // baseline
-    CamCfg::Lense l; cc0.toLense(l);
-    double fx = l.fx; // focal length
-
+    auto& T0 = ccs[0].T; // Left cam transform body to cam
+    auto T0i = T0.inv();
 
     //---- check get depth img conf
     if(!chk_get_depth(cfg))
@@ -338,8 +336,13 @@ bool FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
             //double z = b * fx / d;
             vec2 q; q << x, y;
             vec3 v = cc0.proj(q, z);
+
+            //--- tranform to body frm
             
-            p.p = v;
+            vec3 vb = T0i *v;
+            
+            //----
+            p.p = vb;
             p.c = {255,255,255,255};
 
             //--- get color, with alignment
@@ -349,7 +352,7 @@ bool FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
                 auto& c1 = ccs[ic];
                 auto& camc = c1.camc;
 
-                Px px_c = alignPnt(v, camc, c1.T);
+                Px px_c = alignPnt(vb, camc, c1.T);
 
                 //---- new px
                 auto szc = p_imc->size();
