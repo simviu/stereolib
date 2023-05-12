@@ -30,7 +30,7 @@ namespace{
         bool calc_byLR(const DepthGen::Cfg& cfg);
         
         void disp_to_depth(const DepthGen::Cfg& cfg);
-        void depth_to_pnts(const DepthGen::Cfg& cfg);
+        bool depth_to_pnts(const DepthGen::Cfg& cfg);
 
         Px alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const;
         
@@ -73,7 +73,7 @@ bool FrmImp::calc(const DepthGen::Cfg& cfg)
 {
     bool ok = true;
     if(cfg.imgs.idxs.depth>=0)
-        ok &= calc_byDepth(cfg);
+        ok &= depth_to_pnts(cfg);
     else // Full pipeline L/R stereo from scratch
         ok &= calc_byLR(cfg);
     
@@ -213,7 +213,7 @@ bool FrmImp::calc_byLR(const DepthGen::Cfg& cfg)
 //---------------
 // depth to pnts
 //---------------
-void FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
+bool FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
 {
 
     //----
@@ -230,6 +230,9 @@ void FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
     assert(ic < imgs.size()); 
     auto imd = img2cv(*data_.p_im_depth);
     assert(!imd.empty());
+
+    //---- check depth img type and correct it.
+    int tp = imd.type();
     
 
     //---- get confidence map
@@ -252,7 +255,7 @@ void FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
     //----
     pnts.clear();
     int k=0;
-    int tp = imd.type(); // dbg
+
     for(unsigned int y = 0; y < imd.rows; y++)
     {
 
@@ -302,6 +305,7 @@ void FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
         }
 
     }
+    return true;
 }
 
 //----
