@@ -31,9 +31,10 @@ namespace{
         
         void disp_to_depth(const DepthGen::Cfg& cfg);
         bool depth_to_pnts(const DepthGen::Cfg& cfg);
+        bool chk_get_depth(const DepthGen::Cfg& cfg);
 
         Px alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const;
-        
+        cv::Mat convDepth_16U(const cv::Mat& imd)const;
     };
 }
 
@@ -136,6 +137,49 @@ void FrmImp::disp_to_depth(const DepthGen::Cfg& cfg)
     //----
     data_.p_im_depth = mkSp<ImgCv>(imd);
 }
+//---
+cv::Mat FrmImp::convDepth_16U(const cv::Mat& imd)const
+{
+    cv::Mat imdo(sz.h, sz.w, CV_32F);
+    for(int y=0;y<sz.h; y++)
+    {
+        float* pd = (float*)imd0.ptr<CV_32F>(y); // depth map
+        for(int x=0;x<sz.w;x++)
+        {
+            pd[x]
+        }
+    }    
+    return imdo;
+}
+
+//----
+bool FrmImp::chk_get_depth(const DepthGen::Cfg& cfg)
+{
+    if(data_.p_im_depth) return true;
+
+    //---- get depth image
+    int i_d = cfg.imgs.idxs.depth;
+    if(i_d<0)
+    {
+        log_e("depth img not loadded");
+        return false;
+    }
+    auto p_imd = imgs[i_d];
+    Sz sz = p_imd->size();
+    auto imd0 = img2cv(*p_imd);
+    int tpd = imd0.type();
+    //--- chk convert
+    
+    data_.p_im_depth = mkSp<ImgCv>(imd);
+
+
+    //---- chk confidence map
+    int i_dc = cfg.imgs.idxs.depthConf;
+    if(i_dc<0) return true;
+    auto p_imdc = imgs[i_dc];
+    data_.p_im_dispConf = p_imdc;    
+    return true;
+}
 
 //----
 bool FrmImp::calc_byDepth(const DepthGen::Cfg& cfg)
@@ -224,15 +268,12 @@ bool FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
     CamCfg::Lense l; cc0.toLense(l);
     double fx = l.fx; // focal length
 
-    //---- get depth image
-    
-    int ic = cfg.imgs.idxs.color;
-    assert(ic < imgs.size()); 
-    auto imd = img2cv(*data_.p_im_depth);
-    assert(!imd.empty());
 
-    //---- check depth img type and correct it.
-    int tp = imd.type();
+    //---- check get depth img conf
+    if(!chk_get_depth(cfg))
+        return false;
+    assert(data_.p_im_depth);
+    auto imd = img2cv(*data_.p_im_depth);
     
 
     //---- get confidence map
@@ -240,8 +281,11 @@ bool FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
     auto p_imdc = Frm::data_.p_im_dispConf;
     if(p_imdc)
         imdc = img2cv(*p_imdc);
-    
-    //----
+    int tp = imd.type();
+    int tp2 = imdc.type();    
+    //---- get color img
+    int ic = cfg.imgs.idxs.color;
+    assert(ic < imgs.size()); 
     Sp<Img> p_imc = nullptr; // color img may not have
     {
         auto& ud_imgs = Frm::data_.ud_imgs;
@@ -255,7 +299,7 @@ bool FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
     //----
     pnts.clear();
     int k=0;
-
+    //-----
     for(unsigned int y = 0; y < imd.rows; y++)
     {
 
