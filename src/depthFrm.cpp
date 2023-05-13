@@ -21,17 +21,18 @@ namespace{
     {
     public:
         using Frm::Frm;
-        virtual bool calc(const DepthGen::Cfg& cfg)override;
+        virtual bool calc()override;
         virtual void show()const override;
         
     protected:
+
         bool rectify(const CamsCfg& camcs);
-        bool calc_byDepth(const DepthGen::Cfg& cfg);
-        bool calc_byLR(const DepthGen::Cfg& cfg);
+        bool calc_byDepth();
         
-        void disp_to_depth(const DepthGen::Cfg& cfg);
-        bool depth_to_pnts(const DepthGen::Cfg& cfg);
-        bool chk_get_depth(const DepthGen::Cfg& cfg);
+        void disp_to_depth();
+        bool calc_LRC();
+        bool depth_to_pnts_LRC();
+        bool chk_get_depth();
 
         Px alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const;
         bool chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const;
@@ -42,9 +43,9 @@ namespace{
 // FrmImp
 //----------
 // Factory
-Sp<DepthGen::Frm> DepthGen::Frm::create(int i)
+Sp<DepthGen::Frm> DepthGen::Frm::create(int i, const Cfg& cfg)
 {
-    return mkSp<FrmImp>(i);
+    return mkSp<FrmImp>(i, cfg);
 }
 
 
@@ -70,13 +71,13 @@ bool FrmImp::rectify(const CamsCfg& camcs)
 
 
 //----
-bool FrmImp::calc(const DepthGen::Cfg& cfg)
+bool FrmImp::calc()
 {
     bool ok = true;
     if(cfg.imgs.idxs.depth>=0)
-        ok &= depth_to_pnts(cfg);
+        ok &= depth_to_pnts_LRC();
     else // Full pipeline L/R stereo from scratch
-        ok &= calc_byLR(cfg);
+        ok &= calc_LRC();
     
     //--- save frm pcd
     string swdir = cfg.s_wdir + lc_.s_pcds;
@@ -99,7 +100,7 @@ Px FrmImp::alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const
     return px;
 }
 //-----
-void FrmImp::disp_to_depth(const DepthGen::Cfg& cfg)
+void FrmImp::disp_to_depth()
 {
 
     //---- get : b, fx
@@ -166,7 +167,7 @@ bool FrmImp::chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const
 }
 
 //----
-bool FrmImp::chk_get_depth(const DepthGen::Cfg& cfg)
+bool FrmImp::chk_get_depth()
 {
     if(data_.p_im_depth) return true;
 
@@ -195,7 +196,7 @@ bool FrmImp::chk_get_depth(const DepthGen::Cfg& cfg)
 }
 
 //----
-bool FrmImp::calc_byDepth(const DepthGen::Cfg& cfg)
+bool FrmImp::calc_byDepth()
 {
     int i_d = cfg.imgs.idxs.depth;
     assert(i_d<imgs.size());
@@ -238,7 +239,7 @@ bool FrmImp::calc_byDepth(const DepthGen::Cfg& cfg)
 }
 
 //----
-bool FrmImp::calc_byLR(const DepthGen::Cfg& cfg)
+bool FrmImp::calc_LRC()
 {
     // img 0/1 are always L/R
     assert(imgs.size()>1);
@@ -254,10 +255,10 @@ bool FrmImp::calc_byLR(const DepthGen::Cfg& cfg)
         return false;
 
     //--- disp to depth map
-    disp_to_depth(cfg);
+    disp_to_depth();
 
     //---
-    depth_to_pnts(cfg);
+    depth_to_pnts_LRC();
     
     log_d("gen_pnts: "+pnts.info());
     
@@ -270,7 +271,7 @@ bool FrmImp::calc_byLR(const DepthGen::Cfg& cfg)
 //---------------
 // depth to pnts
 //---------------
-bool FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
+bool FrmImp::depth_to_pnts_LRC()
 {
 
     //----
@@ -281,7 +282,7 @@ bool FrmImp::depth_to_pnts(const DepthGen::Cfg& cfg)
     auto T0i = T0.inv();
 
     //---- check get depth img conf
-    if(!chk_get_depth(cfg))
+    if(!chk_get_depth())
         return false;
     assert(data_.p_im_depth);
     auto imd = img2cv(*data_.p_im_depth);

@@ -234,7 +234,7 @@ bool DepthGen::onImg(Frm& f)
     
     //---- recon
     bool ok = true;
-    ok &= f.calc(cfg_);
+    ok &= f.calc();
     
     //--- show
     show(f);
@@ -252,7 +252,7 @@ bool DepthGen::run_frm(CStrs& args)
     if(!cfg_.set(kvs))return false;
 
     log_i("frm:"+str(i));
-    auto p = Frm::create(i);
+    auto p = Frm::create(i, cfg_);
     if(!p->load(cfg_, sPath, i))
         return false;
     
@@ -293,7 +293,7 @@ bool DepthGen::run_video(CStrs& args)
     {
         i++;
         log_i("frm:"+str(i));
-        auto p = Frm::create(i);
+        auto p = Frm::create(i, cfg_);
         if(!p->load(*pv))
             break;
         
@@ -317,7 +317,7 @@ bool DepthGen::run_frms(CStrs& args)
     {
         i++;
         log_i("frm:"+str(i));
-        auto p = Frm::create(i);
+        auto p = Frm::create(i, cfg_);
         if(!p->load(cfg_, sPath, i))
             break;
         

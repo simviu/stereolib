@@ -249,16 +249,16 @@ namespace stereo
         }; Cfg cfg_;
         //----
         struct Frm{
-            Frm(int i):idx(i){}
+            Frm(int i, const Cfg& c):cfg(c), idx(i){}
             int idx=0;
             vector<Sp<Img>> imgs;
             Pose T;
             Points pnts;
 
-            virtual bool calc(const Cfg& cfg)=0;
+            virtual bool calc()=0;
             virtual void show()const=0;
 
-            static Sp<Frm> create(int i);
+            static Sp<Frm> create(int i, const Cfg& cfg);
 
         //    bool recon(const Cfg& cfg);
             bool load(const Cfg& cfg, const string& sPath, int i);
@@ -277,6 +277,7 @@ namespace stereo
             bool load(Video& vid);
             
         protected:
+            const Cfg& cfg;
             bool calc_dispar(const DisparityCfg& cfg,
                         const Img& im1,
                         const Img& im2);            

@@ -1,11 +1,10 @@
 {
-    
-    "info":"RGBD Cameras, color and depth (aligned)",
+    "info":"3 Cameras, L,R, Color, depth by L/R disparity",    
     "cams_cfg" : "cams.json",
     "imgs":{
-        "dirs":["C", "D", "N"],
-        "idxs":{ "color":0, "dispar":-1 , 
-                    "depth":1, "depthConf":2}
+        "dirs":["L","R","C"],
+        "idxs":{ "color":2, "dispar":-1 , 
+                    "depth":-1, "depthConf":-1}
     },
     "disparity": "disparity.json",
     "depth":{
