@@ -1,9 +1,12 @@
 {
     "info":"Depth Dual Color Cameras",
+    "mode" : "dual",
     "cams_cfg" : "cams.json",
     "imgs":{
         "dirs":["L","R"],
-        "idxs":{ "color":0, "dispar":-1, 
+        "undist_LR":true,
+        "undist_C":true,
+        "#idxs":{ "color":0, "dispar":-1, 
                     "depth":-1, "depthConf":-1 }
     },
     "disparity": "disparity.json",

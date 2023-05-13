@@ -221,14 +221,21 @@ namespace stereo
         struct Cfg{
             CamsCfg cams;
             DisparityCfg disp;
+            string sMode;
+            //---
             struct Imgs{
+                // img frms will be loaded from these sub dirs.
                 vector<string> sDirs{"L","R","C","D","N"};                
+                bool undist_LR = false;
+                bool undist_C = false;
+                /*
                 struct Idxs{
                     int color=0;
                     int dispar=-1;
                     int depth=-1; 
                     int depthConf = -1;
                 }; Idxs idxs;
+                */
             };Imgs imgs;
 
             struct DepthC{ 
@@ -271,7 +278,7 @@ namespace stereo
                 Sp<Img> p_im_depth = nullptr;
                 
                 //--- undistorted, 0,1,2 -> L,R,C
-                vector<Sp<Img>> ud_imgs;
+                //vector<Sp<Img>> ud_imgs;
             };
             auto& data()const{ return data_; }
             bool load(Video& vid);

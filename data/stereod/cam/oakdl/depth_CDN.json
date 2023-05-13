@@ -1,10 +1,13 @@
 {
     
     "info":"RGBD Cameras, color and depth (aligned)",
+    "mode" : "CDN",
     "cams_cfg" : "cams.json",
     "imgs":{
         "dirs":["C", "D", "N"],
-        "idxs":{ "color":0, "dispar":-1 , 
+        "undist_LR":true,
+        "undist_C":true,
+        "#idxs":{ "color":0, "dispar":-1 , 
                     "depth":1, "depthConf":2}
     },
     "disparity": "disparity.json",

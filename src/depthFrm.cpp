@@ -26,12 +26,14 @@ namespace{
         
     protected:
 
-        bool rectify(const CamsCfg& camcs);
+    //    bool rectify(const CamsCfg& camcs);
         bool calc_byDepth();
         
         void disp_to_depth();
-        bool calc_LRC();
         bool depth_to_pnts_LRC();
+        bool calc_LRC();
+        bool calc_RGBD();
+
         bool chk_get_depth();
 
         Px alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const;
@@ -50,6 +52,7 @@ Sp<DepthGen::Frm> DepthGen::Frm::create(int i, const Cfg& cfg)
 
 
 //----
+/*
 bool FrmImp::rectify(const CamsCfg& camcs)
 {
   //  auto& ccvd = cast_imp(*camcs.get_cvd());
@@ -68,14 +71,14 @@ bool FrmImp::rectify(const CamsCfg& camcs)
     }
     return true;
 }
-
+*/
 
 //----
 bool FrmImp::calc()
 {
     bool ok = true;
     if(cfg.imgs.idxs.depth>=0)
-        ok &= depth_to_pnts_LRC();
+        ok &= calc_RGBD();
     else // Full pipeline L/R stereo from scratch
         ok &= calc_LRC();
     
@@ -359,6 +362,86 @@ bool FrmImp::depth_to_pnts_LRC()
                 auto szc = p_imc->size();
                 if(!szc.isIn(px_c))continue;
                 Color c; imc.get(px_c, c);
+                p.c = c;
+            }
+            //---
+            pnts.add(p);
+        }
+
+    }
+    return true;
+}
+
+//---------------
+// calc_RGBD
+//---------------
+// RGBD image aligned with depth
+bool FrmImp::calc_RGBD()
+{
+
+    //----
+    auto& ccs = cfg.cams.cams;
+    assert(ccs.size()>1);
+    auto& cc0 = ccs[0].camc; // Left cam
+
+    //---- check get depth img conf
+    if(!chk_get_depth())
+        return false;
+    assert(data_.p_im_depth);
+    auto imd = img2cv(*data_.p_im_depth);
+    int tp = imd.type();
+
+    //---- get confidence map
+    auto p_imdc = Frm::data_.p_im_dispConf;
+    cv::Mat imdc;
+    int tp2 = -1;
+    if(p_imdc){
+        imdc = img2cv(*p_imdc);
+        int tp2 = imdc.type();   
+    } 
+
+    //---- get color img
+    int ic = cfg.imgs.idxs.color;
+    assert(ic < imgs.size()); 
+    auto p_imc = imgs[ic];
+
+    //----
+    pnts.clear();
+    int k=0;
+    //-----
+    for(unsigned int y = 0; y < imd.rows; y++)
+    {
+        float* pd = (float*)imd.ptr<CV_32F>(y); // depth map
+        float* pdc = p_imdc ?   // confidence map
+            (float*)imdc.ptr<CV_32F>(y) : nullptr;
+
+        //----
+        for(unsigned int x = 0; x < imd.cols; x++)
+        {
+            double z = pd[x]; // disparity
+            if(z <=0)continue;
+            if(std::isnan(z)||std::isinf(z))
+                continue;
+            //---- check confidence
+            if(pdc && pdc[x] < cfg.depth.TH_confidence)
+                continue; // skip this point.
+
+            //----
+            Points::Pnt p;
+            //--- depth z from disparity
+            //double z = b * fx / d;
+            vec2 q; q << x, y;
+            vec3 v = cc0.proj(q, z);
+            p.p = v;
+            p.c = {255,255,255,255};
+
+            //--- get color, with alignment
+            if(p_imc!=nullptr)
+            {
+                Px px(x,y);
+                auto szc = p_imc->size();
+                if(!szc.isIn(px))continue;
+                Color c; p_imc->get(px, c);
                 p.c = c;
             }
             //---

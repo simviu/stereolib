@@ -1,9 +1,12 @@
 {
     "info":"3 Cameras, L,R, Color, depth by L/R disparity",    
+    "mode" : "LRC",
     "cams_cfg" : "cams.json",
     "imgs":{
         "dirs":["L","R","C"],
-        "idxs":{ "color":2, "dispar":-1 , 
+        "undist_LR":true,
+        "undist_C":true,
+        "#idxs":{ "color":2, "dispar":-1 , 
                     "depth":-1, "depthConf":-1}
     },
     "disparity": "disparity.json",

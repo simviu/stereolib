@@ -80,14 +80,18 @@ bool DepthGen::Cfg::load(const string& sf)
             auto jimgs = jd["imgs"];
             for(auto& j : jimgs["dirs"])
                 imgs.sDirs.push_back(j.asString());
-            auto& idxs = imgs.idxs;
 
-            //---- 
+            imgs.undist_LR = jimgs["undist_LR"].asBool();
+            imgs.undist_C  = jimgs["undist_C"].asBool();
+            //----
+            /* // Deprecated
+            auto& idxs = imgs.idxs;
             auto jis = jimgs["idxs"];
             idxs.color = std::stoi(jis["color"].asString());
             idxs.dispar = std::stoi(jis["dispar"].asString());
             idxs.depth = std::stoi(jis["depth"].asString());
             idxs.depthConf = std::stoi(jis["depthConf"].asString());
+            */
         }
         //---
         //b_save_pcd = jd["save_pcd"].asBool();
