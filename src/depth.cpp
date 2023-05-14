@@ -74,6 +74,8 @@ bool DepthGen::Cfg::load(const string& sf)
         string sfc = fp.path + jd["cams_cfg"].asString();
         if(!cams.load(sfc)) 
             return false;
+        //----
+        sMode = jd["mode"].asString();
         //---
         {
             imgs.sDirs.clear();
@@ -343,26 +345,7 @@ Sp<Points::Vis> DepthGen::get_frm_pnt_vis()
 //----
 void DepthGen::show(const Frm& f)
 {
-    auto& fd = f.data();
-
-    //---- show undistorted imgs
-    
-    auto& ud_imgs = fd.ud_imgs;
-    auto pL = ud_imgs[0];
-    auto pR = ud_imgs[1];
-    pL->show("Left undistorted");
-    pR->show("Right undistorted");
-    
-    // show color img
-    int i_c = cfg_.imgs.idxs.color;
-    if(i_c>1)
-    {
-        assert(i_c<ud_imgs.size());
-        auto pC = ud_imgs[i_c];
-       
-        pC->scale(0.2);
-        pC->show("Color undistorted");
-    }
+   
     //---show frm
     f.show();
     

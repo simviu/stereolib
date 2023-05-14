@@ -27,7 +27,7 @@ namespace{
     protected:
 
     //    bool rectify(const CamsCfg& camcs);
-        bool calc_byDepth();
+    //    bool calc_byDepth();
         
         void disp_to_depth();
         bool depth_to_pnts_LRC();
@@ -77,10 +77,16 @@ bool FrmImp::rectify(const CamsCfg& camcs)
 bool FrmImp::calc()
 {
     bool ok = true;
-    if(cfg.imgs.idxs.depth>=0)
+    if(cfg.sMode == "RGBD")
         ok &= calc_RGBD();
-    else // Full pipeline L/R stereo from scratch
+    // Full pipeline L/R stereo from scratch
+    else if(cfg.sMode == "LRC")
         ok &= calc_LRC();
+    else 
+    {
+        log_e("Unkonwn mode: "+cfg.sMode);
+        return false;
+    }
     
     //--- save frm pcd
     string swdir = cfg.s_wdir + lc_.s_pcds;
@@ -168,7 +174,7 @@ bool FrmImp::chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const
     }    
     return true;
 }
-
+/*
 //----
 bool FrmImp::chk_get_depth()
 {
@@ -197,8 +203,9 @@ bool FrmImp::chk_get_depth()
     data_.p_im_dispConf = p_imdc;    
     return true;
 }
-
+*/
 //----
+/*
 bool FrmImp::calc_byDepth()
 {
     int i_d = cfg.imgs.idxs.depth;
@@ -240,21 +247,34 @@ bool FrmImp::calc_byDepth()
         }
     return true;
 }
-
+*/
 //----
 bool FrmImp::calc_LRC()
 {
-    // img 0/1 are always L/R
-    assert(imgs.size()>1);
+    assert(imgs.size()>=3);
+    auto& ccs = cfg.cams.cams;
+    assert(ccs.size()>=3);
     bool ok = true;
 
-    //--- undistortion map(rectify)
-    ok &= rectify(cfg.cams);
+    //--- undistortion
+    // img idx L,R,C are 0,1,2    
+    auto pL = imgs[0];
+    auto pR = imgs[1];
+    auto pC = imgs[2];
+    if(cfg.imgs.undist_LR)
+    {
+        pL = ccs[0].camc.undist(*pL);
+        pR = ccs[1].camc.undist(*pR);
+    }
+    if(cfg.imgs.undist_C)
+        pC = ccs[2].camc.undist(*pC);
 
+    data_.p_im_L = pL; 
+    data_.p_im_R = pR;
+    data_.p_im_color = pC;
+    
     //---- calc disparity
-    auto& uds = Frm::data_.ud_imgs;
-    assert(uds.size()>1);
-    if(!calc_dispar(cfg.disp, *uds[0], *uds[1]))
+    if(!calc_dispar(cfg.disp, *pL, *pR))
         return false;
 
     //--- disp to depth map
@@ -280,13 +300,17 @@ bool FrmImp::depth_to_pnts_LRC()
     //----
     auto& ccs = cfg.cams.cams;
     assert(ccs.size()>1);
-    auto& cc0 = ccs[0].camc; // Left cam
-    auto& T0 = ccs[0].T; // Left cam transform body to cam
-    auto T0i = T0.inv();
+    auto& camcL = ccs[0].camc; // Left cam
+    auto& camcC = ccs[1].camc; // Color cam
+    auto& T_L = ccs[0].T; // Left cam transform body to cam
+    auto T_Li = T_L.inv();
+    auto& T_C = ccs[2].T; // color camera transform
+
+    //---- get color img
+    assert(data_.p_im_color);
+    auto& imc = *data_.p_im_color;
 
     //---- check get depth img conf
-    if(!chk_get_depth())
-        return false;
     assert(data_.p_im_depth);
     auto imd = img2cv(*data_.p_im_depth);
     
@@ -298,19 +322,7 @@ bool FrmImp::depth_to_pnts_LRC()
         imdc = img2cv(*p_imdc);
     int tp = imd.type();
     int tp2 = imdc.type();    
-    //---- get color img
-    int ic = cfg.imgs.idxs.color;
-    assert(ic < imgs.size()); 
-    Sp<Img> p_imc = nullptr; // color img may not have
-    {
-        auto& ud_imgs = Frm::data_.ud_imgs;
-        assert(ic<ud_imgs.size());
-        if(ic>=0) p_imc = ud_imgs[ic];
-    }
-    //auto imc = img2cv(*p_imc);
-    auto& imc = *p_imc;
-    //int tp1 = imc.type();// dbg
-    //assert(tp1 == CV_8UC4);
+
     //----
     pnts.clear();
     int k=0;
@@ -339,31 +351,25 @@ bool FrmImp::depth_to_pnts_LRC()
             //--- depth z from disparity
             //double z = b * fx / d;
             vec2 q; q << x, y;
-            vec3 v = cc0.proj(q, z);
+            vec3 v = camcL.proj(q, z);
 
             //--- tranform to body frm
             
-            vec3 vb = T0i *v;
+            vec3 vb = T_Li *v;
             
             //----
             p.p = vb;
             p.c = {255,255,255,255};
 
             //--- get color, with alignment
-            if(p_imc!=nullptr)
-            {
-                assert(ic < ccs.size());
-                auto& c1 = ccs[ic];
-                auto& camc = c1.camc;
+            Px px_c = alignPnt(vb, camcC, T_C);
 
-                Px px_c = alignPnt(vb, camc, c1.T);
+            //---- new px
+            auto szc = imc.size();
+            if(!szc.isIn(px_c))continue;
+            Color c; imc.get(px_c, c);
+            p.c = c;
 
-                //---- new px
-                auto szc = p_imc->size();
-                if(!szc.isIn(px_c))continue;
-                Color c; imc.get(px_c, c);
-                p.c = c;
-            }
             //---
             pnts.add(p);
         }
@@ -384,11 +390,12 @@ bool FrmImp::calc_RGBD()
     assert(ccs.size()>1);
     auto& cc0 = ccs[0].camc; // Left cam
 
-    //---- check get depth img conf
-    if(!chk_get_depth())
-        return false;
+    //---- check get depth img  and conf
     assert(data_.p_im_depth);
-    auto imd = img2cv(*data_.p_im_depth);
+    auto imdi = img2cv(*data_.p_im_depth);
+    cv::Mat imd;
+    if(!chkConvDepthFmt(imdi, imd))
+        return false;
     int tp = imd.type();
 
     //---- get confidence map
@@ -400,10 +407,8 @@ bool FrmImp::calc_RGBD()
         int tp2 = imdc.type();   
     } 
 
-    //---- get color img
-    int ic = cfg.imgs.idxs.color;
-    assert(ic < imgs.size()); 
-    auto p_imc = imgs[ic];
+    //---- get color img at idx 0
+    auto p_imc = imgs[0];
 
     //----
     pnts.clear();
@@ -455,6 +460,12 @@ bool FrmImp::calc_RGBD()
 //----
 void FrmImp::show()const
 {
+
+    //---- show undistorted imgs
+    if(data_.p_im_L)     data_.p_im_L->show("Left");
+    if(data_.p_im_R)     data_.p_im_R->show("Right");
+    if(data_.p_im_color) data_.p_im_color->show("Color");
+    
     //--- disparity
     auto p_imd = Frm::data_.p_im_disp;
     if(p_imd!=nullptr)

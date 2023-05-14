@@ -273,6 +273,10 @@ namespace stereo
 
             //----
             struct Data{
+                Sp<Img> p_im_L = nullptr;
+                Sp<Img> p_im_R = nullptr;
+                Sp<Img> p_im_color = nullptr;
+                //---
                 Sp<Img> p_im_disp = nullptr; 
                 Sp<Img> p_im_dispConf = nullptr; // disparity confidence
                 Sp<Img> p_im_depth = nullptr;
