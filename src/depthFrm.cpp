@@ -301,7 +301,7 @@ bool FrmImp::depth_to_pnts_LRC()
     auto& ccs = cfg.cams.cams;
     assert(ccs.size()>1);
     auto& camcL = ccs[0].camc; // Left cam
-    auto& camcC = ccs[1].camc; // Color cam
+    auto& camcC = ccs[2].camc; // Color cam
     auto& T_L = ccs[0].T; // Left cam transform body to cam
     auto T_Li = T_L.inv();
     auto& T_C = ccs[2].T; // color camera transform
