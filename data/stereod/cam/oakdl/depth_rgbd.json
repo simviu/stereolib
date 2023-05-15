@@ -1,7 +1,7 @@
 {
     
     "info":"RGBD Cameras, color and depth (aligned)",
-    "mode" : "CDN",
+    "mode" : "RGBD",
     "cams_cfg" : "cams.json",
     "imgs":{
         "dirs":["C", "D", "N"],

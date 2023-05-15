@@ -34,8 +34,6 @@ namespace{
         bool calc_LRC();
         bool calc_RGBD();
 
-        bool chk_get_depth();
-
         Px alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const;
         bool chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const;
     };
@@ -157,7 +155,7 @@ bool FrmImp::chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const
         log_e("chkConvDepthFmt() unsupport type:"+to_string(tp));
         return false;
     }
-    //----
+    //----5
     Sz sz(imdi.cols, imdi.rows);
     imd = cv::Mat(sz.h, sz.w, CV_32F);
     for(int y=0;y<sz.h; y++)
@@ -167,6 +165,7 @@ bool FrmImp::chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const
         for(int x=0;x<sz.w;x++)
         {
             uint16_t zi = pdi[x];
+            //cout << zi << ", "; // dbg
             float z = (float)zi * 0.001; // was in mm.
             pd[x] = z;
 
@@ -388,24 +387,28 @@ bool FrmImp::calc_RGBD()
     //----
     auto& ccs = cfg.cams.cams;
     assert(ccs.size()>1);
-    auto& cc0 = ccs[0].camc; // Left cam
+    auto& camcC = ccs[2].camc; // Left cam
 
     //---- check get depth img  and conf
-    assert(data_.p_im_depth);
-    auto imdi = img2cv(*data_.p_im_depth);
+    auto p_imdi = imgs[1];
+    auto imdi = img2cv(*p_imdi);
     cv::Mat imd;
     if(!chkConvDepthFmt(imdi, imd))
         return false;
     int tp = imd.type();
+    Frm::data_.p_im_depth = mkSp<ImgCv>(imd);
 
     //---- get confidence map
-    auto p_imdc = Frm::data_.p_im_dispConf;
+    Sp<Img> p_imdc = nullptr;
     cv::Mat imdc;
+    /*
+    auto p_imdc = Frm::data_.p_im_dispConf;
     int tp2 = -1;
     if(p_imdc){
         imdc = img2cv(*p_imdc);
         int tp2 = imdc.type();   
     } 
+    */
 
     //---- get color img at idx 0
     auto p_imc = imgs[0];
@@ -436,7 +439,7 @@ bool FrmImp::calc_RGBD()
             //--- depth z from disparity
             //double z = b * fx / d;
             vec2 q; q << x, y;
-            vec3 v = cc0.proj(q, z);
+            vec3 v = camcC.proj(q, z);
             p.p = v;
             p.c = {255,255,255,255};
 
