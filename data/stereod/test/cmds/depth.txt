@@ -1,7 +1,8 @@
 
 
-#depth init cfg=stereod/cam/oakdl/depth_LRC.json
-#depth init cfg=stereod/cam/oakdl/depth_dual.json
-depth init cfg=stereod/cam/oakdl/depth_rgbd.json
-depth frm dir=stereod/test/oakd_frm10/frms i=10 -save_pcd
-#depth frms dir=stereod/test/oakd_frm10/frms -save_pcd
+depth init cfg=rund/cam/depth_LRC.json
+#depth init cfg=rund/cam/depth_dual.json
+#depth init cfg=rund/cam/depth_rgbd.json
+
+depth frm dir=rund/frms i=10 -save_pcd
+#depth frms dir=rund/frms -save_pcd
