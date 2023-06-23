@@ -36,7 +36,7 @@ void ReconScn::init_cmds()
         return cfg_.load(lookup(kv, "cfg")); 
     }));
 
-    Cmd::add("merge", mkSp<Cmd>("pcds=<DIR> traj=<TRAJ_FILE> (Recon by frm pcd and traj file)",
+    Cmd::add("merge", mkSp<Cmd>("pcds=<DIR> traj=<TRAJ_FILE> wfile=<WFILE> [--show](Recon by frm pcd and traj file)",
     [&](CStrs& args)->bool{ 
        
         return run_merge(args); 
@@ -97,16 +97,49 @@ bool ReconScn::run_merge(CStrs& args)
     KeyVals kvs(args);
     string sd_pcds = kvs["pcds"]; 
     string sf_traj = kvs["traj"];
-    if(sd_pcds=="" || sf_traj=="")return false; 
-    int i=1;
+    string sf_wfile = kvs["wfile"];
+    bool bShow = kvs.has("--show");
+    //---
+    if(sd_pcds=="" || sf_traj=="" || sf_wfile=="")
+        return false; 
+
     //---- Load Traj
     if(!data_.traj.load(sf_traj))
         return false;
 
+    int i=0;
     //---- load PCDs
-    while(1)
+    bool ok = true;
+    Points pnts;
+    while(ok)
     {
+        i++;
         string sf = sd_pcds +"/" + to_string(i)+".pcd";
+        if(!sys::exists(sf))break;
+        Points pf; // frm pnts
+        ok = pf.load(sf);        
     }
-    return true;
+    //----
+    if(!ok)
+    {
+        log_e("One pcd load fail");
+        return false;
+    }
+    //----
+    if(i==0)
+    {
+        log_e("No pcd file found");
+        return false;
+    }
+    //----
+    ok = pnts.save(sf_wfile);
+
+    if(bShow)
+    {
+        auto pv = Points::Vis::create();
+        pv->add(pnts, sd_pcds);
+        pv->spin();
+    }
+    //----
+    return ok;
 }
