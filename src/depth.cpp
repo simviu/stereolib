@@ -140,7 +140,13 @@ bool DepthGen::Cfg::load(const string& sf)
 //-----
 bool DepthGen::Cfg::set(const KeyVals& kvs)
 {
-    if(kvs.has("-save_pcd")) b_save_pcd = true;
+    string sw = kvs.get("-save");
+    auto sws = tokens(sw, '|');
+    for(auto& s : sws)
+        if(s=="pcd") 
+            b_save_pcd = true;
+        else if(s=="disp") 
+            b_save_disp = true;
     return true;
 }
 
@@ -213,7 +219,7 @@ bool DepthGen::Frm::load(const Cfg& cfg, const string& sPath, int i)
 void DepthGen::init_cmds()
 {
     sHelp_ = "(Depth generation)";
-    string sOpts = " [-save_pcd]";
+    string sOpts = " -save=[pcd|disp]";
 
 
     Cmd::add("init", mkSp<Cmd>("cfg=<CFG_FILE>",

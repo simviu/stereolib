@@ -88,16 +88,25 @@ bool FrmImp::calc()
     }
     
     //--- save frm pcd
-    string swdir = cfg.s_wdir + lc_.s_pcds;
-    if(!sys::mkdir(swdir)) ok &= false;
-    if(ok && cfg.b_save_pcd)
-        ok &= pnts.save(swdir + to_string(idx) + ".pcd");
-
+    {
+        string swdir = cfg.s_wdir + lc_.s_pcds;
+        if(!sys::mkdir(swdir)) ok &= false;
+        if(ok && cfg.b_save_pcd)
+            ok &= pnts.save(swdir + to_string(idx) + ".pcd");
+    }
     //---- save disparity
-    swdir = cfg.s_wdir + lc_.s_disp;
-    if(!sys::mkdir(swdir)) ok &= false;
-
-
+    {
+        string swdir = cfg.s_wdir + lc_.s_disp;
+        if(!sys::mkdir(swdir)) ok &= false;
+        string sf = swdir + to_string(idx) + ".pfm";
+        //----
+        auto pd = data().p_im_disp;
+        if(ok && cfg.b_save_pcd && (pd!= nullptr))
+        {
+            auto imd = img2cv(*pd);
+            ok &= savePFM(imd, sf);
+        }
+    }
 
     return ok;
 }
