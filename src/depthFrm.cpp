@@ -7,13 +7,14 @@
  */
 
 #include "stereolib/stereolibCv.h"
-
+#include "PFMReadWrite.h"
 
 using namespace stereo;
 
 namespace{
     struct LCfg{
         string s_pcds = "pcds/";
+        string s_disp = "disp/";
     }; LCfg lc_;
 
   //---- impl DepthGen::Frm
@@ -91,6 +92,12 @@ bool FrmImp::calc()
     if(!sys::mkdir(swdir)) ok &= false;
     if(ok && cfg.b_save_pcd)
         ok &= pnts.save(swdir + to_string(idx) + ".pcd");
+
+    //---- save disparity
+    swdir = cfg.s_wdir + lc_.s_disp;
+    if(!sys::mkdir(swdir)) ok &= false;
+
+
 
     return ok;
 }

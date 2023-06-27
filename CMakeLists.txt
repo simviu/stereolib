@@ -27,6 +27,7 @@ message(STATUS "vsnLib_DIR=$ENV{vsnLib_DIR}")
 
 include_directories(
     inc 
+    inc_local
     ${OpenCV_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIR}
     $ENV{utLib_DIR}/inc
