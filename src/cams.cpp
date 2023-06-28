@@ -18,8 +18,9 @@ string CamsCfg::str()const
     stringstream s;
     s << sName <<":" << endl;
     int i=0;
-    for(auto& c : cams_)
+    for(auto it : cams_)
     {
+        auto& c = *it.second;
         s << "  cam "+to_string(i++)+
                 " '" << c.sName << "': ";
         s << "("+c.camc.sz.str()+") ";
@@ -111,20 +112,21 @@ bool CamsCfg::init_rectify()
         cds.push_back(cd);
     }
     
-    //----
-    auto& cc0 = cams[0].camc;
-    auto& cc1 = cams[1].camc;
+    //---- get L/R cameras
+    auto p0 = find("left");     assert(p0!=nullptr);
+    auto p1 = find("right");    assert(p1!=nullptr);
+    auto& c0 = *p0;
+    auto& c1 = *p1;
 
     //---
-    auto sz = cc0.sz;
-    assert(sz.w == cc1.sz.w);
-    assert(sz.h == cc1.sz.h);
+    auto sz = c0.camc.sz;
+    assert(sz == c1.camc.sz);
     cv::Size imsz(sz.w, sz.h);
 
     //----
     cv::Mat R,t,Q;
-    cv::eigen2cv(mat3(cams_[1].T.q), R);
-    cv::eigen2cv(cams[1].T.t, t);
+    cv::eigen2cv(mat3(c1.T.q), R);
+    cv::eigen2cv(c1.T.t, t);
     //---
     cv::stereoRectify(cds[0].K, cds[0].D, 
                       cds[1].K, cds[1].D,

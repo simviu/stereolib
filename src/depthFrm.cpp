@@ -125,12 +125,18 @@ Px FrmImp::alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const
 //-----
 void FrmImp::disp_to_depth()
 {
+    auto& cams = cfg.cams;
+    auto pCamL = cams.find("left");  assert(pCamL);
+    auto pCamR = cams.find("right"); assert(pCamR);
+    auto pCamC = cams.find("color"); assert(pCamC);
 
     //---- get : b, fx
-    auto& ccs = cfg.cams.cams;
-    assert(ccs.size()>1);
-    auto& cc0 = ccs[0].camc; // Left cam
-    double b = ccs[1].T.t.norm(); // baseline
+
+
+    auto& cc0 = pCamL->camc; // Left cam
+    double b = pCamR->T.t.norm(); // baseline
+
+
     CamCfg::Lense l; cc0.toLense(l);
     double fx = l.fx; // focal length
 
@@ -267,9 +273,14 @@ bool FrmImp::calc_byDepth()
 bool FrmImp::calc_LRC()
 {
     assert(imgs.size()>=3);
-    auto& ccs = cfg.cams.cams;
-    assert(ccs.size()>=3);
+    auto& cams = cfg.cams;
+    auto pCamL = cams.find("left");  assert(pCamL);
+    auto pCamR = cams.find("right"); assert(pCamR);
+    auto pCamC = cams.find("color"); assert(pCamC);
+    
+
     bool ok = true;
+
 
     //--- undistortion
     // img idx L,R,C are 0,1,2    
@@ -278,11 +289,11 @@ bool FrmImp::calc_LRC()
     auto pC = imgs[2];
     if(cfg.imgs.undist_LR)
     {
-        pL = ccs[0].camc.undist(*pL);
-        pR = ccs[1].camc.undist(*pR);
+        pL = pCamL->camc.undist(*pL);
+        pR = pCamR->camc.undist(*pR);
     }
     if(cfg.imgs.undist_C)
-        pC = ccs[2].camc.undist(*pC);
+        pC = pCamC->camc.undist(*pC);
 
     data_.p_im_L = pL; 
     data_.p_im_R = pR;
@@ -313,13 +324,16 @@ bool FrmImp::depth_to_pnts_LRC()
 {
 
     //----
-    auto& ccs = cfg.cams.cams;
-    assert(ccs.size()>1);
-    auto& camcL = ccs[0].camc; // Left cam
-    auto& camcC = ccs[2].camc; // Color cam
-    auto& T_L = ccs[0].T; // Left cam transform body to cam
+    auto& cams = cfg.cams;
+    auto pCamL = cams.find("left");  assert(pCamL);
+    auto pCamR = cams.find("right"); assert(pCamR);
+    auto pCamC = cams.find("color"); assert(pCamC);
+
+    auto& camcL = pCamL->camc; // Left cam
+    auto& camcC = pCamC->camc; // Color cam
+    auto& T_L = pCamL->T; // Left cam transform body to cam
     auto T_Li = T_L.inv();
-    auto& T_C = ccs[2].T; // color camera transform
+    auto& T_C = pCamC->T; // color camera transform
 
     //---- get color img
     assert(data_.p_im_color);
@@ -401,9 +415,10 @@ bool FrmImp::calc_RGBD()
 {
 
     //----
-    auto& ccs = cfg.cams.cams;
-    assert(ccs.size()>1);
-    auto& camcC = ccs[2].camc; // Left cam
+    auto pCamC = cfg.cams.find("color");
+    assert(pCamC);
+    auto& camcC = pCamC->camc; 
+    
 
     //---- check get depth img  and conf
     auto p_imdi = imgs[1];
