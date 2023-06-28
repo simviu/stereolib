@@ -18,7 +18,7 @@ string CamsCfg::str()const
     stringstream s;
     s << sName <<":" << endl;
     int i=0;
-    for(auto& c : cams)
+    for(auto& c : cams_)
     {
         s << "  cam "+to_string(i++)+
                 " '" << c.sName << "': ";
@@ -53,14 +53,16 @@ bool CamsCfg::load(const string& sf)
         auto& jcs = jd["cams"];
         for(auto& jc : jcs)
         {
-            OneCam oc;
+            auto p = mkSp<OneCam>();
+            auto& oc = *p;
             oc.sName = jc["name"].asString();
             ok &= s2v(jc["pos"].asString(), oc.T.t); 
             ok &= s2q(jc["quat"].asString(), oc.T.q);
             string sfc = fp.path + jc["cfg"].asString();
             if(!oc.camc.load(sfc))
             {   log_ef(sfc); return false; }
-            cams.push_back(oc); 
+            //cams.push_back(oc); 
+            cams_[oc.sName] = p;
         }
     }
     catch(exception& e)
@@ -80,11 +82,18 @@ bool CamsCfg::load(const string& sf)
 
     return init_rectify();
 }
+//----
+Sp<CamsCfg::OneCam> CamsCfg::find (const string& sName)const
+{
+    auto it = cams_.find(sName);
+    if(it==cams_.end())return nullptr;
+    return it->second;
+}
 
 //----
 bool CamsCfg::init_rectify()
 {
-    if(cams.size()<2)
+    if(cams_.size()<2)
     {
         log_e("need at least 2 cameras");
         return false;
@@ -92,9 +101,10 @@ bool CamsCfg::init_rectify()
     //----
     struct Cd{ cv::Mat K,D,Ro,P,map1, map2; };
     vector<Cd> cds;
-    for(int i=0;i<cams.size();i++)
+    for(auto it : cams_)
     {
-        auto& cc = cams[i].camc;
+        auto p = it.second;
+        auto& cc = p->camc;
         Cd cd;
         cv::eigen2cv(cc.K, cd.K);
         cv::eigen2cv(cc.D, cd.D);
@@ -104,6 +114,8 @@ bool CamsCfg::init_rectify()
     //----
     auto& cc0 = cams[0].camc;
     auto& cc1 = cams[1].camc;
+
+    //---
     auto sz = cc0.sz;
     assert(sz.w == cc1.sz.w);
     assert(sz.h == cc1.sz.h);
@@ -111,7 +123,7 @@ bool CamsCfg::init_rectify()
 
     //----
     cv::Mat R,t,Q;
-    cv::eigen2cv(mat3(cams[1].T.q), R);
+    cv::eigen2cv(mat3(cams_[1].T.q), R);
     cv::eigen2cv(cams[1].T.t, t);
     //---
     cv::stereoRectify(cds[0].K, cds[0].D, 

@@ -24,16 +24,16 @@ namespace stereo
             // Relative T from Left to this camera
             Pose T; 
         };
-        vector<OneCam> cams;
         //--- cv data, virtual
-        struct CvData{
-          //  virtual Sp<Img> remap(Img& im, int cam_id)const = 0;
-        };
-        
-        //--
+        struct CvData{};
         bool load(const string& sf);
         auto get_cvd()const { return p_cv_data; }
+        Sp<OneCam> find(const string& sName)const;
+        Sp<OneCam> operator[] (const string& sName)const
+            { return find(sName); }
     protected:
+//        vector<OneCam> cams;
+        map<string, Sp<OneCam>> cams_;
         Sp<CvData> p_cv_data= nullptr;
         bool init_rectify();
         string str()const;
