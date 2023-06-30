@@ -1,8 +1,6 @@
 
 
-depth init cfg=rund/cam/depth_LRC.json
-#depth init cfg=rund/cam/depth_dual.json
-#depth init cfg=rund/cam/depth_rgbd.json
+depth init cfg=rund/cam/depth.json
 
-depth frm dir=rund/frms i=10 -save=pcd|disp
+depth frm dir=rund/frms i=10 sdirs=left|right|color  -save=pcd|disp
 #depth frms dir=rund/frms -save_pcd

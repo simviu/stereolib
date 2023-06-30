@@ -3,11 +3,8 @@
     "mode" : "LRC",
     "cams_cfg" : "cams.json",
     "imgs":{
-        "dirs":["left","right","color"],
         "undist_LR":true,
-        "undist_C":true,
-        "#idxs":{ "color":2, "dispar":-1 , 
-                    "depth":-1, "depthConf":-1}
+        "undist_C":true
     },
     "disparity": "disparity.json",
     "depth":{
