@@ -3,7 +3,7 @@
     "mode" : "dual",
     "cams_cfg" : "cams.json",
     "imgs":{
-        "dirs":["L","R"],
+        "dirs":["left","right"],
         "undist_LR":true,
         "undist_C":true,
         "#idxs":{ "color":0, "dispar":-1, 

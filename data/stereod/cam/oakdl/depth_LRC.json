@@ -3,7 +3,7 @@
     "mode" : "LRC",
     "cams_cfg" : "cams.json",
     "imgs":{
-        "dirs":["L","R","C"],
+        "dirs":["left","right","color"],
         "undist_LR":true,
         "undist_C":true,
         "#idxs":{ "color":2, "dispar":-1 , 

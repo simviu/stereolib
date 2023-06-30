@@ -284,9 +284,11 @@ bool FrmImp::calc_LRC()
 
     //--- undistortion
     // img idx L,R,C are 0,1,2    
-    auto pL = imgs[0];
-    auto pR = imgs[1];
-    auto pC = imgs[2];
+    auto pL = findImg("left");  assert(pL);
+    auto pR = findImg("right"); assert(pR);
+    auto pC = findImg("color"); assert(pC);
+
+    //----
     if(cfg.imgs.undist_LR)
     {
         pL = pCamL->camc.undist(*pL);
@@ -421,7 +423,9 @@ bool FrmImp::calc_RGBD()
     
 
     //---- check get depth img  and conf
-    auto p_imdi = imgs[1];
+    auto p_imdi = findImg("depth"); 
+    assert(p_imdi);
+    
     auto imdi = img2cv(*p_imdi);
     cv::Mat imd;
     if(!chkConvDepthFmt(imdi, imd))

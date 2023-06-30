@@ -149,6 +149,13 @@ bool DepthGen::Cfg::set(const KeyVals& kvs)
             b_save_disp = true;
     return true;
 }
+//----
+Sp<Img> DepthGen::Frm::findImg(const string& s)const
+{
+    auto it = imgs.find(s);
+    if(it==imgs.end()) return nullptr;
+    return it->second;
+}
 
 //-----
 bool DepthGen::Frm::load(Video& vid)
@@ -160,13 +167,14 @@ bool DepthGen::Frm::load(Video& vid)
     sz.w *= 0.5;
 
     //---
+    CStrs sdirs{"left","right"};
     for(int i=0;i<2;i++)
     {
         Px c(sz.w*(i+0.5), sz.h*0.5);
         Rect r(c, sz);
         auto pi = p->crop(r);
-        if(p==nullptr)return false;
-        imgs.push_back(pi);
+        if(pi==nullptr)return false;
+        imgs[sdirs[i]]= pi;
     }
     return true;
 }
@@ -190,7 +198,7 @@ bool DepthGen::Frm::load_imgs(const Cfg& cfg, const string& sPath, int i)
         int flag = -1 ; // unchange
         auto p = Img::loadFile(sPath + "/"+sdir+"/"+si+".png", flag);        
         if(p==nullptr) break;
-        imgs.push_back(p);
+        imgs[sdir] = p;
         //--- dbg
         //int tp = p->type();
         //log_d("  type:"+to_string(tp));

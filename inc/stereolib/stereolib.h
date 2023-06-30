@@ -259,7 +259,7 @@ namespace stereo
         struct Frm{
             Frm(int i, const Cfg& c):cfg(c), idx(i){}
             int idx=0;
-            vector<Sp<Img>> imgs;
+            //vector<Sp<Img>> imgs;
             Pose T;
             Points pnts;
 
@@ -287,8 +287,9 @@ namespace stereo
             };
             auto& data()const{ return data_; }
             bool load(Video& vid);
-            
+            Sp<Img> findImg(const string& s)const;
         protected:
+            map<string, Sp<Img>> imgs;
             const Cfg& cfg;
             bool calc_dispar(const DisparityCfg& cfg,
                         const Img& im1,

@@ -4,7 +4,7 @@
     "mode" : "RGBD",
     "cams_cfg" : "cams.json",
     "imgs":{
-        "dirs":["C", "D", "N"],
+        "dirs":["color", "depth", "depthConf"],
         "undist_LR":true,
         "undist_C":true,
         "#idxs":{ "color":0, "dispar":-1 , 
