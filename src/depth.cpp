@@ -147,6 +147,12 @@ bool DepthGen::Cfg::set(const KeyVals& kvs)
             b_save_pcd = true;
         else if(s=="disp") 
             b_save_disp = true;
+
+    //----
+    string sds = kvs.get("sdirs");
+    if(sds!="")
+        imgs.sDirs = tokens(sds, '|');
+    //----
     return true;
 }
 //----
@@ -227,7 +233,7 @@ bool DepthGen::Frm::load(const Cfg& cfg, const string& sPath, int i)
 void DepthGen::init_cmds()
 {
     sHelp_ = "(Depth generation)";
-    string sOpts = " -save=[pcd|disp]";
+    string sOpts = " sdirs=[left|right|depth...] -save=[pcd|disp]";
 
 
     Cmd::add("init", mkSp<Cmd>("cfg=<CFG_FILE>",

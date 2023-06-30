@@ -224,8 +224,7 @@ namespace stereo
             string sMode;
             //---
             struct Imgs{
-                // img frms will be loaded from these sub dirs.
-                vector<string> sDirs{"L","R","C","D","N"};                
+                vector<string> sDirs{};                
                 bool undist_LR = false;
                 bool undist_C = false;
                 /*
