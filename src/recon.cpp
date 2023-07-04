@@ -117,7 +117,12 @@ bool ReconScn::run_merge(CStrs& args)
         string sf = sd_pcds +"/" + to_string(i)+".pcd";
         if(!sys::exists(sf))break;
         Points pf; // frm pnts
-        ok = pf.load(sf);        
+        if(!(ok=pf.load(sf)))break;        
+        //----
+        Pose& T = data_.traj.tpnts[i-1].T;
+        pf.trans(T);
+        //----
+        pnts.add(pf); // merge into global
     }
     //----
     if(!ok)
