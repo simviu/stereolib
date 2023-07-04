@@ -1,6 +1,5 @@
 {
     "info":"3 Cameras, L,R, Color, depth by L/R disparity",    
-    "mode" : "LRC",
     "cams_cfg" : "cams.json",
     "imgs":{
         "undist_LR":true,

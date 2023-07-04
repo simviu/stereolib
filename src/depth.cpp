@@ -149,21 +149,19 @@ bool DepthGen::Cfg::set(const KeyVals& kvs)
             b_save_disp = true;
 
     //----
-    string sm = kvs["mode"];
-    if(sm=="rgbd") 
+    sMode = kvs["mode"];
+    if(sMode=="rgbd") 
         imgs.sDirs = {"color", "depth"};
-    else if(sm=="LRC") 
+    else if(sMode=="LRC") 
         imgs.sDirs= {"left", "right", "color"};
-    else if(sm=="disp_color") 
+    else if(sMode=="disp_color") 
         imgs.sDirs = {"disp", "color"};
     else
     {
-        log_e("Unkown mode : '"+sm+"'");
+        log_e("Unkown mode : '"+sMode+"'");
         return false;
     }
 
-
-    
     
     //----
     /*
