@@ -272,6 +272,7 @@ namespace stereo
             bool load_imgs(const Cfg& cfg, const string& sPath, int i);
 
             //----
+            /*
             struct Data{
                 Sp<Img> p_im_L = nullptr;
                 Sp<Img> p_im_R = nullptr;
@@ -285,6 +286,7 @@ namespace stereo
                 //vector<Sp<Img>> ud_imgs;
             };
             auto& data()const{ return data_; }
+            */
             bool load(Video& vid);
             Sp<Img> findImg(const string& s)const;
         protected:
@@ -293,7 +295,7 @@ namespace stereo
             bool calc_dispar(const DisparityCfg& cfg,
                         const Img& im1,
                         const Img& im2);            
-            Data data_;
+            //Data data_;
 
         };
 

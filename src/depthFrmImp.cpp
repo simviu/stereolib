@@ -88,24 +88,24 @@ bool FrmImp::calc()
     }
     
     //--- save frm pcd
+    if(cfg.b_save_disp)
     {
         string swdir = cfg.s_wdir + lc_.s_pcds;
-        if(!sys::mkdir(swdir)) ok &= false;
-        if(ok && cfg.b_save_pcd)
-            ok &= pnts.save(swdir + to_string(idx) + ".pcd");
+        if(!sys::mkdir(swdir)) return false;
+        ok &= pnts.save(swdir + to_string(idx) + ".pcd");
     }
     //---- save disparity
+    if(cfg.b_save_pcd)
     {
         string swdir = cfg.s_wdir + lc_.s_disp;
-        if(!sys::mkdir(swdir)) ok &= false;
+        if(!sys::mkdir(swdir)) return false;
         string sf = swdir + to_string(idx) + ".pfm";
         //----
-        auto pd = data().p_im_disp;
-        if(ok && cfg.b_save_pcd && (pd!= nullptr))
-        {
-            auto imd = img2cv(*pd);
-            ok &= savePFM(imd, sf);
-        }
+        auto pd = findImg("disp");
+        assert(pd!= nullptr);
+        auto imd = img2cv(*pd);
+        ok &= savePFM(imd, sf);
+
     }
 
     return ok;
@@ -141,7 +141,7 @@ void FrmImp::disp_to_depth()
     double fx = l.fx; // focal length
 
     //---- get disp map
-    auto p_imp = Frm::data_.p_im_disp;
+    auto p_imp = findImg("disp");
     assert(p_imp!=nullptr);
     auto imp = img2cv(*p_imp);
 
@@ -165,7 +165,7 @@ void FrmImp::disp_to_depth()
         }
     }
     //----
-    data_.p_im_depth = mkSp<ImgCv>(imd);
+    imgs["depth"] = mkSp<ImgCv>(imd);
 }
 //---
 bool FrmImp::chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const
@@ -297,9 +297,6 @@ bool FrmImp::calc_LRC()
     if(cfg.imgs.undist_C)
         pC = pCamC->camc.undist(*pC);
 
-    data_.p_im_L = pL; 
-    data_.p_im_R = pR;
-    data_.p_im_color = pC;
     
     //---- calc disparity
     if(!calc_dispar(cfg.disp, *pL, *pR))
@@ -337,18 +334,16 @@ bool FrmImp::depth_to_pnts_LRC()
     auto T_Li = T_L.inv();
     auto& T_C = pCamC->T; // color camera transform
 
-    //---- get color img
-    assert(data_.p_im_color);
-    auto& imc = *data_.p_im_color;
+    auto& imc = *pCamC;
 
     //---- check get depth img conf
-    assert(data_.p_im_depth);
-    auto imd = img2cv(*data_.p_im_depth);
-    
+    auto p_imd = findImg("depth");
+    assert(p_imd);
+    auto imd = img2cv(*p_imd);    
 
     //---- get confidence map
     cv::Mat imdc; 
-    auto p_imdc = Frm::data_.p_im_dispConf;
+    auto p_imdc = findImg("dispConf");
     if(p_imdc)
         imdc = img2cv(*p_imdc);
     int tp = imd.type();
@@ -431,7 +426,6 @@ bool FrmImp::calc_RGBD()
     if(!chkConvDepthFmt(imdi, imd))
         return false;
     int tp = imd.type();
-    Frm::data_.p_im_depth = mkSp<ImgCv>(imd);
 
     //---- get confidence map
     Sp<Img> p_imdc = nullptr;
@@ -500,6 +494,10 @@ void FrmImp::show()const
 {
 
     //---- show undistorted imgs
+    auto pL = findImg("left");
+    auto pL = findImg("left");
+    auto pL = findImg("left");
+    
     if(data_.p_im_L)     data_.p_im_L->show("Left");
     if(data_.p_im_R)     data_.p_im_R->show("Right");
     if(data_.p_im_color) data_.p_im_color->show("Color");
