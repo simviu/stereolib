@@ -227,14 +227,7 @@ namespace stereo
                 vector<string> sDirs{};                
                 bool undist_LR = false;
                 bool undist_C = false;
-                /*
-                struct Idxs{
-                    int color=0;
-                    int dispar=-1;
-                    int depth=-1; 
-                    int depthConf = -1;
-                }; Idxs idxs;
-                */
+                
             };Imgs imgs;
 
             struct DepthC{ 
@@ -258,7 +251,7 @@ namespace stereo
         struct Frm{
             Frm(int i, const Cfg& c):cfg(c), idx(i){}
             int idx=0;
-            //vector<Sp<Img>> imgs;
+
             Pose T;
             Points pnts;
 
@@ -267,26 +260,9 @@ namespace stereo
 
             static Sp<Frm> create(int i, const Cfg& cfg);
 
-        //    bool recon(const Cfg& cfg);
             bool load(const Cfg& cfg, const string& sPath, int i);
             bool load_imgs(const Cfg& cfg, const string& sPath, int i);
 
-            //----
-            /*
-            struct Data{
-                Sp<Img> p_im_L = nullptr;
-                Sp<Img> p_im_R = nullptr;
-                Sp<Img> p_im_color = nullptr;
-                //---
-                Sp<Img> p_im_disp = nullptr; 
-                Sp<Img> p_im_dispConf = nullptr; // disparity confidence
-                Sp<Img> p_im_depth = nullptr;
-                
-                //--- undistorted, 0,1,2 -> L,R,C
-                //vector<Sp<Img>> ud_imgs;
-            };
-            auto& data()const{ return data_; }
-            */
             bool load(Video& vid);
             Sp<Img> findImg(const string& s)const;
         protected:
@@ -295,7 +271,6 @@ namespace stereo
             bool calc_dispar(const DisparityCfg& cfg,
                         const Img& im1,
                         const Img& im2);            
-            //Data data_;
 
         };
 

@@ -178,7 +178,7 @@ bool DepthGen::Frm::calc_dispar(const DisparityCfg& cfg,
         cv::Mat imdf;
         p_fltr->filter(imd, imL, imdf, im_dispR);
         cv::Mat imdc = p_fltr->getConfidenceMap();
-        data_.p_im_dispConf = mkSp<ImgCv>(imdc);    
+        imgs["dispConf"] = mkSp<ImgCv>(imdc);    
         imd = imdf;
     }
     //---
@@ -189,6 +189,6 @@ bool DepthGen::Frm::calc_dispar(const DisparityCfg& cfg,
     int tp2 = imd.type();
     int tp3 = imdo.type();
  
-    data_.p_im_disp = mkSp<ocv::ImgCv>(imdo);
+    imgs["disp"] = mkSp<ocv::ImgCv>(imdo);
     return true;
 }

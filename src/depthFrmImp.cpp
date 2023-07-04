@@ -334,7 +334,8 @@ bool FrmImp::depth_to_pnts_LRC()
     auto T_Li = T_L.inv();
     auto& T_C = pCamC->T; // color camera transform
 
-    auto& imc = *pCamC;
+    auto pC = findImg("color");
+    auto& imc = *pC;
 
     //---- check get depth img conf
     auto p_imd = findImg("depth");
@@ -492,18 +493,16 @@ bool FrmImp::calc_RGBD()
 //----
 void FrmImp::show()const
 {
-
-    //---- show undistorted imgs
-    auto pL = findImg("left");
-    auto pL = findImg("left");
-    auto pL = findImg("left");
+    //----
+    for(auto& s : {"left, right, color"})
+    {
+        auto p = findImg("s");
+        if(p) p->show(s);
+    }
     
-    if(data_.p_im_L)     data_.p_im_L->show("Left");
-    if(data_.p_im_R)     data_.p_im_R->show("Right");
-    if(data_.p_im_color) data_.p_im_color->show("Color");
     
     //--- disparity
-    auto p_imd = Frm::data_.p_im_disp;
+    auto p_imd = findImg("disp");
     if(p_imd!=nullptr)
     {
         cv::Mat imd = img2cv(*p_imd);
@@ -511,7 +510,7 @@ void FrmImp::show()const
         cv::imshow("disparity", imd);
     }
     //--- dispar confidence
-    auto p_imdc = Frm::data_.p_im_dispConf;
+    auto p_imdc = findImg("dispConf");
     if(p_imdc!=nullptr)
     {
         auto imdc = img2cv(*p_imdc);

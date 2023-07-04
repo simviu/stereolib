@@ -13,7 +13,7 @@ using namespace stereo;
 namespace{
     struct LCfg{
         // PFM is image format support float point
-        set<string> pfm_imgs{"disp", "depth", "depthConf"};
+        set<string> pfm_imgs{"disp", "depth", "dispConf", "depthConf"};
         bool use_pfm(const string& s)const
         { return pfm_imgs.find(s)!=pfm_imgs.end(); }        
     }; LCfg lc_;
