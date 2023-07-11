@@ -325,7 +325,7 @@ bool FrmImp::depth_to_pnts_LRC()
     //----
     auto& cams = cfg.cams;
     auto pCamL = cams.find("left");  assert(pCamL);
-    auto pCamR = cams.find("right"); assert(pCamR);
+  //  auto pCamR = cams.find("right"); assert(pCamR);
     auto pCamC = cams.find("color"); assert(pCamC);
 
     auto& camcL = pCamL->camc; // Left cam
