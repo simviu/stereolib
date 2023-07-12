@@ -7,16 +7,23 @@
  */
 
 #include "stereolib/stereolibCv.h"
+#include "PFMReadWrite.h"
 
 using namespace stereo;
 
 namespace{
     struct LCfg{
-        // PFM is image format support float point
-        set<string> pfm_imgs{"disp", "depth", "dispConf", "depthConf"};
-        bool use_pfm(const string& s)const
-        { return pfm_imgs.find(s)!=pfm_imgs.end(); }        
+              
     }; LCfg lc_;
+    
+    //---- PFM is image format support float point
+    bool use_pfm(const string& s)
+    { 
+        const set<string> pfm_imgs
+            {"disp", "depth", "dispConf", "depthConf"};
+        return pfm_imgs.find(s)!=pfm_imgs.end(); 
+    } 
+    
 }
 
 
@@ -61,13 +68,22 @@ bool DepthGen::Frm::load_imgs(const Cfg& cfg, const string& sPath, int i)
     for(k=0;k<N;k++)
     {
         string sdir = sDirs[k];
-        /*
-        int flag = (k==cfg.frms.color_img) ?  cv::IMREAD_COLOR :
-                   (k==cfg.frms.depth_img) ?  cv::IMREAD_ANYDEPTH :
-                   cv::IMREAD_GRAYSCALE;
-                   */
+        
         int flag = -1 ; // unchange
-        auto p = Img::loadFile(sPath + "/"+sdir+"/"+si+".png", flag);        
+        Sp<Img> p = nullptr;
+
+        //---- auto detect if pfm needed.
+        if(use_pfm(sdir))
+        {
+            string sf = sPath + "/"+sdir+"/"+si+".pfm";
+            cv::Mat im = loadPFM(sf);
+            p = mkSp<ImgCv>(im);
+        }
+        else // normal image, png
+        {
+            string sf = sPath + "/"+sdir+"/"+si+".png";
+            p =Img::loadFile(sf, flag);  
+        }      
         if(p==nullptr) break;
         imgs[sdir] = p;
 
