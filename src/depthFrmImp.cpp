@@ -31,9 +31,10 @@ namespace{
     //    bool calc_byDepth();
         
         void disp_to_depth();
-        bool depth_to_pnts_LRC();
-        bool calc_LRC();
+        bool depth_to_pnts();
+        bool calc_LRC(); // left/right/color
         bool calc_RGBD();
+        bool calc_disp_color();
 
         Px alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const;
         bool chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const;
@@ -76,12 +77,15 @@ bool FrmImp::rectify(const CamsCfg& camcs)
 bool FrmImp::calc()
 {
     bool ok = true;
-    if(cfg.sMode == "RGBD")
+    string sm = cfg.sMode;
+    if(sm == "RGBD")
         ok &= calc_RGBD();
     // Full pipeline L/R stereo from scratch
-    else if(cfg.sMode == "LRC")
+    else if(sm == "LRC")
         ok &= calc_LRC();
-    else 
+    else if(sm == "disp_color")
+        calc_disp_color();
+    else
     {
         log_e("Unkonwn mode: "+cfg.sMode);
         return false;
@@ -109,6 +113,19 @@ bool FrmImp::calc()
     }
 
     return ok;
+}
+//----
+bool FrmImp::calc_disp_color()
+{
+    //--- disp to depth map
+    disp_to_depth();
+
+    //---
+    depth_to_pnts();
+    
+    log_d("gen_pnts: "+pnts.info());
+    
+    return true;
 }
 
 //----
@@ -306,7 +323,7 @@ bool FrmImp::calc_LRC()
     disp_to_depth();
 
     //---
-    depth_to_pnts_LRC();
+    depth_to_pnts();
     
     log_d("gen_pnts: "+pnts.info());
     
@@ -319,7 +336,7 @@ bool FrmImp::calc_LRC()
 //---------------
 // depth to pnts
 //---------------
-bool FrmImp::depth_to_pnts_LRC()
+bool FrmImp::depth_to_pnts()
 {
 
     //----
