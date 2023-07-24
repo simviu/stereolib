@@ -123,8 +123,8 @@ bool DepthGen::Cfg::load(const string& sf)
         return false;
     }    
     //---- after process
-    visc.pntvc.axisL = depth.range.d1;
-    //visc.pntvc.axisL = 0.1; // dbg
+    //visc.pntvc.axisL = depth.range.d1;
+    visc.pntvc.axisL = 1; // TODO: cfg
     //----
     log_i("DepthGen cfg loaded '"+sf +"'");
     return true;
