@@ -77,6 +77,7 @@ bool DepthGen::Frm::load_imgs(const Cfg& cfg, const string& sPath, int i)
         {
             string sf = sPath + "/"+sdir+"/"+si+".pfm";
             cv::Mat im = loadPFM(sf);
+            Sz sz(im.cols, im.rows);// dbg
             p = mkSp<ImgCv>(im);
         }
         else // normal image, png
