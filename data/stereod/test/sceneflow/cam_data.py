@@ -16,14 +16,13 @@ from scipy.spatial.transform import Rotation as R
 
 tL = np.array([     78.5756049156,
                     3.328108944,
-                    0.999999941131 ])
+                    0.999999941131 ]).reshape(3,1)
+
 RL = np.array([     [0.981465339661, -1.42344788401e-07, -0.191639259458],
                     [-0.191639259458, -1.88393784128e-07, -0.981465399265],
                     [1.17738608196e-07, 1.0, -2.13547963313e-07] ])
 
-tR = np.array([ 79.5570702552 , 
-                3.13646968454,
-                1.00000005887  ])
+
 rL = R.from_matrix(RL)
 print("rL rvec:", rL.as_rotvec())
 print("tL:", tL)
@@ -32,13 +31,21 @@ print("tL:", tL)
 RR = np.array([ [0.981465339661, -1.42344788401e-07, -0.191639259458 ], 
                 [-0.191639259458, -1.88393784128e-07, -0.981465399265],
                 [1.17738608196e-07, 1.0, -2.13547963313e-07 ]   ])
-tR = np.array([79.5570702552, 3.13646968454, 1.00000005887 ])
+tR = np.array([79.5570702552, 3.13646968454, 1.00000005887 ]).reshape(3,1)
 rR = R.from_matrix(RR)
 print("rR rvec:", rR.as_rotvec())
 print("tR:", tR)
 
 #------
-T_WL = np.block([[RL, tL.reshape(3,1)],[np.zeros(3), 1]])
+T_WL = np.block([[RL, tL],
+                 [np.zeros(3), 1]])
 print("T_WL:", T_WL)
-T_WR = np.block([[RR, tR.reshape(3,1)],[np.zeros(3), 1]])
+T_WR = np.block([[RR, tR],
+                 [np.zeros(3), 1]])
 print("T_WR:", T_WR)
+
+#---- T_LR = T_LW * T_WR , T_LW = T_WL.inv()
+T_LW = np.block([[RL.T, -np.matmul(RL.T, tL)],
+                 [np.zeros(3), 1]])
+T_LR = np.matmul(T_LW, T_WR) 
+print("T_LR:", T_LR)
