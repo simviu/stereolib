@@ -43,6 +43,9 @@ print("T_WL:", T_WL)
 T_WR = np.block([[RR, tR],
                  [np.zeros(3), 1]])
 print("T_WR:", T_WR)
+#----
+#R_LR = RL.T * RR #--- ( R_WL^T )* R_WR
+#t_LR =  
 
 #---- T_LR = T_LW * T_WR , T_LW = T_WL.inv()
 T_LW = np.block([[RL.T, -np.matmul(RL.T, tL)],
