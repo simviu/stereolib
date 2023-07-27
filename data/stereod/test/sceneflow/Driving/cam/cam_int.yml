@@ -1,0 +1,19 @@
+%YAML:1.0
+---
+image_width: 960
+image_height: 540
+aspectRatio: 1.
+flags: 2
+camera_matrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 1050, 0.0, 479.5, 
+           0.0, 1050, 269.5, 
+           0.0, 0.0, 1.0]
+
+distortion_coefficients: !!opencv-matrix
+   rows: 5
+   cols: 1
+   dt: d
+   data: [0, 0, 0, 0, 0 ]

@@ -1,0 +1,26 @@
+{
+    "name" : "sceneFlow",
+    "cams":[
+        {
+            "name":"left",
+            "cfg":"cam_int.yml",
+            "pos":"-0.5,0,0",
+            "quat":"1.0,0.0,0.0,0.0"
+        },
+        {
+            "name":"right",
+            "cfg":"cam_int.yml",
+            "pos":"0.5,0,0",
+            "quat":"1.0,0.0,0.0,0.0"
+
+        },
+        {
+            "name":"color",
+            "cfg":"cam_int.yml",
+            "pos":"-0.5,0.0,0.0",
+            "quat":"1.0,0.0,0.0,0.0"
+        }    
+    ]
+
+
+}

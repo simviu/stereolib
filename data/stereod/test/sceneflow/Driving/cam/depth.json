@@ -1,0 +1,15 @@
+{
+    "info":"3 Cameras, L,R, Color, depth by L/R disparity",    
+    "cams_cfg" : "cams.json",
+    "imgs":{
+        "undist_LR":false,
+        "undist_C":false
+    },
+    "disparity": "disparity.json",
+    "depth":{
+        "range": "0.01, 1" ,
+        "TH_confidence" : 50
+    },
+    "wdir":"./out/"
+
+}
