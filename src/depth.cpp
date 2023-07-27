@@ -134,11 +134,8 @@ bool DepthGen::Cfg::set(const KeyVals& kvs)
 {
     string sw = kvs.get("-save");
     auto sws = tokens(sw, '|');
-    for(auto& s : sws)
-        if(s=="pcd") 
-            b_save_pcd = true;
-        else if(s=="disp") 
-            b_save_disp = true;
+    for(auto& s : sws) 
+        ss_save.push_back(s);
 
     //----
     sMode = kvs["mode"];

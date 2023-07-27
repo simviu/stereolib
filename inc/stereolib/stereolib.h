@@ -243,8 +243,7 @@ namespace stereo
             //----
             bool load(const string& sf);
             //--- run options
-            bool b_save_pcd = false;
-            bool b_save_disp = false;
+            vector<string> ss_save; // options of saving
             bool set(const KeyVals& kvs);
         }; Cfg cfg_;
         //----

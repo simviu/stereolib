@@ -13,8 +13,6 @@ using namespace stereo;
 
 namespace{
     struct LCfg{
-        string s_pcds = "pcds/";
-        string s_disp = "disp/";
     }; LCfg lc_;
 
   //---- impl DepthGen::Frm
@@ -35,6 +33,8 @@ namespace{
         bool calc_LRC(); // left/right/color
         bool calc_RGBD();
         bool calc_disp_color();
+
+        bool save_out()const;
 
         Px alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const;
         bool chkConvDepthFmt(const cv::Mat& imdi, cv::Mat& imd)const;
@@ -90,30 +90,11 @@ bool FrmImp::calc()
         log_e("Unkonwn mode: "+cfg.sMode);
         return false;
     }
-    
-    //--- save frm pcd
-    if(cfg.b_save_disp)
-    {
-        string swdir = cfg.s_wdir + lc_.s_pcds;
-        if(!sys::mkdir(swdir)) return false;
-        ok &= pnts.save(swdir + to_string(idx) + ".pcd");
-    }
-    //---- save disparity
-    if(cfg.b_save_pcd)
-    {
-        string swdir = cfg.s_wdir + lc_.s_disp;
-        if(!sys::mkdir(swdir)) return false;
-        string sf = swdir + to_string(idx) + ".pfm";
-        //----
-        auto pd = findImg("disp");
-        assert(pd!= nullptr);
-        auto imd = img2cv(*pd);
-        ok &= savePFM(imd, sf);
-
-    }
-
+    //----
+    ok &= save_out();
     return ok;
 }
+
 //----
 bool FrmImp::calc_disp_color()
 {
@@ -507,6 +488,46 @@ bool FrmImp::calc_RGBD()
     return true;
 }
 
+//----
+bool FrmImp::save_out()const
+{
+    bool ok = true;
+    //--- save frm pcd
+    for(auto& s : cfg.ss_save)
+    {
+        string swdir = cfg.s_wdir + s;
+        if(!sys::mkdir(swdir)) 
+            return false;
+        //-----
+        if(s=="pcd")
+            ok &= pnts.save(swdir + to_string(idx) + ".pcd");
+        
+        //---- save disparity
+        else if(s=="disp")
+        {
+            string sf = swdir + to_string(idx) + ".pfm";
+            //----
+            auto pd = findImg("disp");
+            assert(pd!= nullptr);
+            auto imd = img2cv(*pd);
+            ok &= savePFM(imd, sf);
+
+        }
+    
+        //---- save disparity
+        else if(s=="disp_vis")
+        {
+            string sf = swdir + to_string(idx) + ".pfm";
+            //----
+            auto pd = findImg("disp");
+            assert(pd!= nullptr);
+            auto imd = img2cv(*pd);
+            ok &= savePFM(imd, sf);
+
+        }
+    }
+    return ok;
+}
 //----
 void FrmImp::show()const
 {
