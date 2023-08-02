@@ -110,12 +110,10 @@ bool FrmImp::calc_disp_color()
 }
 
 //----
-Px FrmImp::alignPnt(const vec3& v , const CamCfg& camc,  const Pose& T)const
+Px FrmImp::alignPnt(const vec3& vb , const CamCfg& camc,  const Pose& T_cb)const
 {
-    // T , or T_CL, is transform from depth map camera (Left)
-    //   to color camera.
-    // transform to color camera frame.
-    vec3 vc = T * v;  
+    // T_cb, transform from body to color camera
+    vec3 vc = T_cb * vb;  
     vec2 qc = camc.proj(vc);
     Px px = toPx(qc);
     return px;
@@ -328,9 +326,9 @@ bool FrmImp::depth_to_pnts()
 
     auto& camcL = pCamL->camc; // Left cam
     auto& camcC = pCamC->camc; // Color cam
-    auto& T_L = pCamL->T; // Left cam transform body to cam
-    auto T_Li = T_L.inv();
-    auto& T_C = pCamC->T; // color camera transform
+    auto& T_Lb = pCamL->T; // T_Lb, Left cam transform body to cam
+    auto T_bL = T_Lb.inv();
+    auto& T_cb = pCamC->T; // color camera transform
 
     auto pC = findImg("color");
     auto& imc = *pC;
@@ -380,14 +378,14 @@ bool FrmImp::depth_to_pnts()
 
             //--- tranform to body frm
             
-            vec3 vb = T_Li *v;
+            vec3 vb = T_bL *v;
             
             //----
             p.p = vb;
             p.c = {255,255,255,255};
 
             //--- get color, with alignment
-            Px px_c = alignPnt(vb, camcC, T_C);
+            Px px_c = alignPnt(vb, camcC, T_cb);
 
             //---- new px
             auto szc = imc.size();
