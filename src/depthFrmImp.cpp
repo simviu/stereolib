@@ -130,7 +130,9 @@ void FrmImp::disp_to_depth()
 
 
     auto& cc0 = pCamL->camc; // Left cam
-    double b = pCamR->T.t.norm(); // baseline
+    auto& cc1 = pCamR->camc; // Left cam
+    vec3 dt = pCamL->T.t - pCamR->T.t; // TODO: this is simplified.
+    double b = dt.norm(); // baseline
 
 
     CamCfg::Lense l; cc0.toLense(l);
@@ -493,7 +495,7 @@ bool FrmImp::save_out()const
     //--- save frm pcd
     for(auto& s : cfg.ss_save)
     {
-        string swdir = cfg.s_wdir + s;
+        string swdir = cfg.s_wdir + s +"/";
         if(!sys::mkdir(swdir)) 
             return false;
         //-----
@@ -515,12 +517,11 @@ bool FrmImp::save_out()const
         //---- save disparity
         else if(s=="disp_vis")
         {
-            string sf = swdir + to_string(idx) + ".pfm";
+            string sf = swdir + to_string(idx) + ".png";
             //----
             auto pd = findImg("disp");
             assert(pd!= nullptr);
-            auto imd = img2cv(*pd);
-            ok &= savePFM(imd, sf);
+            ok &= pd->save(sf);
 
         }
     }
