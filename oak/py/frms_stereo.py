@@ -25,11 +25,11 @@ xN = pipeline.create(dai.node.XLinkOut)
 xL = pipeline.create(dai.node.XLinkOut)
 xR = pipeline.create(dai.node.XLinkOut)
 
-xC.setStreamName("C")
-xD.setStreamName("D")
-xN.setStreamName("N")
-xL.setStreamName("L")
-xR.setStreamName("R")
+xC.setStreamName("color")
+xD.setStreamName("depth")
+xN.setStreamName("depthConf")
+xL.setStreamName("left")
+xR.setStreamName("right")
 
 # stereo settings
 stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)
@@ -60,21 +60,21 @@ stereo.confidenceMap.link(xN.input)
 
 #---- create dirs
 Path("frms").mkdir(parents=True, exist_ok=True)
-Path("frms/C").mkdir(parents=True, exist_ok=True)
-Path("frms/D").mkdir(parents=True, exist_ok=True)
-Path("frms/N").mkdir(parents=True, exist_ok=True)
-Path("frms/L").mkdir(parents=True, exist_ok=True)
-Path("frms/R").mkdir(parents=True, exist_ok=True)
+Path("frms/color").mkdir(parents=True, exist_ok=True)
+Path("frms/depth").mkdir(parents=True, exist_ok=True)
+Path("frms/depthConf").mkdir(parents=True, exist_ok=True)
+Path("frms/left").mkdir(parents=True, exist_ok=True)
+Path("frms/right").mkdir(parents=True, exist_ok=True)
 
 # Connect to device and start pipeline
 with dai.Device(pipeline) as device:
     # Output queue will be used to get the grayscale frames from the output defined above
 
-    qC = device.getOutputQueue(name="C", maxSize=4, blocking=False)
-    qD = device.getOutputQueue(name="D", maxSize=4, blocking=False)
-    qN = device.getOutputQueue(name="N", maxSize=4, blocking=False)
-    qL = device.getOutputQueue(name="L", maxSize=4, blocking=False)
-    qR = device.getOutputQueue(name="R", maxSize=4, blocking=False)
+    qC = device.getOutputQueue(name="color", maxSize=4, blocking=False)
+    qD = device.getOutputQueue(name="depth", maxSize=4, blocking=False)
+    qN = device.getOutputQueue(name="depthConf", maxSize=4, blocking=False)
+    qL = device.getOutputQueue(name="left", maxSize=4, blocking=False)
+    qR = device.getOutputQueue(name="right", maxSize=4, blocking=False)
 
     #------
     i=0
@@ -93,18 +93,18 @@ with dai.Device(pipeline) as device:
         imN = inN.getCvFrame()
         imL = inL.getCvFrame()
         imR = inR.getCvFrame()
-        cv2.imshow("C", imC)
+        cv2.imshow("color", imC)
         #cv2.imshow("D", imD)
         #cv2.imshow("N", imN)
         #cv2.imshow("L", imD)
         #cv2.imshow("R", imN)
 
         # After showing the frame, it's being stored inside a target directory as a PNG image
-        cv2.imwrite("frms/C/"+str(i)+".png", imC)
-        cv2.imwrite("frms/D/"+str(i)+".png", imD)
-        cv2.imwrite("frms/N/"+str(i)+".png", imN)
-        cv2.imwrite("frms/L/"+str(i)+".png", imL)
-        cv2.imwrite("frms/R/"+str(i)+".png", imR)
+        cv2.imwrite("frms/color/"+str(i)+".png", imC)
+        cv2.imwrite("frms/depth/"+str(i)+".png", imD)
+        cv2.imwrite("frms/depthConf/"+str(i)+".png", imN)
+        cv2.imwrite("frms/left/"+str(i)+".png", imL)
+        cv2.imwrite("frms/right/"+str(i)+".png", imR)
         print("frm "+str(i))
 
         if cv2.waitKey(1) == ord('q'):
