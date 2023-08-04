@@ -3,6 +3,6 @@
 depth init cfg=rund/cam/depth.json
 
 #depth frm dir=rund/frms i=29 mode=LRC  -save=pcd|disp|disp_vis
-#depth frm dir=rund/frms i=10 mode=disp_color  -save=pcd
-depth frm dir=rund/frms i=10 mode=LRC  -save=pcd|disp|disp_vis
+depth frm dir=rund/frms i=29 mode=disp_color  -save=pcd
+#depth frm dir=rund/frms i=29 mode=LRC  -save=pcd|disp|disp_vis
 #depth frms dir=rund/frms -save_pcd
