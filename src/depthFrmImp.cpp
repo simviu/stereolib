@@ -364,9 +364,11 @@ bool FrmImp::depth_to_pnts()
         for(unsigned int x = 0; x < imd.cols; x++)
         {
             double z = pd[x]; // disparity
-            if(z <=0)continue;
             if(std::isnan(z)||std::isinf(z))
                 continue;
+            if(z <0)continue;
+            auto& rng = cfg.depth.range;
+            if(!rng.isIn(z))continue;
             //---- check confidence
             if(prowc && prowc[x] < cfg.depth.TH_confidence)
                 continue; // skip this point.
