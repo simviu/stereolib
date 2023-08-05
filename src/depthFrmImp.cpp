@@ -130,7 +130,7 @@ void FrmImp::disp_to_depth()
 
 
     auto& cc0 = pCamL->camc; // Left cam
-    auto& cc1 = pCamR->camc; // Left cam
+    auto& cc1 = pCamR->camc; // Right cam
     vec3 dt = pCamL->T.t - pCamR->T.t; // TODO: this is simplified.
     double b = dt.norm(); // baseline
 

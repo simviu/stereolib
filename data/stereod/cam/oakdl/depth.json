@@ -3,7 +3,7 @@
     "cams_cfg" : "cams.json",
     "imgs":{
         "undist_LR":false,
-        "undist_C":true
+        "undist_C":false
     },
     "disparity": "disparity.json",
     "depth":{

@@ -14,6 +14,7 @@ using namespace stereo;
 namespace{
     struct LCfg{
         float fps = 30; 
+        float pnt_sz = 15;
     }; LCfg lc_;
 
   
@@ -303,7 +304,7 @@ Sp<Points::Vis> DepthGen::get_frm_pnt_vis()
 //----
 void DepthGen::show(const Frm& f)
 {
-   
+    auto& visc = cfg_.visc;
     //---show frm
     f.show();
     
@@ -314,7 +315,7 @@ void DepthGen::show(const Frm& f)
         assert(pv!=nullptr);
         auto& vis = *pv;
         vis.clear();
-        vis.add(f.pnts, "frm");
+        vis.add(f.pnts, "frm", lc_.pnt_sz);
         // dbg
         if(0)
         {
