@@ -85,6 +85,8 @@ bool FrmImp::calc()
         ok &= calc_LRC();
     else if(sm == "disp_color")
         calc_disp_color();
+    else if(sm == "depth_color")
+        depth_to_pnts();
     else
     {
         log_e("Unkonwn mode: "+cfg.sMode);

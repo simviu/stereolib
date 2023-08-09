@@ -146,6 +146,8 @@ bool DepthGen::Cfg::set(const KeyVals& kvs)
         imgs.sDirs= {"left", "right", "color"};
     else if(sMode=="disp_color") 
         imgs.sDirs = {"disp", "color"};
+    else if(sMode=="depth_color") 
+        imgs.sDirs = {"depth", "color"};
     else
     {
         log_e("Unkown mode : '"+sMode+"'");
