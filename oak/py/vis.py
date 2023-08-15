@@ -3,6 +3,7 @@ import depthai
 import os
 
 oak = OakCamera(usbSpeed=depthai.UsbSpeed.HIGH)
+
 if oak is None:
     print("Failed to init OakCamera()")
     os.exit(1)
