@@ -20,6 +20,7 @@ class Frm(object):
         cv2.imshow("color",             self.color)
         cv2.imshow("Left Rectified",    self.left_rctf)
         cv2.imshow("Right Rectified",   self.right_rctf)
+        cv2.waitKey(1)
 
 
 #-----
@@ -193,10 +194,5 @@ def test():
 
     return False
 
-#----------
-# main
-#----------
-if __name__ == "__main__":
-    test()
 
     
