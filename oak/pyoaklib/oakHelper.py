@@ -184,6 +184,7 @@ class OakCamFeed(object):
 def test():
     camFd = OakCamFeed()
     camFd.callbk_ = lambda f : f.show()
+    camFd.cfg_en_wr_frms_ = True
     #camFd.cfg_en_show_ = True
     camFd.run()
 
@@ -195,4 +196,9 @@ def test():
     return False
 
 
+#----------
+# main
+#----------
+if __name__ == "__main__":
+    test()
     
