@@ -1,0 +1,26 @@
+{
+    "name" : "OAK-D-Pro",
+    "cams":[
+        {
+            "name":"left",
+            "cfg":"oakdl_left_rctf.yml",
+            "pos":"0.037,0,0",
+            "quat":"0.999929,-0.00120859,0.00893561,-0.0077542"
+        },
+        {
+            "name":"right",
+            "cfg":"oakdl_right_rctf.yml",
+            "pos":"-0.037,0,0",
+            "quat":"1.0,0.0,0.0,0.0"
+
+        },
+        {
+            "name":"color",
+            "cfg":"oakdl_color.yml",
+            "pos":"0,0,0",
+            "quat":"1.0,0.0,0.0,0.0"
+        }    
+    ]
+
+
+}

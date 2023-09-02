@@ -1,0 +1,22 @@
+{
+    "disparity":{
+        "sgbm":{
+            "minDisparity" : 0,
+            "numDisparities" : 128,
+            "blockSize" : 10,
+            "P1" : 2400,
+            "P2" : 9600,
+            "disp12MaxDiff" : 1,
+            "preFilterCap" : 63,
+            "uniquenessRatio" : 10,
+            "speckleWindowSize" : 100,
+            "speckleRange" : 1,           
+            "wls_filter":{
+                "en":true,
+                "lambda":8000,
+                "sigma":0.8
+            }
+        },
+        "vis_mul" : 8
+    }
+}
