@@ -111,7 +111,7 @@ namespace stereo
             cv::Mat im3d, Points& pnts);
 
     //----
-    class StereoCap_dcam : public StereoCap{
+    class StereoCapCv : public StereoCap{
     public:
         
         virtual bool init() override;

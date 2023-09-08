@@ -54,7 +54,7 @@ bool StereoCmd::capFrms(CStrs& args)
     if(!pCap->init()) return false;
     //-----
     float fps=10;
-    bool ok = !s2d(kvs["fps"], fps);
+    bool ok = s2d(kvs["fps"], fps);
     if((!ok)||(fps<=0))
     {
         log_e("Incorrect fps:"+kvs["kvs"]);
@@ -76,9 +76,9 @@ bool StereoCmd::capFrms(CStrs& args)
         {
 
             int N= frms.imgs.size();
-            if(N > 2) N=2;
+            //if(N > 2) N=2;
             auto& sNames = pCap->cfg_.sNames;
-            for(int i=0;i<2;i++)
+            for(int i=0;i<N;i++)
             {
                 auto pIm = frms.imgs[i];
                 pIm->show(sNames[i]);
