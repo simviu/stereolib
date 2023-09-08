@@ -22,7 +22,9 @@ void StereoCmd::init_cmds()
        return init(args);
     }));
     //----
-    add("cap", mkSp<Cmd>("fps=<FPS> devices=<ID0,ID1> vis=false (capture stereo frms to output/frms/)",
+    string sH = "fps=<FPS> devices=<ID0,ID1>";
+    sH += " vis=false save=<DIR>";
+    add("cap", mkSp<Cmd>(sH,
     [&](CStrs& args)->bool{ 
        return capFrms(args);
     }));
@@ -50,6 +52,16 @@ bool StereoCmd::capFrms(CStrs& args)
     auto pCap = StereoCap::create("dualCam");
     if(pCap==nullptr) return false;
     if(!pCap->cfg_.parse(kvs)) return false;
+    //----
+    string sWd = kvs["save"];
+    auto& sNames = pCap->cfg_.sNames;
+    if(sWd!="")
+    {
+        sys::mkdir(sWd);
+        for(auto& s : sNames)
+            sys::mkdir("./"+ sWd + "/" + s);
+    }
+    
     //--- init
     if(!pCap->init()) return false;
     //-----
@@ -62,8 +74,10 @@ bool StereoCmd::capFrms(CStrs& args)
     }
     //----
     float dt = 1.0/fps;
+    int fi=0; // frame idx
     while(1)
     {
+        fi++;
         StereoCap::CapFrms frms;
         if(!pCap->read(frms))
         {
@@ -72,18 +86,26 @@ bool StereoCmd::capFrms(CStrs& args)
         }
 
         //---- show 
+        int N= frms.imgs.size();
         if(kvs["vis"]=="true")
         {
 
-            int N= frms.imgs.size();
             //if(N > 2) N=2;
-            auto& sNames = pCap->cfg_.sNames;
             for(int i=0;i<N;i++)
             {
                 auto pIm = frms.imgs[i];
                 pIm->show(sNames[i]);
             }
         }
+        //---- save
+        if(sWd!="")
+            for(int i=0;i<N;i++)
+            {
+                auto pIm = frms.imgs[i];
+                string sfw = "./" + sWd +  "/" +
+                            sNames[i] +"/" + to_string(fi) + ".png";
+                if(!pIm->save(sfw)) return false;
+            }
     }
 
     return true;
