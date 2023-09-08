@@ -109,6 +109,14 @@ namespace stereo
     extern void calc_im3d_to_pnts(
             const DepthGen::Cfg& cfg,
             cv::Mat im3d, Points& pnts);
+
     //----
-    
+    class StereoCap_dcam : public StereoCap{
+    public:
+        
+        virtual bool init() override;
+        virtual bool read(CapFrms& frms) override;
+    protected:
+        vector<Sp<cv::VideoCapture>> caps_;
+    };
 } // stereo

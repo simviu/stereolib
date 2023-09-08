@@ -323,7 +323,25 @@ namespace stereo
         bool init(CStrs& args);
         bool run_merge(CStrs& args);
     };
+    //-----
+    class StereoCap{
+    public:
+        struct CapFrms{
+            vector<Sp<Img>> imgs;
+        };
 
+        struct Cfg{
+            vector<int> dev_ids{0,1,2};
+            vector<string> sNames{"left", "right", "color"};
+            bool parse(const KeyVals& kvs);
+        }; Cfg cfg_;   
+
+        static Sp<StereoCap> create(const string& sDev);
+        virtual bool init()=0;
+        virtual bool read(CapFrms& frms)=0;
+    protected:
+        
+    };
     //-----
     class StereoCmd : public Cmd
     {
@@ -332,6 +350,7 @@ namespace stereo
     protected:
         void init_cmds();
         bool init(CStrs& args);
-       
+        bool capFrms(CStrs& args);
+        
     };
 }
