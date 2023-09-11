@@ -73,7 +73,7 @@ bool StereoCmd::capFrms(CStrs& args)
     if(!pCap->init(sz)) return false;
     //-----
     float fps=10;
-    bool ok = s2d(kvs["fps"], fps);
+    ok = s2d(kvs["fps"], fps);
     if((!ok)||(fps<=0))
     {
         log_e("Incorrect fps:"+kvs["kvs"]);
