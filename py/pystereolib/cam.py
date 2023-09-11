@@ -9,7 +9,7 @@ import threading
 class Frm(object):
     def __init__(self) -> None:
         self.left_rctf = None
-        self.right_rctf = None
+        self.right_rctf = None      
         self.color = None
         return
     #----
