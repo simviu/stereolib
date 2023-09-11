@@ -4,7 +4,7 @@ using namespace stereo;
 
 namespace{
     struct LCfg{
-        Sz dflt_sz{1280,720};
+        //Sz dflt_sz{1280,720};
     }; LCfg lc_;
 }
 //---- factory
@@ -43,7 +43,7 @@ bool StereoCap::Cfg::parse(const KeyVals& kvs)
 }
 
 //-----
-bool StereoCapCv::init()
+bool StereoCapCv::init(const Sz& sz)
 {
     int N = cfg_.dev_ids.size();
     //assert(N>1);
@@ -57,9 +57,12 @@ bool StereoCapCv::init()
             return false;
         }
         //---- set res
-        auto& sz = lc_.dflt_sz;
-        p->set(cv::CAP_PROP_FRAME_WIDTH, sz.w);
-        p->set(cv::CAP_PROP_FRAME_HEIGHT, sz.h);
+        //auto& sz = lc_.dflt_sz;
+        if(sz.w>0)
+        {
+            p->set(cv::CAP_PROP_FRAME_WIDTH, sz.w);
+            p->set(cv::CAP_PROP_FRAME_HEIGHT, sz.h);
+        }
         //----
         log_i("StereoCap dual cam open device:"+to_string(id));
         caps_.push_back(p);

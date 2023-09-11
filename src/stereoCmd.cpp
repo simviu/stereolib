@@ -22,7 +22,7 @@ void StereoCmd::init_cmds()
        return init(args);
     }));
     //----
-    string sH = "fps=<FPS> devices=<ID0,ID1>";
+    string sH = "fps=<FPS> devices=<ID0,ID1> res=<W,H>";
     sH += " vis=false save=<DIR>";
     add("cap", mkSp<Cmd>(sH,
     [&](CStrs& args)->bool{ 
@@ -61,9 +61,16 @@ bool StereoCmd::capFrms(CStrs& args)
         for(auto& s : sNames)
             sys::mkdir("./"+ sWd + "/" + s);
     }
+    //---- chk res
+    Sz sz(-1,-1);
+    auto tks = tokens(kvs["res"], ',');
+    bool ok = (tks.size()>1) &&  
+            s2d(tks[0], sz.w) &&
+            s2d(tks[1], sz.h) ;
+    if(!ok){ log_e("wrong res"); return false; }
     
     //--- init
-    if(!pCap->init()) return false;
+    if(!pCap->init(sz)) return false;
     //-----
     float fps=10;
     bool ok = s2d(kvs["fps"], fps);

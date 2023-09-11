@@ -337,7 +337,7 @@ namespace stereo
         }; Cfg cfg_;   
 
         static Sp<StereoCap> create(const string& sDev);
-        virtual bool init()=0;
+        virtual bool init(const Sz& sz=Sz(-1,-1))=0;
         virtual bool read(CapFrms& frms)=0;
     protected:
         

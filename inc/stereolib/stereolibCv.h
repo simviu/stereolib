@@ -114,7 +114,7 @@ namespace stereo
     class StereoCapCv : public StereoCap{
     public:
         
-        virtual bool init() override;
+        virtual bool init(const Sz& sz=Sz(-1,-1)) override;
         virtual bool read(CapFrms& frms) override;
     protected:
         vector<Sp<cv::VideoCapture>> caps_;
