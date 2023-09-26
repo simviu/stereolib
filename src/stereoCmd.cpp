@@ -43,7 +43,7 @@ bool StereoCmd::init(CStrs& args)
     return true;
 }
 
-//----
+//---- TODO: merge with vsnLib/cmdImg
 bool StereoCmd::capFrms(CStrs& args)
 {
     KeyVals kvs(args);
