@@ -351,6 +351,6 @@ namespace stereo
         void init_cmds();
         bool init(CStrs& args);
         bool capFrms(CStrs& args);
-        
+        bool run_stereo_calib(CStrs& args);
     };
 }

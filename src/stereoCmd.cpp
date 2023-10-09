@@ -28,11 +28,17 @@ void StereoCmd::init_cmds()
     [&](CStrs& args)->bool{ 
        return capFrms(args);
     }));
+    //-----
+    add("calib", mkSp<Cmd>("dir=<IMG_DIR> (stereo calibration)",
+    [&](CStrs& args)->bool{ 
+       return run_stereo_calib(args);
+    }));
 
     //---- modules    
     Cmd::add("vo",      mkSp<VO_mng>());
     Cmd::add("depth",   mkSp<DepthGen>());    
     Cmd::add("recon",   mkSp<ReconScn>());
+
   
 }
 //----
