@@ -7,6 +7,8 @@
    Website: https://www.simviu.com
  */
 
+// ref : https://learnopencv.com/making-a-low-cost-stereo-camera-using-opencv/
+
 #include "stereolib/stereolibCv.h"
 
 using namespace stereo;
@@ -53,8 +55,8 @@ bool StereoCalib::read_checkboard(const string& sPath)
 {  
         
     // Defining the dimensions of checkerboard
-    int CHECKERBOARD[2]{6,9}; 
-    
+    //int CHECKERBOARD[2]{6,9}; 
+    auto& szb = cfg_.sz_board;
     // Creating vector to store vectors of 3D points for each checkerboard image
     std::vector<std::vector<cv::Point3f> > objpoints;
     
@@ -63,9 +65,9 @@ bool StereoCalib::read_checkboard(const string& sPath)
     
     // Defining the world coordinates for 3D points
     std::vector<cv::Point3f> objp;
-    for(int i{0}; i<CHECKERBOARD[1]; i++)
+    for(int i{0}; i<szb.h; i++)
     {
-    for(int j{0}; j<CHECKERBOARD[0]; j++)
+    for(int j{0}; j<szb.w; j++)
         objp.push_back(cv::Point3f(j,i,0));
     }
     
@@ -83,6 +85,7 @@ bool StereoCalib::read_checkboard(const string& sPath)
     std::vector<cv::Point2f> corner_ptsL, corner_ptsR;
     bool successL, successR;
     
+    cv::Size szbc(szb.w, szb.h);
     // Looping over all the images in the directory
     for(int i{0}; i<imagesL.size(); i++)
     {
@@ -96,13 +99,13 @@ bool StereoCalib::read_checkboard(const string& sPath)
         // If desired number of corners are found in the image then success = true  
         successL = cv::findChessboardCorners(
             grayL,
-            cv::Size(CHECKERBOARD[0],CHECKERBOARD[1]),
+            szbc,
             corner_ptsL);
             // cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_NORMALIZE_IMAGE);
         
         successR = cv::findChessboardCorners(
             grayR,
-            cv::Size(CHECKERBOARD[0],CHECKERBOARD[1]),
+            szbc,
             corner_ptsR);
             // cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_NORMALIZE_IMAGE);
         /*
@@ -119,8 +122,8 @@ bool StereoCalib::read_checkboard(const string& sPath)
             cv::cornerSubPix(grayR,corner_ptsR,cv::Size(11,11), cv::Size(-1,-1),criteria);
         
             // Displaying the detected corner points on the checker board
-            cv::drawChessboardCorners(frameL, cv::Size(CHECKERBOARD[0],CHECKERBOARD[1]), corner_ptsL,successL);
-            cv::drawChessboardCorners(frameR, cv::Size(CHECKERBOARD[0],CHECKERBOARD[1]), corner_ptsR,successR);
+            cv::drawChessboardCorners(frameL, szbc, corner_ptsL,successL);
+            cv::drawChessboardCorners(frameR, szbc, corner_ptsR,successR);
         
             objpoints.push_back(objp);
             imgpointsL.push_back(corner_ptsL);
