@@ -15,40 +15,15 @@ using namespace stereo;
 //-----
 namespace{
 
-    class StereoCalib{
-    public:
-        struct Cfg{
-            Sz sz_board{6,9};
-        }; Cfg cfg_;
-        //--- Calib Data for one cam
-        struct CamSC{
-            cv::Mat dist; // distortion
-            cv::Mat Knew; // optimal new matrix
-
-        };
-        //---
-        struct Data{
-            CamSC cams[2];
-        }; Data data_;
-        bool calb_imgs(const string& sPath);
-    protected:
-        bool read_checkboard(const string& sPath);
-    };
-}
-//-----
-bool StereoCmd::run_stereo_calib(CStrs& args)
-{
-    KeyVals kvs(args);
-    string spath = kvs["dir"];
-    StereoCalib calib;
-    return calib.calb_imgs(spath);
 }
 
 //-----
 bool StereoCalib::calb_imgs(const string& sPath)
 {
     bool ok = read_checkboard(sPath);
-    return true;
+    ok &= calc_stereo();
+    ok &= calc_rectify();
+    return ok;
 }
 //----
 bool StereoCalib::read_checkboard(const string& sPath)
@@ -58,11 +33,13 @@ bool StereoCalib::read_checkboard(const string& sPath)
     //int CHECKERBOARD[2]{6,9}; 
     auto& szb = cfg_.sz_board;
     // Creating vector to store vectors of 3D points for each checkerboard image
-    std::vector<std::vector<cv::Point3f> > objpoints;
-    
+    //std::vector<std::vector<cv::Point3f> > objpoints;
+    auto& objpoints = data_.objpoints;
     // Creating vector to store vectors of 2D points for each checkerboard image
-    std::vector<std::vector<cv::Point2f> > imgpointsL, imgpointsR;
-    
+    //std::vector<std::vector<cv::Point2f> > imgpointsL, imgpointsR;
+    auto& imgpointsL = data_.imgpointsL;
+    auto& imgpointsR = data_.imgpointsR;
+
     // Defining the world coordinates for 3D points
     std::vector<cv::Point3f> objp;
     for(int i{0}; i<szb.h; i++)
@@ -91,7 +68,8 @@ bool StereoCalib::read_checkboard(const string& sPath)
     {
         frameL = cv::imread(imagesL[i]);
         cv::cvtColor(frameL,grayL,cv::COLOR_BGR2GRAY);
-        
+        data_.sz_img = grayL.size();
+
         frameR = cv::imread(imagesR[i]);
         cv::cvtColor(frameR,grayR,cv::COLOR_BGR2GRAY);
         
@@ -136,7 +114,6 @@ bool StereoCalib::read_checkboard(const string& sPath)
     }
     
     cv::destroyAllWindows();
-
 
     //---------
     cv::Mat mtxL,distL,R_L,T_L;
@@ -185,3 +162,119 @@ bool StereoCalib::read_checkboard(const string& sPath)
     return true;
 }
 //------
+bool StereoCalib::calc_stereo()
+{
+    auto& objpoints = data_.objpoints;
+    auto& imgpointsL = data_.imgpointsL;
+    auto& imgpointsR = data_.imgpointsR;
+
+    int flag = 0;
+    flag |= cv::CALIB_FIX_INTRINSIC;
+    
+    auto& c0 = data_.cams[0];
+    auto& c1 = data_.cams[1];
+
+    // This step is performed to transformation between the two cameras and calculate Essential and 
+    // Fundamenatl matrix
+    cv::stereoCalibrate(objpoints,
+                        imgpointsL,
+                        imgpointsR,
+                        c0.Knew,
+                        c0.dist,
+                        c1.Knew,
+                        c1.dist,
+                        data_.sz_img,
+                        data_.Rot,
+                        data_.Trns,
+                        data_.Emat,
+                        data_.Fmat,
+                        flag,
+                        cv::TermCriteria(cv::TermCriteria::MAX_ITER + cv::TermCriteria::EPS, 30, 1e-6));
+    
+    
+    return true;
+}
+
+
+//------
+bool StereoCalib::calc_rectify()
+{
+    auto& sz = data_.sz_img;
+    //----
+    // Once we know the transformation between the two cameras we can perform 
+    // stereo rectification
+    auto& c0 = data_.cams[0];
+    auto& c1 = data_.cams[1];    
+    //----
+    // Once we know the transformation between the two cameras we can perform 
+    // stereo rectification
+    cv::stereoRectify(c0.Knew,
+                    c0.dist,
+                    c1.Knew,
+                    c1.dist,
+                    sz,
+                    data_.Rot,
+                    data_.Trns,
+                    c0.M_rect,
+                    c1.M_rect,
+                    c0.M_proj,
+                    c1.M_proj,
+                    data_.Q,
+                    1);
+    //----
+    c0.calc_rectify(sz);
+    c1.calc_rectify(sz);
+    return true;
+}
+//----
+void StereoCalib::CamSC::calc_rectify(const cv::Size& sz_img)
+{
+
+    cv::initUndistortRectifyMap(Knew,
+                                dist,
+                                M_rect,
+                                M_proj,
+                                sz_img,
+                                CV_16SC2,
+                                mapx,
+                                mapy);
+    
+       
+}
+//-----
+bool StereoCalib::Data::save(const string& sf)
+{
+    cv::FileStorage f = cv::FileStorage(sf, cv::FileStorage::WRITE);
+    if(!f.isOpened())
+    {
+        log_e("Failed open file:"+sf);
+        return false;
+    }
+    //----
+    auto& c0 = cams[0];
+    auto& c1 = cams[1];    
+
+    f.write("L_mapx",c0.mapx);
+    f.write("L_mapy",c0.mapy);
+    f.write("R_mapx",c1.mapx);
+    f.write("R_mapy",c1.mapy);
+
+    log_i("Stereo calib data saved to:"+sf);
+
+    return true;
+}
+
+//-----
+cv::Mat StereoCalib::CamSC::remap(cv::Mat im)
+{
+    cv::Mat imr;
+    cv::remap(im,
+            imr,
+            mapx,
+            mapy,
+            cv::INTER_LANCZOS4,
+            cv::BORDER_CONSTANT,
+            0);
+     return imr;
+
+}

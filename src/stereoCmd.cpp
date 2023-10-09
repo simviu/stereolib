@@ -1,4 +1,4 @@
-#include "stereolib/stereolib.h"
+#include "stereolib/stereolibCv.h"
 
 
 using namespace stereo;
@@ -122,4 +122,13 @@ bool StereoCmd::capFrms(CStrs& args)
     }
 
     return true;
+}
+
+//-----
+bool StereoCmd::run_stereo_calib(CStrs& args)
+{
+    KeyVals kvs(args);
+    string spath = kvs["dir"];
+    StereoCalib calib;
+    return calib.calb_imgs(spath);
 }

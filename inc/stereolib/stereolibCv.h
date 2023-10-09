@@ -119,4 +119,47 @@ namespace stereo
     protected:
         vector<Sp<cv::VideoCapture>> caps_;
     };
+
+    ///-------------
+
+    class StereoCalib{
+    public:
+        struct Cfg{
+            Sz sz_board{6,9};
+        }; Cfg cfg_;
+        //--- Calib Data for one cam
+        struct CamSC{
+            cv::Mat dist; // distortion
+            cv::Mat Knew; // optimal new matrix
+            cv::Mat M_rect; // Rectify map
+            cv::Mat M_proj; // proj matrix
+            cv::Mat mapx, mapy; // rectify map
+            //----
+            void calc_rectify(const cv::Size& sz_img);
+            cv::Mat remap(cv::Mat im);
+        };
+        //---
+        struct Data{
+            CamSC cams[2];
+            cv::Size sz_img;
+            //---- checkboard corner data
+            // all board 3d pnts, repeat for all imgs
+            // for calib functions
+            vector<vector<cv::Point3f> > objpoints;
+            // 2d corner points in each frms
+            vector<vector<cv::Point2f> > imgpointsL, imgpointsR;
+
+            //---- stereo calib data
+            // cam L/R rotation, translate, and
+            //    essential / fundemental matrix.
+            cv::Mat Rot, Trns, Emat, Fmat, Q;
+            //----
+            bool save(const string& sf);
+        }; Data data_;
+        bool calb_imgs(const string& sPath);
+    protected:
+        bool read_checkboard(const string& sPath);
+        bool calc_stereo();
+        bool calc_rectify();
+    };    
 } // stereo
