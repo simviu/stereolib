@@ -140,17 +140,20 @@ class OakCamFeed(object):
         imC = inC.getCvFrame()
         imL = inL.getCvFrame()
         imR = inR.getCvFrame()
+
+        # to color mode
+        imL = cv2.cvtColor(imL, cv2.COLOR_GRAY2BGR)
+        imR = cv2.cvtColor(imR, cv2.COLOR_GRAY2BGR)
+
 #       imD = inD.getCvFrame()
 #       imN = inN.getCvFrame()
 
         #---- call back
         if self.callbk_ is not None:
             frm = Frm()
-            imL1 = cv2.cvtColor(imL, cv2.COLOR_GRAY2BGR)
-            imR1 = cv2.cvtColor(imR, cv2.COLOR_GRAY2BGR)
 
-            frm.left_rctf = imL1
-            frm.right_rctf = imR1
+            frm.left_rctf = imL
+            frm.right_rctf = imR
             frm.color = imC
             self.callbk_(frm)
 
