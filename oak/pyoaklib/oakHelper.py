@@ -146,8 +146,11 @@ class OakCamFeed(object):
         #---- call back
         if self.callbk_ is not None:
             frm = Frm()
-            frm.left_rctf = imL
-            frm.right_rctf = imR
+            imL1 = cv2.cvtColor(imL, cv2.COLOR_GRAY2BGR)
+            imR1 = cv2.cvtColor(imR, cv2.COLOR_GRAY2BGR)
+
+            frm.left_rctf = imL1
+            frm.right_rctf = imR1
             frm.color = imC
             self.callbk_(frm)
 
