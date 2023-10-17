@@ -5,6 +5,7 @@ using namespace stereo;
 
 namespace{
     struct LCfg{
+        float scl_vs = 0.5; // scale fo vis
     }; LCfg lc_;
     
 }
@@ -98,18 +99,8 @@ bool StereoCmd::capFrms(CStrs& args)
             return false;
         }
 
-        //---- show 
         int N= frms.imgs.size();
-        if(kvs["vis"]=="true")
-        {
-
-            //if(N > 2) N=2;
-            for(int i=0;i<N;i++)
-            {
-                auto pIm = frms.imgs[i];
-                pIm->show(sNames[i]);
-            }
-        }
+        
         //---- save
         if(sWd!="")
             for(int i=0;i<N;i++)
@@ -119,6 +110,18 @@ bool StereoCmd::capFrms(CStrs& args)
                             sNames[i] +"/" + to_string(fi) + ".png";
                 if(!pIm->save(sfw)) return false;
             }
+        //---- show 
+        if(kvs["vis"]=="true")
+        {
+
+            //if(N > 2) N=2;
+            for(int i=0;i<N;i++)
+            {
+                auto pIm = frms.imgs[i];
+                pIm->scale(lc_.scl_vs);
+                pIm->show(sNames[i]);
+            }
+        }
     }
 
     return true;
