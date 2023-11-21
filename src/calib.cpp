@@ -32,6 +32,8 @@ bool StereoCalib::read_checkboard(const string& sPath)
     // Defining the dimensions of checkerboard
     //int CHECKERBOARD[2]{6,9}; 
     auto& szb = cfg_.sz_board;
+    // dbg
+    szb = {9,9};
     // Creating vector to store vectors of 3D points for each checkerboard image
     //std::vector<std::vector<cv::Point3f> > objpoints;
     auto& objpoints = data_.objpoints;
@@ -51,8 +53,8 @@ bool StereoCalib::read_checkboard(const string& sPath)
     // Extracting path of individual image stored in a given directory
     std::vector<cv::String> imagesL, imagesR;
     // Path of the folder containing checkerboard images
-    std::string pathL = "./data/left/*.png";
-    std::string pathR = "./data/right/*.png";
+    std::string pathL = sPath + "/left/*.png";
+    std::string pathR = sPath + "/right/*.png";
     
     cv::glob(pathL, imagesL);
     cv::glob(pathR, imagesR);
@@ -64,28 +66,35 @@ bool StereoCalib::read_checkboard(const string& sPath)
     
     cv::Size szbc(szb.w, szb.h);
     // Looping over all the images in the directory
+    int j=0;
     for(int i{0}; i<imagesL.size(); i++)
     {
-        frameL = cv::imread(imagesL[i]);
-        cv::cvtColor(frameL,grayL,cv::COLOR_BGR2GRAY);
+        log_i("read frm:"+to_string(i));
+        frameL = cv::imread(imagesL[i], cv::IMREAD_GRAYSCALE);
+        int dt = frameL.type();
+        grayL = frameL;
+        if(grayL.channels()==3)
+            cv::cvtColor(frameL,grayL,cv::COLOR_BGR2GRAY);
         data_.sz_img = grayL.size();
 
-        frameR = cv::imread(imagesR[i]);
-        cv::cvtColor(frameR,grayR,cv::COLOR_BGR2GRAY);
+        frameR = cv::imread(imagesR[i], cv::IMREAD_GRAYSCALE);
+        grayR = frameR;
+        if(grayR.channels()==3)
+            cv::cvtColor(frameR,grayR,cv::COLOR_BGR2GRAY);
         
         // Finding checker board corners
         // If desired number of corners are found in the image then success = true  
         successL = cv::findChessboardCorners(
             grayL,
             szbc,
-            corner_ptsL);
-            // cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_NORMALIZE_IMAGE);
+            corner_ptsL,
+            cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_NORMALIZE_IMAGE);
         
         successR = cv::findChessboardCorners(
             grayR,
             szbc,
-            corner_ptsR);
-            // cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_NORMALIZE_IMAGE);
+            corner_ptsR,
+            cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_NORMALIZE_IMAGE);
         /*
             * If desired number of corner are detected,
             * we refine the pixel coordinates and display 
@@ -93,6 +102,8 @@ bool StereoCalib::read_checkboard(const string& sPath)
         */
         if((successL) && (successR))
         {
+            log_i("  found board");
+            j++;
             cv::TermCriteria criteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 30, 0.001);
         
             // refining pixel coordinates for given 2d points.
@@ -107,12 +118,13 @@ bool StereoCalib::read_checkboard(const string& sPath)
             imgpointsL.push_back(corner_ptsL);
             imgpointsR.push_back(corner_ptsR);
         }
-        
-        cv::imshow("ImageL",frameL);
-        cv::imshow("ImageR",frameR);
-        cv::waitKey(0);
+        //---
+        cv::imshow("grayL",grayL);
+        cv::imshow("grayR",grayR);
+        cv::waitKey(1);
     }
-    
+    log_i("Found good chessboard frms:"+to_string(j));
+
     cv::destroyAllWindows();
 
     //---------

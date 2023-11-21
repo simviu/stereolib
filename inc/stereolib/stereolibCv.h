@@ -125,7 +125,7 @@ namespace stereo
     class StereoCalib{
     public:
         struct Cfg{
-            Sz sz_board{6,9};
+            Sz sz_board{9,9};
         }; Cfg cfg_;
         //--- Calib Data for one cam
         struct CamSC{
