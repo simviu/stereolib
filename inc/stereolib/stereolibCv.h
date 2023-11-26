@@ -158,7 +158,10 @@ namespace stereo
         }; Data data_;
         bool calb_imgs(const string& sPath);
     protected:
-        bool read_checkboard(const string& sPath);
+        bool read_imgs(const string& sPath);
+        bool read_imgs_checkboard(const string& sPath);
+        bool read_imgs_charuco(const string& sPath);
+
         bool calc_stereo();
         bool calc_rectify();
     };    

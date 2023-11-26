@@ -10,30 +10,110 @@
 // ref : https://learnopencv.com/making-a-low-cost-stereo-camera-using-opencv/
 
 #include "stereolib/stereolibCv.h"
+#include <opencv2/aruco/charuco.hpp>
+#include <opencv2/highgui.hpp>
 
 using namespace stereo;
+using namespace cv;
 //-----
 namespace{
+    void draw_det(Mat im, 
+            vector<int> markerIds,
+            vector<vector<Point2f> > markerCorners)
+    {
+        for(auto& mid : markerIds)
+            for(auto& mc : markerCorners)
+            {
+                for(int i=0;i<4;i++) // 4 points
+                    putText(im, to_string(i), mc[i],
+                        FONT_HERSHEY_COMPLEX, 
+                        1,Scalar(200,0,0), 2);
+            }
+    }
+
 
 }
 
 //-----
 bool StereoCalib::calb_imgs(const string& sPath)
 {
-    bool ok = read_checkboard(sPath);
+    bool ok = read_imgs_charuco(sPath);
     ok &= calc_stereo();
     ok &= calc_rectify();
     return ok;
 }
 //----
-bool StereoCalib::read_checkboard(const string& sPath)
+bool StereoCalib::read_imgs(const string& sPath)
+{
+    return true;
+}
+//----
+bool StereoCalib::read_imgs_charuco(const string& sPath)
+{
+    //---- expect fixed 5x7 ChArUco of DICT_6x6_250.
+    int N_markers = 17; 
+
+    //----
+    auto& objpoints = data_.objpoints;
+    auto& imgpointsL = data_.imgpointsL;
+    auto& imgpointsR = data_.imgpointsR;
+    //----
+    // Defining the world coordinates for 
+    // one frame of 3D points
+    /*
+    std::vector<cv::Point3f> objp;
+    for(int i{0}; i<szb.h; i++)
+        for(int j{0}; j<szb.w; j++)
+            objp.push_back(cv::Point3f(j,i,0));
+    */
+    //-----
+    // Extracting path of individual image stored in a given directory
+    std::vector<cv::String> imsL, imsR;
+    cv::glob(sPath + "/left/*.png",  imsL);
+    cv::glob(sPath + "/right/*.png", imsR);
+
+    cv::aruco::Dictionary dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
+    cv::Ptr<cv::aruco::CharucoBoard> board = new cv::aruco::CharucoBoard(cv::Size(5, 7), 0.04f, 0.02f, dictionary);
+    cv::Ptr<cv::aruco::DetectorParameters> params = cv::makePtr<cv::aruco::DetectorParameters>();
+
+    for(int i{0}; i<imsL.size(); i++)
+    {
+        log_i("read frm:"+to_string(i));
+        cv::Mat imL = cv::imread(imsL[i]);//, cv::IMREAD_GRAYSCALE);
+        cv::Mat imR = cv::imread(imsR[i]);//, cv::IMREAD_GRAYSCALE);
+        std::vector<int> markerIds;
+        std::vector<std::vector<cv::Point2f> > markerCorners;
+
+        cv::aruco::detectMarkers(imL, cv::makePtr<cv::aruco::Dictionary>(board->getDictionary()), 
+            markerCorners, markerIds, params);
+        // if at least one marker detected
+        if (markerIds.size() != N_markers) continue;
+        //----            
+        cv::aruco::drawDetectedMarkers(imL, 
+            markerCorners, markerIds);
+        std::vector<cv::Point2f> charucoCorners;
+        std::vector<int> charucoIds;
+        
+        //-----
+        //cv::aruco::interpolateCornersCharuco(markerCorners, markerIds, image, board, 
+        //    charucoCorners, charucoIds, cameraMatrix, distCoeffs);
+        //----
+        draw_det(imL, markerIds, markerCorners);
+        //-----
+        cv::imshow("imL", imL);
+        if((char)cv::waitKey(1) == 27) break;
+    }
+    return true;  
+}
+//----
+bool StereoCalib::read_imgs_checkboard(const string& sPath)
 {  
         
     // Defining the dimensions of checkerboard
     //int CHECKERBOARD[2]{6,9}; 
     auto& szb = cfg_.sz_board;
     // dbg
-    szb = {9,9};
+    //szb = {9,9};
     // Creating vector to store vectors of 3D points for each checkerboard image
     //std::vector<std::vector<cv::Point3f> > objpoints;
     auto& objpoints = data_.objpoints;
@@ -121,7 +201,7 @@ bool StereoCalib::read_checkboard(const string& sPath)
         //---
         cv::imshow("grayL",grayL);
         cv::imshow("grayR",grayR);
-        cv::waitKey(1);
+        cv::waitKey(5);
     }
     log_i("Found good chessboard frms:"+to_string(j));
 
