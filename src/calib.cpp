@@ -26,8 +26,8 @@ namespace{
             {
                 for(int i=0;i<4;i++) // 4 points
                     putText(im, to_string(i), mc[i],
-                        FONT_HERSHEY_COMPLEX, 
-                        1,Scalar(200,0,0), 2);
+                        FONT_HERSHEY_SIMPLEX, 
+                        0.3,Scalar(200,0,0), 2);
             }
     }
 
@@ -90,7 +90,7 @@ bool StereoCalib::read_imgs_charuco(const string& sPath)
         if (markerIds.size() != N_markers) continue;
         //----            
         cv::aruco::drawDetectedMarkers(imL, 
-            markerCorners, markerIds);
+            markerCorners, markerIds, {0,0,255});
         std::vector<cv::Point2f> charucoCorners;
         std::vector<int> charucoIds;
         
@@ -101,7 +101,7 @@ bool StereoCalib::read_imgs_charuco(const string& sPath)
         draw_det(imL, markerIds, markerCorners);
         //-----
         cv::imshow("imL", imL);
-        if((char)cv::waitKey(1) == 27) break;
+        if((char)cv::waitKey(cfg_.wait_key) == 27) break;
     }
     return true;  
 }

@@ -30,7 +30,10 @@ void StereoCmd::init_cmds()
        return capFrms(args);
     }));
     //-----
-    add("calib", mkSp<Cmd>("dir=<IMG_DIR> (stereo calibration)",
+    sH = "dir=<IMG_DIR> [wait_key=1] (stereo calibration)\n";
+    sH += "    (wait_key is frm delay, set 0 for key pause)";
+    add("calib", mkSp<Cmd>(sH,
+
     [&](CStrs& args)->bool{ 
        return run_stereo_calib(args);
     }));
@@ -133,5 +136,8 @@ bool StereoCmd::run_stereo_calib(CStrs& args)
     KeyVals kvs(args);
     string spath = kvs["dir"];
     StereoCalib calib;
+    int wk = -1;
+    if(s2d(kvs["wait_key"], wk))
+        calib.cfg_.wait_key = wk;
     return calib.calb_imgs(spath);
 }

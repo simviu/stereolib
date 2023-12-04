@@ -126,6 +126,7 @@ namespace stereo
     public:
         struct Cfg{
             Sz sz_board{9,9};
+            int wait_key = 1; // set 0 for pause
         }; Cfg cfg_;
         //--- Calib Data for one cam
         struct CamSC{
